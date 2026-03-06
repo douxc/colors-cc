@@ -25,6 +25,7 @@ app.get('/', (c) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Free Color API - Random HEX, RGB & Palette Generator | colors-cc</title>
+      <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
       
       <!-- SEO Meta Tags -->
       <meta name="description" content="A blazing fast, free, and stateless Color API for developers and designers. Generate random HEX/RGB colors and curated palettes in JSON format with zero authentication.">
@@ -73,13 +74,31 @@ app.get('/', (c) => {
               <h2>1. Random Color API</h2>
               <p class="desc">Generate a completely random color in HEX and RGB formats. Perfect for frontend mock data and placeholders.</p>
               <p><code>GET /api/random</code></p>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
+                  <strong style="display:block; margin-bottom:8px;">Response format:</strong>
+                  <ul style="margin:0; padding-left:20px; color:#444;">
+                      <li><code>hex</code>: The color in HEX format (e.g. #FF5733)</li>
+                      <li><code>rgb</code>: The color in RGB format</li>
+                      <li><code>timestamp</code>: Generation time</li>
+                  </ul>
+              </div>
+
               <a href="/api/random" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
           </section>
 
           <section class="endpoint">
               <h2>2. Color Palette API</h2>
-              <p class="desc">Fetch a curated color palette by theme (e.g., cyberpunk, vaporwave, retro, monochrome) for UI design inspiration.</p>
-              <p><code>GET /api/palette?theme=cyberpunk</code></p>
+              <p class="desc">Fetch a curated color palette by theme for UI design inspiration.</p>
+              <p><code>GET /api/palette</code></p>
+
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
+                  <strong style="display:block; margin-bottom:8px;">Query Parameters:</strong>
+                  <ul style="margin:0; padding-left:20px; color:#444;">
+                      <li><code>theme</code>: Theme name. Options: <code>cyberpunk</code>, <code>vaporwave</code>, <code>retro</code>, <code>monochrome</code> (default: cyberpunk)</li>
+                  </ul>
+              </div>
+
               <a href="/api/palette?theme=cyberpunk" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
           </section>
 
