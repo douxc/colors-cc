@@ -221,4 +221,31 @@ app.get('/tools/color-names', (c) => {
   ));
 });
 
+
+// API: Gradient Placeholder Image (SVG)
+app.get('/api/placeholder', (c) => {
+  const width = c.req.query('w') || '800'
+  const height = c.req.query('h') || '400'
+  const text = c.req.query('text') || `${width} x ${height}`
+  const startColor = c.req.query('start') || randomHex()
+  const endColor = c.req.query('end') || randomHex()
+
+  const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:${startColor};stop-opacity:1" />
+      <stop offset="100%" style="stop-color:${endColor};stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#grad)" />
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="${Math.max(16, Math.min(parseInt(width), parseInt(height)) * 0.1)}px" fill="#ffffff" font-weight="bold" style="text-shadow: 0px 2px 4px rgba(0,0,0,0.3);">
+    ${text}
+  </text>
+</svg>`;
+
+  c.header('Content-Type', 'image/svg+xml')
+  c.header('Cache-Control', 'public, max-age=31536000') // Cache for 1 year
+  return c.body(svg)
+})
+
 export default app
