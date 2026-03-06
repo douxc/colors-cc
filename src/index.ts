@@ -86,7 +86,19 @@ app.get('/', (c) => {
           <section class="endpoint">
               <h2>3. SVG Image Placeholder API</h2>
               <p class="desc">Generate dynamic, lightweight, and customizable SVG gradient placeholder images for your projects.</p>
-              <p><code>GET /api/placeholder?w=800&amp;h=400&amp;text=Hello</code></p>
+              <p><code>GET /api/placeholder</code></p>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
+                  <strong style="display:block; margin-bottom:8px;">Query Parameters:</strong>
+                  <ul style="margin:0; padding-left:20px; color:#444;">
+                      <li><code>w</code> / <code>width</code>: Image width in pixels (default: 800)</li>
+                      <li><code>h</code> / <code>height</code>: Image height in pixels (default: 400)</li>
+                      <li><code>text</code>: Center text content (default: width x height)</li>
+                      <li><code>start</code>: Gradient start hex color (e.g. %23FF003C)</li>
+                      <li><code>end</code>: Gradient end hex color (e.g. %2300B8FF)</li>
+                  </ul>
+              </div>
+
               <a href="/api/placeholder?w=800&amp;h=400&amp;text=Hello+World&amp;start=%23FF003C&amp;end=%2300B8FF" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
           </section>
       
