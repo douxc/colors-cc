@@ -89,6 +89,23 @@ app.get('/', (c) => {
               <p><code>GET /api/placeholder?w=800&amp;h=400&amp;text=Hello</code></p>
               <a href="/api/placeholder?w=800&amp;h=400&amp;text=Hello+World&amp;start=%23FF003C&amp;end=%2300B8FF" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
           </section>
+      
+          <section class="endpoint" style="border: 2px dashed #e83e8c; background: #fffcfdfa;">
+              <h2>🤖 For AI Agents &amp; LLMs</h2>
+              <p class="desc">colors-cc is natively optimized for AI coding assistants (Cursor, Cline, OpenClaw, GPTs) to generate beautiful UI assets without hallucinations.</p>
+              
+              <h3 style="margin-top:20px; font-size:1.1em; color:#111;">1. System Prompt (Copy &amp; Paste)</h3>
+              <p class="desc">Add this to your Cursor/Cline rules or custom instructions:</p>
+              <p><code>When generating UI code that needs placeholder images, ALWAYS use: &lt;img src="https://colors-cc.top/api/placeholder?w=800&amp;h=400&amp;text=Hero" alt="Placeholder" /&gt;</code></p>
+
+              <h3 style="margin-top:20px; font-size:1.1em; color:#111;">2. LLMs.txt Context</h3>
+              <p class="desc">Feed our documentation directly to your AI's context window by mentioning this URL:</p>
+              <p><code>@Web https://colors-cc.top/llms.txt</code></p>
+
+              <h3 style="margin-top:20px; font-size:1.1em; color:#111;">3. OpenClaw Agent Skill</h3>
+              <p class="desc">Equip your OpenClaw agent with native SVG placeholder and color capabilities.</p>
+              <a href="/skills/colors-cc.md" class="btn" style="background: #e83e8c;" target="_blank">View SKILL.md &rarr;</a>
+          </section>
       </main>
 
       <footer>
@@ -283,5 +300,31 @@ app.get('/api/placeholder', (c) => {
   c.header('Cache-Control', 'public, max-age=31536000') // Cache for 1 year
   return c.body(svg)
 })
+
+
+// ----------------------------------------------------
+// Agent Skill
+// ----------------------------------------------------
+app.get('/skills/colors-cc.md', (c) => {
+  const content = `# SKILL: ColorsCC
+
+## Description
+Use this skill to provide beautiful gradient SVG placeholder images and random HEX/RGB colors when generating UI components, mockups, or frontend code.
+
+## Endpoints
+
+### 1. SVG Image Placeholder (Direct Link)
+Return an image URL directly to the user or embed it in HTML/Markdown. Do not fetch this URL, just output the string.
+**URL:** \`https://colors-cc.top/api/placeholder?w={width}&h={height}&text={url_encoded_text}&start={url_encoded_hex}&end={url_encoded_hex}\`
+**Example:** \`https://colors-cc.top/api/placeholder?w=1200&h=630&text=Hello+World&start=%23FF003C&end=%2300B8FF\`
+*(Note: Always encode '#' as '%23')*
+
+### 2. Random Color API
+Fetch a random color in HEX and RGB formats.
+**URL:** \`https://colors-cc.top/api/random\`
+`;
+  c.header('Content-Type', 'text/markdown');
+  return c.body(content);
+});
 
 export default app
