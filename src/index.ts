@@ -84,9 +84,10 @@ app.get('/', (c) => {
           </section>
 
           <section class="endpoint">
-              <h2>3. Color Format Conversion (Coming Soon)</h2>
-              <p class="desc">Convert HEX color codes to RGB, HSL, and CMYK formats via a simple GET request.</p>
-              <p><code>GET /api/convert?hex=FF5733</code></p>
+              <h2>3. SVG Image Placeholder API</h2>
+              <p class="desc">Generate dynamic, lightweight, and customizable SVG gradient placeholder images for your projects.</p>
+              <p><code>GET /api/placeholder?w=800&amp;h=400&amp;text=Hello</code></p>
+              <a href="/api/placeholder?w=800&amp;h=400&amp;text=Hello+World&amp;start=%23FF003C&amp;end=%2300B8FF" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
           </section>
       </main>
 
