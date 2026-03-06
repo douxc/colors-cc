@@ -132,4 +132,93 @@ app.get('/api/palette', (c) => {
   })
 })
 
+
+// ----------------------------------------------------
+// Sitemap for SEO
+// ----------------------------------------------------
+app.get('/sitemap.xml', (c) => {
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://colors-cc.top/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://colors-cc.top/tools/hex-to-rgb</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://colors-cc.top/tools/random-palette</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://colors-cc.top/tools/color-names</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>`;
+  c.header('Content-Type', 'text/xml');
+  return c.body(xml);
+});
+
+// ----------------------------------------------------
+// SEO Landing Pages (Tools)
+// ----------------------------------------------------
+
+const baseTemplate = (title, desc, content) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title} | colors-cc</title>
+    <meta name="description" content="${desc}">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; }
+        header { margin-bottom: 40px; }
+        h1 { color: #111; }
+        .box { background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 20px; }
+        a { color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .home-link { margin-bottom: 20px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <a href="/" class="home-link">&larr; Back to API Home</a>
+    <header>
+        <h1>${title}</h1>
+        <p>${desc}</p>
+    </header>
+    <main>
+        ${content}
+    </main>
+</body>
+</html>`;
+
+app.get('/tools/hex-to-rgb', (c) => {
+  return c.html(baseTemplate(
+    'HEX to RGB Converter API & Tool',
+    'Free online tool and API to convert HEX color codes to RGB format instantly for frontend developers.',
+    '<div class="box"><h2>How to use the API</h2><p>Endpoint: <code>GET /api/random</code> (Conversion endpoint coming soon)</p><p>This page will soon feature an interactive converter. For now, check out our API!</p></div>'
+  ));
+});
+
+app.get('/tools/random-palette', (c) => {
+  return c.html(baseTemplate(
+    'Random Color Palette Generator',
+    'Generate beautiful, random color palettes (Cyberpunk, Retro, Vaporwave) for UI/UX design and illustrations.',
+    '<div class="box"><h2>Palette API</h2><p>Endpoint: <code>GET /api/palette?theme=cyberpunk</code></p><p>Use our API to fetch curated palettes dynamically for your next design project.</p></div>'
+  ));
+});
+
+app.get('/tools/color-names', (c) => {
+  return c.html(baseTemplate(
+    'HTML Color Names & Hex Codes',
+    'A comprehensive list of HTML color names, CSS variables, and their corresponding HEX codes for web design.',
+    '<div class="box"><h2>Coming Soon</h2><p>We are building a massive database of standard color names and modern CSS color schemes. Stay tuned!</p></div>'
+  ));
+});
+
 export default app
