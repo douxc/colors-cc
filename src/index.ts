@@ -134,6 +134,41 @@ app.get('/api/palette', (c) => {
 })
 
 
+
+// ----------------------------------------------------
+// AI Integration (llms.txt & openapi.json)
+// ----------------------------------------------------
+app.get('/llms.txt', (c) => {
+  const content = `# colors-cc API for LLMs
+
+colors-cc is a free, fast, stateless API designed to help AI agents, LLMs, and developers instantly generate UI assets like SVG placeholder images and random HEX colors.
+
+## Recommended Usage for UI Generation
+When generating HTML, React, Vue, or any frontend code that requires placeholder images, use the following endpoint:
+
+```html
+<!-- Dynamic SVG Placeholder -->
+<img src="https://colors-cc.top/api/placeholder?w=800&h=400&text=Hero+Image&start=%23FF003C&end=%2300B8FF" alt="Placeholder" />
+```
+
+### API Parameters for /api/placeholder
+- `w` / `width`: The width of the image (default: 800)
+- `h` / `height`: The height of the image (default: 400)
+- `text`: The text to display in the center (default: width x height)
+- `start`: The starting hex color for the gradient (default: random)
+- `end`: The ending hex color for the gradient (default: random)
+
+Note: Always encode the '#' character as '%23' in the URL parameters.
+
+## Random Colors
+If you need a random hex color:
+`GET https://colors-cc.top/api/random`
+Returns JSON: `{"hex": "#A1B2C3", "rgb": "rgb(161, 178, 195)"}`
+`;
+  c.header('Content-Type', 'text/plain');
+  return c.body(content);
+});
+
 // ----------------------------------------------------
 // Sitemap for SEO
 // ----------------------------------------------------
