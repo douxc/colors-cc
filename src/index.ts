@@ -181,6 +181,29 @@ app.get('/api/palette', (c) => {
   })
 })
 
+// API: All Color Names
+app.get('/api/all-names', (c) => {
+  const colorNames: Record<string, string> = {
+    "AliceBlue": "#F0F8FF", "AntiqueWhite": "#FAEBD7", "Aqua": "#00FFFF", "Aquamarine": "#7FFFD4", "Azure": "#F0FFFF",
+    "Beige": "#F5F5DC", "Bisque": "#FFE4C4", "Black": "#000000", "BlanchedAlmond": "#FFEBCD", "Blue": "#0000FF", "BlueViolet": "#8A2BE2", "Brown": "#A52A2A", "BurlyWood": "#DEB887",
+    "CadetBlue": "#5F9EA0", "Chartreuse": "#7FFF00", "Chocolate": "#D2691E", "Coral": "#FF7F50", "CornflowerBlue": "#6495ED", "Cornsilk": "#FFF8DC", "Crimson": "#DC143C", "Cyan": "#00FFFF",
+    "DarkBlue": "#00008B", "DarkCyan": "#008B8B", "DarkGoldenRod": "#B8860B", "DarkGray": "#A9A9A9", "DarkGreen": "#006400", "DarkKhaki": "#BDB76B", "DarkMagenta": "#8B008B", "DarkOliveGreen": "#556B2F",
+    "DarkOrange": "#FF8C00", "DarkOrchid": "#9932CC", "DarkRed": "#8B0000", "DarkSalmon": "#E9967A", "DarkSeaGreen": "#8FBC8F", "DarkSlateBlue": "#483D8B", "DarkSlateGray": "#2F4F4F", "DarkTurquoise": "#00CED1", "DarkViolet": "#9400D3", "DeepPink": "#FF1493", "DeepSkyBlue": "#00BFFF", "DimGray": "#696969", "DodgerBlue": "#1E90FF",
+    "FireBrick": "#B22222", "FloralWhite": "#FFFAF0", "ForestGreen": "#228B22", "Fuchsia": "#FF00FF",
+    "Gainsboro": "#DCDCDC", "GhostWhite": "#F8F8FF", "Gold": "#FFD700", "GoldenRod": "#DAA520", "Gray": "#808080", "Green": "#008000", "GreenYellow": "#ADFF2F",
+    "HoneyDew": "#F0FFF0", "HotPink": "#FF69B4", "IndianRed": "#CD5C5C", "Indigo": "#4B0082", "Ivory": "#FFFFF0", "Khaki": "#F0E68C",
+    "Lavender": "#E6E6FA", "LavenderBlush": "#FFF0F5", "LawnGreen": "#7CFC00", "LemonChiffon": "#FFFACD", "LightBlue": "#ADD8E6", "LightCoral": "#F08080", "LightCyan": "#E0FFFF", "LightGoldenRodYellow": "#FAFAD2", "LightGray": "#D3D3D3", "LightGreen": "#90EE90", "LightPink": "#FFB6C1", "LightSalmon": "#FFA07A", "LightSeaGreen": "#20B2AA", "LightSkyBlue": "#87CEFA", "LightSlateGray": "#778899", "LightSteelBlue": "#B0C4DE", "LightYellow": "#FFFFE0", "Lime": "#00FF00", "LimeGreen": "#32CD32", "Linen": "#FAF0E6",
+    "Magenta": "#FF00FF", "Maroon": "#800000", "MediumAquaMarine": "#66CDAA", "MediumBlue": "#0000CD", "MediumOrchid": "#BA55D3", "MediumPurple": "#9370DB", "MediumSeaGreen": "#3CB371", "MediumSlateBlue": "#7B68EE", "MediumSpringGreen": "#00FA9A", "MediumTurquoise": "#48D1CC", "MediumVioletRed": "#C71585", "MidnightBlue": "#191970", "MintCream": "#F5FFFA", "MistyRose": "#FFE4E1", "Moccasin": "#FFE4B5",
+    "NavajoWhite": "#FFDEAD", "Navy": "#000080", "OldLace": "#FDF5E6", "Olive": "#808000", "OliveDrab": "#6B8E23", "Orange": "#FFA500", "OrangeRed": "#FF4500", "Orchid": "#DA70D6",
+    "PaleGoldenRod": "#EEE8AA", "PaleGreen": "#98FB98", "PaleTurquoise": "#AFEEEE", "PaleVioletRed": "#DB7093", "PapayaWhip": "#FFEFD5", "PeachPuff": "#FFDAB9", "Peru": "#CD853F", "Pink": "#FFC0CB", "Plum": "#DDA0DD", "PowderBlue": "#B0E0E6", "Purple": "#800080",
+    "RebeccaPurple": "#663399", "Red": "#FF0000", "RosyBrown": "#BC8F8F", "RoyalBlue": "#4169E1",
+    "SaddleBrown": "#8B4513", "Salmon": "#FA8072", "SandyBrown": "#F4A460", "SeaGreen": "#2E8B57", "SeaShell": "#FFF5EE", "Sienna": "#A0522D", "Silver": "#C0C0C0", "SkyBlue": "#87CEEB", "SlateBlue": "#6A5ACD", "SlateGray": "#708090", "Snow": "#FFFAFA", "SpringGreen": "#00FF7F", "SteelBlue": "#4682B4",
+    "Tan": "#D2B48C", "Teal": "#008080", "Thistle": "#D8BFD8", "Tomato": "#FF6347", "Turquoise": "#40E0D0",
+    "Violet": "#EE82EE", "Wheat": "#F5DEB3", "White": "#FFFFFF", "WhiteSmoke": "#F5F5F5", "Yellow": "#FFFF00", "YellowGreen": "#9ACD32"
+  };
+  return c.json(colorNames);
+});
+
 
 
 // ----------------------------------------------------
@@ -282,18 +305,106 @@ const baseTemplate = (title: string, desc: string, content: string) => `<!DOCTYP
 </html>`;
 
 app.get('/tools/hex-to-rgb', (c) => {
+  const content = `
+    <div class="box">
+        <h2>HEX to RGB Converter</h2>
+        <div style="margin: 20px 0;">
+            <input type="text" id="hexInput" placeholder="#FFFFFF" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 120px; font-family: monospace; font-size: 1.1em;">
+            <span style="margin: 0 15px; font-size: 1.2em;">&rarr;</span>
+            <input type="text" id="rgbOutput" readonly placeholder="rgb(255, 255, 255)" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 200px; background: #f0f0f0; font-family: monospace; font-size: 1.1em;">
+        </div>
+        <div id="preview" style="width: 100%; height: 50px; border-radius: 8px; border: 1px solid #eee; background: #fff; margin-bottom: 20px;"></div>
+        <p class="desc">Endpoint for developers: <code>GET /api/random</code></p>
+    </div>
+    <script>
+        const hexInput = document.getElementById('hexInput');
+        const rgbOutput = document.getElementById('rgbOutput');
+        const preview = document.getElementById('preview');
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
+            return result ? \`rgb(\${parseInt(result[1], 16)}, \${parseInt(result[2], 16)}, \${parseInt(result[3], 16)})\` : null;
+        }
+
+        hexInput.addEventListener('input', (e) => {
+            let val = e.target.value;
+            if (!val.startsWith('#') && val.length > 0) val = '#' + val;
+            const rgb = hexToRgb(val);
+            if (rgb) {
+                rgbOutput.value = rgb;
+                preview.style.backgroundColor = val;
+            } else {
+                rgbOutput.value = '';
+                preview.style.backgroundColor = '#fff';
+            }
+        });
+    </script>
+  `;
   return c.html(baseTemplate(
     'HEX to RGB Converter API & Tool',
     'Free online tool and API to convert HEX color codes to RGB format instantly for frontend developers.',
-    '<div class="box"><h2>How to use the API</h2><p>Endpoint: <code>GET /api/random</code> (Conversion endpoint coming soon)</p><p>This page will soon feature an interactive converter. For now, check out our API!</p></div>'
+    content
   ));
 });
 
 app.get('/tools/random-palette', (c) => {
+  const content = `
+    <div class="box">
+        <h2>Random Palette Generator</h2>
+        <div id="palette-display" style="display: flex; gap: 10px; margin: 20px 0; min-height: 100px;"></div>
+        <button id="refresh-btn" class="btn" style="border:none; cursor:pointer;">&orarr; Generate New Palette</button>
+        <div style="margin-top: 25px;">
+            <h3>API Access</h3>
+            <p class="desc">Endpoint: <code>GET /api/palette?theme=cyberpunk</code></p>
+        </div>
+    </div>
+    <script>
+        const display = document.getElementById('palette-display');
+        const btn = document.getElementById('refresh-btn');
+
+        async function fetchPalette() {
+            const themes = ['cyberpunk', 'vaporwave', 'retro', 'monochrome'];
+            const theme = themes[Math.floor(Math.random() * themes.length)];
+            const res = await fetch(\`/api/palette?theme=\${theme}\`);
+            const data = await res.json();
+            
+            display.innerHTML = '';
+            data.colors.forEach(color => {
+                const swatch = document.createElement('div');
+                swatch.style.flex = '1';
+                swatch.style.background = color;
+                swatch.style.borderRadius = '8px';
+                swatch.style.display = 'flex';
+                swatch.style.flexDirection = 'column';
+                swatch.style.alignItems = 'center';
+                swatch.style.justifyContent = 'center';
+                swatch.style.color = '#fff';
+                swatch.style.fontSize = '0.75em';
+                swatch.style.fontWeight = 'bold';
+                swatch.style.textShadow = '0 1px 2px rgba(0,0,0,0.5)';
+                swatch.style.cursor = 'pointer';
+                swatch.title = 'Click to copy';
+                swatch.innerText = color;
+                
+                swatch.onclick = () => {
+                    navigator.clipboard.writeText(color);
+                    const oldText = swatch.innerText;
+                    swatch.innerText = 'Copied!';
+                    setTimeout(() => swatch.innerText = oldText, 800);
+                };
+                
+                display.appendChild(swatch);
+            });
+        }
+
+        btn.onclick = fetchPalette;
+        fetchPalette();
+    </script>
+  `;
   return c.html(baseTemplate(
     'Random Color Palette Generator',
     'Generate beautiful, random color palettes (Cyberpunk, Retro, Vaporwave) for UI/UX design and illustrations.',
-    '<div class="box"><h2>Palette API</h2><p>Endpoint: <code>GET /api/palette?theme=cyberpunk</code></p><p>Use our API to fetch curated palettes dynamically for your next design project.</p></div>'
+    content
   ));
 });
 
