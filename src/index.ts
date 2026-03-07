@@ -181,6 +181,15 @@ app.get('/api/palette', (c) => {
   })
 })
 
+// API: Convert HEX to RGB
+app.get('/api/convert/hex-to-rgb', (c) => {
+  const hex = c.req.query('hex');
+  if (!hex) return c.json({ error: 'Missing hex parameter' }, 400);
+  const rgb = hexToRgb(hex);
+  if (!rgb) return c.json({ error: 'Invalid hex color' }, 400);
+  return c.json({ hex: hex.startsWith('#') ? hex : '#' + hex, rgb });
+});
+
 // API: All Color Names
 app.get('/api/all-names', (c) => {
   const colorNames: Record<string, string> = {
@@ -314,7 +323,7 @@ app.get('/tools/hex-to-rgb', (c) => {
             <input type="text" id="rgbOutput" readonly placeholder="rgb(255, 255, 255)" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 200px; background: #f0f0f0; font-family: monospace; font-size: 1.1em;">
         </div>
         <div id="preview" style="width: 100%; height: 50px; border-radius: 8px; border: 1px solid #eee; background: #fff; margin-bottom: 20px;"></div>
-        <p class="desc">Endpoint for developers: <code>GET /api/random</code></p>
+        <p class="desc">Endpoint for developers: <code>GET /api/convert/hex-to-rgb?hex=%23FF5733</code></p>
     </div>
     <script>
         const hexInput = document.getElementById('hexInput');
