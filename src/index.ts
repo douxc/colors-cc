@@ -418,10 +418,100 @@ app.get('/tools/random-palette', (c) => {
 });
 
 app.get('/tools/color-names', (c) => {
+  const content = `
+    <div class="box">
+        <h2>HTML Color Names Reference</h2>
+        <p class="desc">Quickly find standard CSS/HTML color names and their HEX values.</p>
+        
+        <div style="margin: 20px 0;">
+            <input type="text" id="colorSearch" placeholder="Search color names (e.g. Blue, Pink)..." style="padding: 12px; border-radius: 8px; border: 1px solid #ddd; width: 100%; font-size: 1em; box-sizing: border-box;">
+        </div>
+
+        <div id="colorGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 20px;">
+            <!-- Colors will be injected here -->
+        </div>
+
+        <div style="margin-top: 35px; border-top: 1px solid #eee; padding-top: 20px;">
+            <h3>API Access</h3>
+            <p class="desc">Get all color names as JSON: <code>GET /api/all-names</code></p>
+        </div>
+    </div>
+
+    <script>
+        const colorGrid = document.getElementById('colorGrid');
+        const colorSearch = document.getElementById('colorSearch');
+        let allColors = {};
+
+        async function loadColors() {
+            const res = await fetch('/api/all-names');
+            allColors = await res.json();
+            renderColors(allColors);
+        }
+
+        function renderColors(colors) {
+            colorGrid.innerHTML = '';
+            Object.entries(colors).forEach(([name, hex]) => {
+                const card = document.createElement('div');
+                card.style.padding = '10px';
+                card.style.background = '#fff';
+                card.style.border = '1px solid #eee';
+                card.style.borderRadius = '8px';
+                card.style.textAlign = 'center';
+                card.style.cursor = 'pointer';
+                card.title = 'Click to copy HEX';
+                
+                const swatch = document.createElement('div');
+                swatch.style.height = '60px';
+                swatch.style.background = hex;
+                swatch.style.borderRadius = '4px';
+                swatch.style.marginBottom = '8px';
+                swatch.style.border = '1px solid rgba(0,0,0,0.05)';
+                
+                const nameLabel = document.createElement('div');
+                nameLabel.innerText = name;
+                nameLabel.style.fontSize = '0.85em';
+                nameLabel.style.fontWeight = 'bold';
+                nameLabel.style.color = '#333';
+                
+                const hexLabel = document.createElement('div');
+                hexLabel.innerText = hex;
+                hexLabel.style.fontSize = '0.75em';
+                hexLabel.style.color = '#999';
+                hexLabel.style.fontFamily = 'monospace';
+
+                card.onclick = () => {
+                    navigator.clipboard.writeText(hex);
+                    const originalHex = hexLabel.innerText;
+                    hexLabel.innerText = 'COPIED!';
+                    hexLabel.style.color = '#e83e8c';
+                    setTimeout(() => {
+                        hexLabel.innerText = originalHex;
+                        hexLabel.style.color = '#999';
+                    }, 800);
+                };
+
+                card.appendChild(swatch);
+                card.appendChild(nameLabel);
+                card.appendChild(hexLabel);
+                colorGrid.appendChild(card);
+            });
+        }
+
+        colorSearch.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = Object.fromEntries(
+                Object.entries(allColors).filter(([name]) => name.toLowerCase().includes(term))
+            );
+            renderColors(filtered);
+        });
+
+        loadColors();
+    </script>
+  `;
   return c.html(baseTemplate(
     'HTML Color Names & Hex Codes',
     'A comprehensive list of HTML color names, CSS variables, and their corresponding HEX codes for web design.',
-    '<div class="box"><h2>Coming Soon</h2><p>We are building a massive database of standard color names and modern CSS color schemes. Stay tuned!</p></div>'
+    content
   ));
 });
 
