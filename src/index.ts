@@ -1,6 +1,15 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
+import homeTemplate from './templates/home.html'
+import baseTemplateRaw from './templates/base.html'
+import fluidDemoTemplate from './templates/fluid-demo.html'
+
+// Simple helper to replace template variables
+const baseTemplate = (title: string, desc: string, content: string) => 
+  baseTemplateRaw.replace(/\{\{title\}\}/g, title).replace(/\{\{desc\}\}/g, desc).replace('{{content}}', content)
+
+
 const app = new Hono()
 
 // Enable CORS for all API routes so frontend apps can call it
@@ -115,144 +124,7 @@ function normalizeToHex(query: any) {
 // 1. Frontend HTML (SEO Optimized Landing Page)
 // ----------------------------------------------------
 app.get('/', (c) => {
-  const html = `<!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Free Color API - Random HEX, RGB & Palette Generator | colors-cc</title>
-      <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
-      
-      <!-- SEO Meta Tags -->
-      <meta name="description" content="A blazing fast, free, and stateless Color API for developers and designers. Generate random HEX/RGB colors and curated palettes in JSON format with zero authentication.">
-      <meta name="keywords" content="Color API, free API, random hex generator, color palette API, JSON color, frontend tools, colors-cc, web design">
-      <meta name="author" content="colors-cc">
-      <meta name="robots" content="index, follow">
-      <link rel="canonical" href="https://colors-cc.top/">
-      
-      <!-- Open Graph / Facebook / Discord -->
-      <meta property="og:type" content="website">
-      <meta property="og:url" content="https://colors-cc.top/">
-      <meta property="og:title" content="Free Color API for Developers | colors-cc">
-      <meta property="og:description" content="Generate random colors and curated palettes instantly. A free, stateless JSON API built on Cloudflare edge nodes.">
-      
-      <!-- Twitter Card -->
-      <meta name="twitter:card" content="summary_large_image">
-      <meta name="twitter:url" content="https://colors-cc.top/">
-      <meta name="twitter:title" content="Free Color API for Developers | colors-cc">
-      <meta name="twitter:description" content="Generate random colors and curated palettes instantly. A free, stateless JSON API.">
-
-      <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; background: #fafafa; }
-          header { text-align: left; margin-bottom: 45px; }
-          h1 { color: #111; letter-spacing: -0.5px; font-size: 2.5em; margin-bottom: 10px; }
-          .subtitle { color: #666; font-size: 1.1em; }
-          section.endpoint { background: #fff; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eaeaea; }
-          h2 { margin-top: 0; color: #222; font-size: 1.3em; }
-          p.desc { color: #555; margin-bottom: 15px; }
-          code { background: #f0f0f0; padding: 5px 10px; border-radius: 6px; font-size: 0.95em; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; color: #e83e8c; }
-          .btn { display: inline-block; padding: 10px 20px; background: #111; color: #fff; text-decoration: none; border-radius: 8px; margin-top: 15px; font-size: 0.9em; font-weight: 500; transition: transform 0.1s, background 0.2s; }
-          .btn:hover { background: #333; }
-          .btn:active { transform: scale(0.98); }
-          footer { margin-top: 50px; text-align: center; color: #999; font-size: 0.85em; padding-top: 20px; border-top: 1px solid #eaeaea; }
-          a { color: #666; text-decoration: none; }
-          a:hover { text-decoration: underline; }
-      </style>
-  </head>
-  <body>
-      <header>
-          <h1>🎨 colors-cc API</h1>
-          <p class="subtitle">A minimalist, free, and stateless JSON Color API for developers. Built on the edge with Cloudflare Workers.</p>
-      </header>
-      
-      <main>
-          <section class="endpoint">
-              <h2>1. Random Color API</h2>
-              <p class="desc">Generate a completely random color in HEX and RGB formats. Perfect for frontend mock data and placeholders.</p>
-              <p><code>GET /api/random</code></p>
-              
-              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
-                  <strong style="display:block; margin-bottom:8px;">Response format:</strong>
-                  <ul style="margin:0; padding-left:20px; color:#444;">
-                      <li><code>hex</code>: The color in HEX format (e.g. #FF5733)</li>
-                      <li><code>rgb</code>: The color in RGB format</li>
-                      <li><code>timestamp</code>: Generation time</li>
-                  </ul>
-              </div>
-
-              <a href="/api/random" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
-          </section>
-
-          <section class="endpoint">
-              <h2>2. Color Palette API</h2>
-              <p class="desc">Fetch a curated color palette by theme for UI design inspiration.</p>
-              <p><code>GET /api/palette</code></p>
-
-              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
-                  <strong style="display:block; margin-bottom:8px;">Query Parameters:</strong>
-                  <ul style="margin:0; padding-left:20px; color:#444;">
-                      <li><code>theme</code>: Theme name. Options: <code>cyberpunk</code>, <code>vaporwave</code>, <code>retro</code>, <code>monochrome</code> (default: cyberpunk)</li>
-                  </ul>
-              </div>
-
-              <a href="/api/palette?theme=cyberpunk" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
-          </section>
-
-          <section class="endpoint">
-              <h2>3. SVG Image Placeholder API</h2>
-              <p class="desc">Generate dynamic, lightweight, and customizable SVG gradient placeholder images for your projects.</p>
-              <p><code>GET /api/placeholder</code></p>
-              
-              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
-                  <strong style="display:block; margin-bottom:8px;">Query Parameters:</strong>
-                  <ul style="margin:0; padding-left:20px; color:#444;">
-                      <li><code>w</code> / <code>width</code>: Image width in pixels (default: 800)</li>
-                      <li><code>h</code> / <code>height</code>: Image height in pixels (default: 400)</li>
-                      <li><code>text</code>: Center text content (default: width x height)</li>
-                      <li><code>start</code>: Gradient start hex color (e.g. %23FF003C)</li>
-                      <li><code>end</code>: Gradient end hex color (e.g. %2300B8FF)</li>
-                  </ul>
-              </div>
-
-              <a href="/api/placeholder?w=800&amp;h=400&amp;text=Hello+World&amp;start=%23FF003C&amp;end=%2300B8FF" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
-          </section>
-      
-          
-          <section class="endpoint">
-              <h2>4. Interactive Web Tools</h2>
-              <p class="desc">A suite of visual utilities for developers and designers to work with colors right in the browser.</p>
-              
-              <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
-                  <a href="/tools/converter" class="btn" style="background: #28a745; margin-top: 0;">Universal Color Converter &rarr;</a>
-                  <a href="/tools/random-palette" class="btn" style="background: #17a2b8; margin-top: 0;">Random Palette Generator &rarr;</a>
-                  <a href="/tools/color-names" class="btn" style="background: #6f42c1; margin-top: 0;">CSS Color Names &rarr;</a>
-                  <a href="/tools/fluid-demo" class="btn" style="background: #007bff; margin-top: 0;">🌊 Fluid Gradient Demo &rarr;</a>
-              </div>
-          </section>
-
-          <section class="endpoint" style="border: 2px dashed #e83e8c; background: #fffcfdfa;">
-              <h2>🤖 For AI Agents &amp; LLMs</h2>
-              <p class="desc">colors-cc is natively optimized for AI coding assistants (Cursor, Cline, OpenClaw, GPTs) to generate beautiful UI assets without hallucinations.</p>
-              
-              <h3 style="margin-top:20px; font-size:1.1em; color:#111;">1. System Prompt (Copy &amp; Paste)</h3>
-              <p class="desc">Add this to your Cursor/Cline rules or custom instructions:</p>
-              <p><code>When generating UI code that needs placeholder images, ALWAYS use: &lt;img src="https://colors-cc.top/api/placeholder?w=800&amp;h=400&amp;text=Hero" alt="Placeholder" /&gt;</code></p>
-
-              <h3 style="margin-top:20px; font-size:1.1em; color:#111;">2. LLMs.txt Context</h3>
-              <p class="desc">Feed our documentation directly to your AI's context window by mentioning this URL:</p>
-              <p><code>@Web https://colors-cc.top/llms.txt</code></p>
-
-              <h3 style="margin-top:20px; font-size:1.1em; color:#111;">3. OpenClaw Agent Skill</h3>
-              <p class="desc">Equip your OpenClaw agent with native SVG placeholder and color capabilities.</p>
-              <a href="/skills/colors-cc.md" class="btn" style="background: #e83e8c;" target="_blank">View SKILL.md &rarr;</a>
-          </section>
-      </main>
-
-      <footer>
-          <p>Powered by Hono.js & Cloudflare Workers | <a href="https://colors-cc.top">colors-cc.top</a></p>
-      </footer>
-  </body>
-  </html>`
+  const html = homeTemplate
   return c.html(html)
 })
 
@@ -439,34 +311,6 @@ app.get('/sitemap.xml', (c) => {
 // SEO Landing Pages (Tools)
 // ----------------------------------------------------
 
-const baseTemplate = (title: string, desc: string, content: string) => `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title} | colors-cc</title>
-    <meta name="description" content="${desc}">
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; }
-        header { margin-bottom: 40px; }
-        h1 { color: #111; }
-        .box { background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 20px; }
-        a { color: #0066cc; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .home-link { margin-bottom: 20px; display: inline-block; }
-    </style>
-</head>
-<body>
-    <a href="/" class="home-link">&larr; Back to API Home</a>
-    <header>
-        <h1>${title}</h1>
-        <p>${desc}</p>
-    </header>
-    <main>
-        ${content}
-    </main>
-</body>
-</html>`;
 
 app.get('/tools/random-palette', (c) => {
   const content = `
@@ -645,113 +489,7 @@ app.get('/tools/color-names', (c) => {
 });
 
 app.get('/tools/fluid-demo', (c) => {
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluid Gradient Demo | colors-cc</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #111; color: white; padding: 20px; }
-        .container { width: 90%; max-width: 800px; text-align: center; }
-        .demo-box { width: 100%; height: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin: 20px 0; border: 1px solid #333; }
-        .controls { background: #222; padding: 20px; border-radius: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; }
-        .control-group { display: flex; flex-direction: column; gap: 5px; }
-        label { font-size: 0.8em; color: #aaa; }
-        input, select { background: #333; border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; }
-        pre { background: #000; padding: 15px; border-radius: 8px; font-size: 0.85em; overflow-x: auto; color: #00FF41; text-align: left; }
-        .home-link { color: #aaa; text-decoration: none; margin-bottom: 20px; display: inline-block; align-self: flex-start; }
-        .home-link:hover { color: white; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <a href="/" class="home-link">&larr; Back to Home</a>
-        <h1>🌊 Fluid Gradient Demo</h1>
-        <p>Testing Multi-stop SVG Animations for colors-cc</p>
-        
-        <div id="demo-box" class="demo-box"></div>
-
-        <div class="controls">
-            <div class="control-group">
-                <label>Theme Preset</label>
-                <select id="theme-select">
-                    <option value="aurora">Aurora (极光)</option>
-                    <option value="cyberpunk">Cyberpunk (赛博)</option>
-                    <option value="ocean">Deep Ocean (深海)</option>
-                    <option value="sunset">Golden Sunset (落日)</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label>Animation Speed (Seconds)</label>
-                <input type="range" id="speed-range" min="1" max="20" value="10">
-            </div>
-            <div class="control-group" style="grid-column: span 2;">
-                <label>Color Stops (HEX, comma separated)</label>
-                <input type="text" id="stops-input" value="#00FF41, #00B8FF, #7000FF">
-            </div>
-        </div>
-
-        <h3>Future API Endpoint Preview:</h3>
-        <pre id="url-output"></pre>
-    </div>
-
-    <script>
-        const demoBox = document.getElementById('demo-box');
-        const themeSelect = document.getElementById('theme-select');
-        const speedRange = document.getElementById('speed-range');
-        const stopsInput = document.getElementById('stops-input');
-        const urlOutput = document.getElementById('url-output');
-
-        const themes = {
-            aurora: "#00FF41, #00B8FF, #7000FF",
-            cyberpunk: "#FCEE09, #FF003C, #00B8FF",
-            ocean: "#01CDFE, #05FFA1, #B967FF",
-            sunset: "#FF71CE, #FFFB96, #E24E1B"
-        };
-
-        function generateSVG() {
-            const stops = stopsInput.value.split(',').map(s => s.trim().replace('#', '%23'));
-            const speed = speedRange.value;
-            
-            const svgContent = \`
-                <svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-                            \${stops.map((c, i) => {
-                                const hex = c.replace('%23', '#');
-                                const values = stops.map((_, j) => stops[(i + j) % stops.length].replace('%23', '#')).join(';');
-                                return \`<stop offset="\${(i / (stops.length - 1)) * 100}%" stop-color="\${hex}">
-                                    <animate attributeName="stop-color" values="\${values};\${hex}" dur="\${speed}s" repeatCount="indefinite" />
-                                </stop>\`;
-                            }).join('')}
-                        </linearGradient>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#g)" />
-                </svg>
-            \`;
-            
-            const blob = new Blob([svgContent], {type: 'image/svg+xml'});
-            const url = URL.createObjectURL(blob);
-            demoBox.style.backgroundImage = \\\`url(\\\${url})\\\`;
-            demoBox.style.backgroundSize = 'cover';
-            
-            // Update URL Preview
-            const apiURL = \\\`https://colors-cc.top/api/placeholder?w=800&h=400&fluid=true&speed=\\\${speed}&stops=\\\${stops.join(',')}\\\`;
-            urlOutput.innerText = apiURL;
-        }
-
-        themeSelect.onchange = () => {
-            stopsInput.value = themes[themeSelect.value];
-            generateSVG();
-        };
-
-        [speedRange, stopsInput].forEach(el => el.oninput = generateSVG);
-
-        generateSVG();
-    </script>
-</body>
-</html>`;
+  const html = fluidDemoTemplate
   return c.html(html);
 });
 
