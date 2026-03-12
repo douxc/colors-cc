@@ -2,12 +2,10 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
 import homeTemplate from './templates/home.html'
-import baseTemplateRaw from './templates/base.html'
+import { Layout } from './templates/Layout'
 import fluidDemoTemplate from './templates/fluid-demo.html'
 
-// Simple helper to replace template variables
-const baseTemplate = (title: string, desc: string, content: string) => 
-  baseTemplateRaw.replace(/\{\{title\}\}/g, title).replace(/\{\{desc\}\}/g, desc).replace('{{content}}', content)
+
 
 
 const app = new Hono()
@@ -383,11 +381,7 @@ app.get('/tools/random-palette', (c) => {
         generateSVG();
 </script>
   `;
-  return c.html(baseTemplate(
-    'Random Color Palette Generator',
-    'Generate beautiful, random color palettes (Cyberpunk, Retro, Vaporwave) for UI/UX design and illustrations.',
-    content
-  ));
+  return c.html(<Layout title="Random Color Palette Generator" desc="Generate beautiful, random color palettes (Cyberpunk, Retro, Vaporwave) for UI/UX design and illustrations."><div dangerouslySetInnerHTML={{ __html: content }} /></Layout>);
 });
 
 app.get('/tools/color-names', (c) => {
@@ -481,11 +475,7 @@ app.get('/tools/color-names', (c) => {
         loadColors();
     </script>
   `;
-  return c.html(baseTemplate(
-    'HTML Color Names & Hex Codes',
-    'A comprehensive list of HTML color names, CSS variables, and their corresponding HEX codes for web design.',
-    content
-  ));
+  return c.html(<Layout title="HTML Color Names & Hex Codes" desc="A comprehensive list of HTML color names, CSS variables, and their corresponding HEX codes for web design."><div dangerouslySetInnerHTML={{ __html: content }} /></Layout>);
 });
 
 app.get('/tools/fluid-demo', (c) => {
@@ -599,11 +589,7 @@ app.get('/tools/:conversion', (c) => {
         });
     </script>
   `;
-  return c.html(baseTemplate(
-    title,
-    desc,
-    content
-  ));
+  return c.html(<Layout title={title} desc={desc}><div dangerouslySetInnerHTML={{ __html: content }} /></Layout>);
 });
 
 

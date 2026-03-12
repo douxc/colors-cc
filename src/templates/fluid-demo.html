@@ -86,11 +86,11 @@
             
             const blob = new Blob([svgContent], {type: 'image/svg+xml'});
             const url = URL.createObjectURL(blob);
-            demoBox.style.backgroundImage = \`url(\${url})\`;
+            demoBox.style.backgroundImage = `url(\${url})`;
             demoBox.style.backgroundSize = 'cover';
             
             // Update URL Preview
-            const apiURL = \`https://colors-cc.top/api/placeholder?w=800&h=400&fluid=true&speed=\${speed}&stops=\${stops.join(',')}\`;
+            const apiURL = `https://colors-cc.top/api/placeholder?w=800&h=400&fluid=true&speed=\${speed}&stops=\${stops.join(',')}\`;
             urlOutput.innerText = apiURL;
         }
 
