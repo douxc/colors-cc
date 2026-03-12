@@ -185,23 +185,35 @@ app.get('/fluid-placeholder', (c) => {
         <h2>Animated Fluid Gradient Placeholder</h2>
         <p class="desc" style="color: #666; margin-bottom: 20px;">Generate dynamic SVG gradients with smooth color transitions and animations for web design mockups.</p>
         
-        <div id="demo-box" style="width: 100%; height: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); margin: 20px 0; border: 1px solid #ddd; background-size: cover;"></div>
+        <div id="demo-box" style="width: 100%; height: 600px; max-height: 80vh; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); margin: 20px 0; border: 1px solid #ddd; background-size: cover;"></div>
 
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-            <div style="display: flex; flex-direction: column; gap: 5px;">
-                <label style="font-size: 0.85em; font-weight: bold; color: #555;">Theme Preset</label>
-                <select id="theme-select" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; background: white; font-size: 1em;">
-                    <option value="aurora">Aurora (极光)</option>
-                    <option value="cyberpunk">Cyberpunk (赛博)</option>
-                    <option value="ocean">Deep Ocean (深海)</option>
-                    <option value="sunset">Golden Sunset (落日)</option>
-                </select>
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <label style="font-size: 0.85em; font-weight: bold; color: #555; display: block; margin-bottom: 12px;">Theme Preset</label>
+            <div id="theme-cards" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
+                <div class="theme-card" data-theme="aurora" style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid #00FF41; box-shadow: 0 2px 6px rgba(0,255,65,0.3);">
+                    <div style="height: 80px; background: linear-gradient(135deg, #00FF41, #00B8FF, #7000FF);"></div>
+                    <div style="padding: 8px; background: white; text-align: center; font-size: 0.85em; font-weight: 500;">Aurora</div>
+                </div>
+                <div class="theme-card" data-theme="cyberpunk" style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent;">
+                    <div style="height: 80px; background: linear-gradient(135deg, #FCEE09, #FF003C, #00B8FF);"></div>
+                    <div style="padding: 8px; background: white; text-align: center; font-size: 0.85em; font-weight: 500;">Cyberpunk</div>
+                </div>
+                <div class="theme-card" data-theme="ocean" style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent;">
+                    <div style="height: 80px; background: linear-gradient(135deg, #01CDFE, #05FFA1, #B967FF);"></div>
+                    <div style="padding: 8px; background: white; text-align: center; font-size: 0.85em; font-weight: 500;">Deep Ocean</div>
+                </div>
+                <div class="theme-card" data-theme="sunset" style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent;">
+                    <div style="height: 80px; background: linear-gradient(135deg, #FF71CE, #FFFB96, #E24E1B);"></div>
+                    <div style="padding: 8px; background: white; text-align: center; font-size: 0.85em; font-weight: 500;">Sunset</div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label style="font-size: 0.85em; font-weight: bold; color: #555;">Animation Speed: <span id="speed-value">10</span>s</label>
+                    <input type="range" id="speed-range" min="1" max="30" value="10" style="padding: 10px;">
+                </div>
             </div>
             <div style="display: flex; flex-direction: column; gap: 5px;">
-                <label style="font-size: 0.85em; font-weight: bold; color: #555;">Animation Speed: <span id="speed-value">10</span>s</label>
-                <input type="range" id="speed-range" min="1" max="30" value="10" style="padding: 10px;">
-            </div>
-            <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 5px;">
                 <label style="font-size: 0.85em; font-weight: bold; color: #555;">Color Stops (HEX, comma separated)</label>
                 <input type="text" id="stops-input" value="#00FF41, #00B8FF, #7000FF" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-family: monospace; font-size: 0.95em;">
             </div>
@@ -231,13 +243,15 @@ app.get('/fluid-placeholder', (c) => {
     </div>
     <script>
         const demoBox = document.getElementById('demo-box');
-        const themeSelect = document.getElementById('theme-select');
+        const themeCards = document.querySelectorAll('.theme-card');
         const speedRange = document.getElementById('speed-range');
         const speedValue = document.getElementById('speed-value');
         const stopsInput = document.getElementById('stops-input');
         const textInput = document.getElementById('text-input');
         const urlOutput = document.getElementById('url-output');
         const copyBtn = document.getElementById('copy-btn');
+        
+        let currentTheme = 'aurora';
 
         const themes = {
             aurora: "#00FF41, #00B8FF, #7000FF",
@@ -245,6 +259,26 @@ app.get('/fluid-placeholder', (c) => {
             ocean: "#01CDFE, #05FFA1, #B967FF",
             sunset: "#FF71CE, #FFFB96, #E24E1B"
         };
+        
+        const themeColors = {
+            aurora: "#00FF41",
+            cyberpunk: "#FCEE09",
+            ocean: "#01CDFE",
+            sunset: "#FF71CE"
+        };
+
+        function setActiveTheme(theme) {
+            currentTheme = theme;
+            themeCards.forEach(card => {
+                if (card.dataset.theme === theme) {
+                    card.style.border = \`2px solid \${themeColors[theme]}\`;
+                    card.style.boxShadow = \`0 2px 6px \${themeColors[theme]}40\`;
+                } else {
+                    card.style.border = '2px solid transparent';
+                    card.style.boxShadow = 'none';
+                }
+            });
+        }
 
         function generatePreview() {
             const stops = stopsInput.value.split(',').map(s => s.trim()).filter(s => s);
@@ -262,10 +296,14 @@ app.get('/fluid-placeholder', (c) => {
             urlOutput.innerText = fullURL;
         }
 
-        themeSelect.onchange = () => {
-            stopsInput.value = themes[themeSelect.value];
-            generatePreview();
-        };
+        themeCards.forEach(card => {
+            card.onclick = () => {
+                const theme = card.dataset.theme;
+                setActiveTheme(theme);
+                stopsInput.value = themes[theme];
+                generatePreview();
+            };
+        });
 
         speedRange.oninput = generatePreview;
         stopsInput.oninput = generatePreview;

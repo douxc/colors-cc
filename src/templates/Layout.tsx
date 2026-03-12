@@ -67,6 +67,21 @@ export const Layout: FC<{ title: string; desc: string; path?: string; children?:
             .home-link { margin-bottom: 20px; display: inline-block; color: #666; }
             .btn { display: inline-block; padding: 10px 20px; background: #111; color: #fff; text-decoration: none; border-radius: 8px; margin-top: 10px; font-weight: 500; transition: background 0.2s; }
             .btn:hover { background: #333; text-decoration: none; }
+            
+            @media (max-width: 640px) {
+                body { margin: 20px auto; }
+                h1 { font-size: 1.8em; }
+                h2 { font-size: 1.2em; }
+                .box { padding: 20px; }
+                #theme-cards { grid-template-columns: repeat(2, 1fr) !important; }
+                #demo-box { height: 400px !important; }
+                footer { margin-top: 40px; }
+                footer div { flex-direction: column; gap: 10px; }
+            }
+            
+            @media (min-width: 641px) and (max-width: 768px) {
+                #demo-box { height: 500px !important; }
+            }
         `}} />
     </head>
     <body>
@@ -78,8 +93,18 @@ export const Layout: FC<{ title: string; desc: string; path?: string; children?:
         <main>
             {props.children}
         </main>
-        <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #999; font-size: 0.85em;">
-            <p>Free Color API for Developers | <a href="https://colors-cc.top" style="color: #999;">colors-cc.top</a></p>
+        <footer style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #eee;">
+            <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 15px;">
+                <a href="https://github.com/yourusername/colors-cc" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 8px; color: #666; text-decoration: none; transition: color 0.2s;">
+                    <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                    </svg>
+                    <span style="font-size: 0.9em; font-weight: 500;">GitHub</span>
+                </a>
+            </div>
+            <p style="text-align: center; color: #999; font-size: 0.85em; margin: 0;">
+                Free Color API for Developers | <a href="https://colors-cc.top" style="color: #999;">colors-cc.top</a>
+            </p>
         </footer>
     </body>
     </html>
