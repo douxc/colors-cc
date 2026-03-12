@@ -14,9 +14,10 @@ A blazing fast, free, and stateless API designed to help **AI Agents (Cursor, Cl
 
 ## 🚀 Features
 
+- **✨ Animated Fluid Gradients:** Create smooth, infinitely-looping animated SVG gradients with custom color stops and speeds for hero banners and backgrounds.
+- **🤖 AI Native:** Built-in `llms.txt` and system prompts for seamless integration with AI coding assistants.
 - **🎨 SVG Image Placeholder:** Generate lightweight, beautiful gradient placeholders with custom text. No more broken images in your mockups.
 - **🎲 Random Color API:** Get random HEX/RGB colors in JSON format instantly.
-- **🤖 AI Native:** Built-in `llms.txt` and system prompts for seamless integration with AI coding assistants.
 - **⚡ Edge Runtime:** Powered by Cloudflare Workers for global low-latency.
 
 ## 🤖 For AI Agents (Cursor/Cline/OpenClaw)
