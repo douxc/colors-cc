@@ -39,6 +39,27 @@ Generate dynamic, lightweight SVG gradient images.
 
 **Response:** SVG image with Cache-Control: public, max-age=31536000, immutable
 
+### 1.5. Fluid Animated SVG Placeholder
+Generate dynamic SVG gradients with smooth color transitions and animations.
+
+**Endpoint:** GET /api/fluid-placeholder
+
+**Parameters:**
+- w: Width in pixels (default: 800, range: 50-4000)
+- h: Height in pixels (default: 400, range: 50-4000)
+- stops: Comma-separated HEX colors for gradient (default: aurora theme, range: 2-10 colors)
+- speed: Animation duration in seconds (default: 10, range: 1-30)
+- text: Optional center text (max 100 chars)
+
+**Example Prompts:**
+- "Create an animated aurora gradient banner"
+  → <img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=400&stops=%2300FF41,%2300B8FF,%237000FF" alt="Aurora Banner">
+  
+- "Generate a cyberpunk animated background"
+  → <img src="https://colors-cc.top/api/fluid-placeholder?stops=%23FCEE09,%23FF003C,%2300B8FF&speed=5" alt="Cyberpunk BG">
+
+**Response:** Animated SVG image with Cache-Control: public, max-age=31536000, immutable
+
 ### 2. Random Color
 Get a random color in HEX and RGB formats.
 
@@ -121,7 +142,7 @@ None. All endpoints are free and unlimited.
 - Universal Color Converter: https://colors-cc.top/tools/converter
 - Random Palette Generator: https://colors-cc.top/tools/random-palette
 - CSS Color Names: https://colors-cc.top/tools/color-names
-- Fluid Gradient Demo: https://colors-cc.top/tools/fluid-demo
+- Fluid Gradient Placeholder: https://colors-cc.top/tools/fluid-placeholder
 `
   c.header('Content-Type', 'text/plain; charset=utf-8')
   c.header('Cache-Control', 'public, max-age=86400')

@@ -158,6 +158,28 @@ app.get('/openapi.json', (c) => {
             }
           }
         }
+      },
+      "/api/fluid-placeholder": {
+        "get": {
+          "summary": "Generate animated SVG placeholder",
+          "description": "Creates a dynamic SVG gradient with smooth color transitions and animations.",
+          "parameters": [
+            {"name": "w", "in": "query", "description": "Width in pixels (50-4000, default: 800)", "schema": {"type": "integer", "minimum": 50, "maximum": 4000, "default": 800}},
+            {"name": "h", "in": "query", "description": "Height in pixels (50-4000, default: 400)", "schema": {"type": "integer", "minimum": 50, "maximum": 4000, "default": 400}},
+            {"name": "stops", "in": "query", "description": "Comma-separated HEX colors (2-10 colors, default: aurora theme)", "schema": {"type": "string", "example": "#00FF41,#00B8FF,#7000FF"}},
+            {"name": "speed", "in": "query", "description": "Animation duration in seconds (1-30, default: 10)", "schema": {"type": "integer", "minimum": 1, "maximum": 30, "default": 10}},
+            {"name": "text", "in": "query", "description": "Optional center text (max 100 chars)", "schema": {"type": "string", "maxLength": 100}}
+          ],
+          "responses": {
+            "200": {
+              "description": "Animated SVG placeholder image",
+              "headers": {
+                "Cache-Control": {"schema": {"type": "string"}, "description": "public, max-age=31536000, immutable"}
+              },
+              "content": {"image/svg+xml": {}}
+            }
+          }
+        }
       }
     }
   }

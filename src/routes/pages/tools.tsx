@@ -1,6 +1,5 @@
 import { Hono } from 'hono'
 import { Layout } from '../../templates/Layout'
-import fluidDemoTemplate from '../../templates/fluid-demo.html'
 
 const app = new Hono()
 
@@ -179,9 +178,106 @@ app.get('/color-names', (c) => {
   return c.html(<Layout title="HTML Color Names & Hex Codes" desc="A comprehensive list of HTML color names, CSS variables, and their corresponding HEX codes for web design." path="/tools/color-names"><div dangerouslySetInnerHTML={{ __html: content }} /></Layout>)
 })
 
-// Fluid Demo
-app.get('/fluid-demo', (c) => {
-  return c.html(fluidDemoTemplate)
+// Fluid Placeholder Generator
+app.get('/fluid-placeholder', (c) => {
+  const content = `
+    <div class="box">
+        <h2>Animated Fluid Gradient Placeholder</h2>
+        <p class="desc" style="color: #666; margin-bottom: 20px;">Generate dynamic SVG gradients with smooth color transitions and animations for web design mockups.</p>
+        
+        <div id="demo-box" style="width: 100%; height: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); margin: 20px 0; border: 1px solid #ddd; background-size: cover;"></div>
+
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label style="font-size: 0.85em; font-weight: bold; color: #555;">Theme Preset</label>
+                <select id="theme-select" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; background: white; font-size: 1em;">
+                    <option value="aurora">Aurora (极光)</option>
+                    <option value="cyberpunk">Cyberpunk (赛博)</option>
+                    <option value="ocean">Deep Ocean (深海)</option>
+                    <option value="sunset">Golden Sunset (落日)</option>
+                </select>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label style="font-size: 0.85em; font-weight: bold; color: #555;">Animation Speed: <span id="speed-value">10</span>s</label>
+                <input type="range" id="speed-range" min="1" max="30" value="10" style="padding: 10px;">
+            </div>
+            <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 5px;">
+                <label style="font-size: 0.85em; font-weight: bold; color: #555;">Color Stops (HEX, comma separated)</label>
+                <input type="text" id="stops-input" value="#00FF41, #00B8FF, #7000FF" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-family: monospace; font-size: 0.95em;">
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+            <h3>API Endpoint URL:</h3>
+            <pre id="url-output" style="background: #000; padding: 15px; border-radius: 8px; font-size: 0.85em; overflow-x: auto; color: #00FF41; font-family: monospace;"></pre>
+            <button id="copy-btn" class="btn" style="border:none; cursor:pointer; background: #111; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 500; margin-top: 10px;">&orarr; Copy URL</button>
+        </div>
+
+        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+            <h3>API Parameters</h3>
+            <p class="desc">Endpoint: <code style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; color: #e83e8c;">GET /api/fluid-placeholder</code></p>
+            <ul style="color: #666; line-height: 1.8; margin-top: 10px;">
+                <li><code>w</code> - Width (50-4000px, default: 800)</li>
+                <li><code>h</code> - Height (50-4000px, default: 400)</li>
+                <li><code>stops</code> - Comma-separated HEX colors (2-10 colors, default: aurora)</li>
+                <li><code>speed</code> - Animation duration in seconds (1-30s, default: 10)</li>
+                <li><code>text</code> - Optional center text (max 100 chars)</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        const demoBox = document.getElementById('demo-box');
+        const themeSelect = document.getElementById('theme-select');
+        const speedRange = document.getElementById('speed-range');
+        const speedValue = document.getElementById('speed-value');
+        const stopsInput = document.getElementById('stops-input');
+        const urlOutput = document.getElementById('url-output');
+        const copyBtn = document.getElementById('copy-btn');
+
+        const themes = {
+            aurora: "#00FF41, #00B8FF, #7000FF",
+            cyberpunk: "#FCEE09, #FF003C, #00B8FF",
+            ocean: "#01CDFE, #05FFA1, #B967FF",
+            sunset: "#FF71CE, #FFFB96, #E24E1B"
+        };
+
+        function generatePreview() {
+            const stops = stopsInput.value.split(',').map(s => s.trim()).filter(s => s);
+            const speed = speedRange.value;
+            speedValue.innerText = speed;
+            
+            const stopsParam = stops.map(s => s.replace('#', '%23')).join(',');
+            const apiURL = \`/api/fluid-placeholder?w=800&h=400&stops=\${stopsParam}&speed=\${speed}\`;
+            
+            demoBox.style.backgroundImage = \`url(\${apiURL})\`;
+            
+            const fullURL = \`https://colors-cc.top/api/fluid-placeholder?w=800&h=400&stops=\${stopsParam}&speed=\${speed}\`;
+            urlOutput.innerText = fullURL;
+        }
+
+        themeSelect.onchange = () => {
+            stopsInput.value = themes[themeSelect.value];
+            generatePreview();
+        };
+
+        speedRange.oninput = generatePreview;
+        stopsInput.oninput = generatePreview;
+
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(urlOutput.innerText);
+            const originalText = copyBtn.innerText;
+            copyBtn.innerText = '✓ COPIED!';
+            copyBtn.style.background = '#e83e8c';
+            setTimeout(() => {
+                copyBtn.innerText = originalText;
+                copyBtn.style.background = '#111';
+            }, 1500);
+        };
+
+        generatePreview();
+    </script>
+  `
+  return c.html(<Layout title="Animated Fluid Gradient Placeholder Generator" desc="Create dynamic SVG gradient placeholders with smooth color transitions and animations for web design mockups." path="/tools/fluid-placeholder"><div dangerouslySetInnerHTML={{ __html: content }} /></Layout>)
 })
 
 // Universal Converter and conversion pages

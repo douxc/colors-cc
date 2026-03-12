@@ -131,6 +131,89 @@ describe('colors-cc API', () => {
     })
   })
 
+  describe('GET /api/fluid-placeholder', () => {
+    it('should return animated SVG with default aurora theme', async () => {
+      const res = await app.request('/api/fluid-placeholder')
+      expect(res.status).toBe(200)
+      expect(res.headers.get('Content-Type')).toBe('image/svg+xml')
+      expect(res.headers.get('Cache-Control')).toContain('immutable')
+      
+      const svg = await res.text()
+      expect(svg).toContain('<animate')
+      expect(svg).toContain('attributeName="stop-color"')
+      expect(svg).toContain('#00FF41')
+      expect(svg).toContain('#00B8FF')
+      expect(svg).toContain('#7000FF')
+    })
+
+    it('should accept custom color stops', async () => {
+      const res = await app.request('/api/fluid-placeholder?stops=%23FF0000,%230000FF')
+      expect(res.status).toBe(200)
+      
+      const svg = await res.text()
+      expect(svg).toContain('#FF0000')
+      expect(svg).toContain('#0000FF')
+      expect(svg).toContain('<animate')
+    })
+
+    it('should accept custom speed parameter', async () => {
+      const res = await app.request('/api/fluid-placeholder?speed=15')
+      expect(res.status).toBe(200)
+      
+      const svg = await res.text()
+      expect(svg).toContain('dur="15s"')
+    })
+
+    it('should clamp speed to 1-30 range', async () => {
+      const res1 = await app.request('/api/fluid-placeholder?speed=0')
+      const svg1 = await res1.text()
+      expect(svg1).toContain('dur="1s"')
+      
+      const res2 = await app.request('/api/fluid-placeholder?speed=50')
+      const svg2 = await res2.text()
+      expect(svg2).toContain('dur="30s"')
+    })
+
+    it('should accept custom dimensions', async () => {
+      const res = await app.request('/api/fluid-placeholder?w=1200&h=600')
+      expect(res.status).toBe(200)
+      
+      const svg = await res.text()
+      expect(svg).toContain('width="1200"')
+      expect(svg).toContain('height="600"')
+    })
+
+    it('should validate and filter invalid hex colors', async () => {
+      const res = await app.request('/api/fluid-placeholder?stops=FF0000,invalid,%230000FF,12345,%2300FF00')
+      expect(res.status).toBe(200)
+      
+      const svg = await res.text()
+      expect(svg).toContain('#FF0000')
+      expect(svg).toContain('#0000FF')
+      expect(svg).toContain('#00FF00')
+      expect(svg).not.toContain('invalid')
+    })
+
+    it('should use default stops if less than 2 valid colors provided', async () => {
+      const res = await app.request('/api/fluid-placeholder?stops=%23FF0000')
+      expect(res.status).toBe(200)
+      
+      const svg = await res.text()
+      expect(svg).toContain('#00FF41')
+      expect(svg).toContain('#00B8FF')
+      expect(svg).toContain('#7000FF')
+    })
+
+    it('should accept optional text parameter', async () => {
+      const res = await app.request('/api/fluid-placeholder?text=Animated')
+      expect(res.status).toBe(200)
+      
+      const svg = await res.text()
+      expect(svg).toContain('Animated')
+      expect(svg).toContain('<text')
+    })
+  })
+
   describe('GET /openapi.json', () => {
     it('should return valid OpenAPI spec', async () => {
       const res = await app.request('/openapi.json')

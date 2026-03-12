@@ -78,7 +78,7 @@ expect(data).toHaveProperty('hex')
 - **Variables & Functions:** `camelCase` (e.g., `hexToRgb`, `randomHex`).
 - **Constants:** `UPPER_SNAKE_CASE` for global, immutable primitive constants.
 - **Types & Interfaces:** `PascalCase` (e.g., `ColorResponse`, `PlaceholderOptions`). Do not prefix interfaces with `I`.
-- **Files:** `snake_case` or `kebab-case` for file names (e.g., `fluid_demo.ts`, `index.ts`).
+- **Files:** `snake_case` or `kebab-case` for file names (e.g., `color_utils.ts`, `index.ts`).
 
 ### 3.3. TypeScript & Typing
 - **Strict Mode:** TypeScript `strict` mode is enabled. You must type all function parameters and avoid `any`. Use `unknown` if the type is truly dynamic, followed by type narrowing.
@@ -161,15 +161,11 @@ When operating autonomously in this repository:
 - **`src/routes/docs/skills.ts`** — Agent skill file (`/skills/colors-cc.md`)
 - **`src/routes/seo/robots.ts`** — Robots.txt
 - **`src/routes/seo/sitemap.ts`** — Sitemap.xml
-- **`src/routes/pages/tools.tsx`** — All tool pages (converter, palette, color-names, fluid-demo)
+- **`src/routes/pages/tools.tsx`** — All tool pages (converter, palette, color-names, fluid-placeholder)
 
 ### HTML Templates (imported as strings)
 - **`src/templates/home.html`** — Landing page with full SEO optimization, served at `/`.
-- **`src/templates/fluid-demo.html`** — Interactive animated gradient demo with theme presets, served at `/tools/fluid-demo`.
 - **`src/templates/base.html`** — ⚠️ **ORPHANED FILE** — Mustache-style template prototype. NOT used in production. Do not reference or mount.
-
-### Unused Files (Do Not Mount)
-- **`src/fluid_demo.ts`** — ⚠️ **ORPHANED FILE** — A standalone Hono app prototype for fluid gradients. It is NOT mounted in `index.tsx` and should remain unmounted. The production equivalent is `fluid-demo.html`.
 
 ### Configuration Files
 - **`package.json`** — Declares `pnpm@10.32.0` as package manager, with `dev` and `deploy` scripts.
@@ -188,7 +184,7 @@ All routes are defined in `src/index.tsx`. **Do not duplicate existing routes.**
 | `GET /tools/converter` | JSX | Universal color converter tool (HEX, RGB, HSL, CMYK) |
 | `GET /tools/random-palette` | JSX | Random palette generator with theme selector |
 | `GET /tools/color-names` | JSX | Searchable CSS color names reference |
-| `GET /tools/fluid-demo` | HTML | Animated fluid gradient demo (served from `fluid-demo.html`) |
+| `GET /tools/fluid-placeholder` | JSX | Animated fluid gradient placeholder generator with theme presets |
 | `GET /tools/:conversion` | JSX | SEO landing pages for specific conversions (e.g., `/tools/hex-to-rgb`, `/tools/rgb-to-hsl`) |
 
 ### API Endpoints
@@ -199,6 +195,7 @@ All routes are defined in `src/index.tsx`. **Do not duplicate existing routes.**
 | `GET /api/convert?hex=\|rgb=\|hsl=\|cmyk=` | JSON | Universal color converter returning all formats |
 | `GET /api/all-names` | JSON | Map of ~140 CSS color names to HEX values |
 | `GET /api/placeholder?w=&h=&text=&start=&end=` | SVG | Dynamic SVG gradient placeholder image |
+| `GET /api/fluid-placeholder?w=&h=&stops=&speed=&text=` | SVG | Animated SVG gradient with smooth color transitions |
 
 ### Meta & Documentation Routes
 | Route | Type | Description |

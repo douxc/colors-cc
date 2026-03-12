@@ -131,7 +131,7 @@ GOOD: /api/convert?hex=%23FF0000
 - Universal Color Converter: https://colors-cc.top/tools/converter
 - Random Palette Generator: https://colors-cc.top/tools/random-palette
 - CSS Color Names: https://colors-cc.top/tools/color-names
-- Fluid Gradient Demo: https://colors-cc.top/tools/fluid-demo
+- Fluid Gradient Placeholder: https://colors-cc.top/tools/fluid-placeholder
 
 ## Full Documentation
 For complete API documentation, reference:

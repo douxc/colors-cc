@@ -10,6 +10,7 @@ import paletteApi from './routes/api/palette'
 import convertApi from './routes/api/convert'
 import allNamesApi from './routes/api/all-names'
 import placeholderApi from './routes/api/placeholder'
+import fluidPlaceholderApi from './routes/api/fluid-placeholder'
 
 // Import documentation routes
 import llmsRoute from './routes/docs/llms'
@@ -34,6 +35,7 @@ app.route('/api', paletteApi)
 app.route('/api', convertApi)
 app.route('/api', allNamesApi)
 app.route('/api', placeholderApi)
+app.route('/api', fluidPlaceholderApi)
 
 // Mount documentation routes
 app.route('/', llmsRoute)
