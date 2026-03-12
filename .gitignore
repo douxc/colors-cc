@@ -6,4 +6,3 @@ node_modules
 scripts/gsc-key.json
 .wrangler
 .agent/
-.agents/
