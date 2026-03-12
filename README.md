@@ -8,7 +8,7 @@ A blazing fast, free, and stateless API designed to help **AI Agents (Cursor, Cl
 
 **🌐 Live Site:** [https://colors-cc.top/](https://colors-cc.top/)
 
-![Animated Fluid Gradient](https://colors-cc.top/api/fluid-placeholder?w=1200&h=300&stops=FFD6A5,FFADAD,E2A0FF&speed=12&text=Hi)
+![Animated Fluid Gradient](https://colors-cc.top/api/fluid-placeholder?w=1200&h=300&stops=FFD6A5,FFADAD,E2A0FF&speed=12&text=Animated+Hero)
 
 ---
 
