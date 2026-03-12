@@ -190,8 +190,8 @@ app.get('/fluid-placeholder', (c) => {
         <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
             <label style="font-size: 0.85em; font-weight: bold; color: #555; display: block; margin-bottom: 12px;">Theme Preset</label>
             <div id="theme-cards" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
-                <div class="theme-card" data-theme="aurora" style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid #00FF41; box-shadow: 0 2px 6px rgba(0,255,65,0.3);">
-                    <div style="height: 80px; background: linear-gradient(135deg, #00FF41, #00B8FF, #7000FF);"></div>
+                <div class="theme-card" data-theme="aurora" style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid #FFD6A5; box-shadow: 0 2px 6px rgba(255,214,165,0.3);">
+                    <div style="height: 80px; background: linear-gradient(135deg, #FFD6A5, #FFADAD, #E2A0FF);"></div>
                     <div style="padding: 8px; background: white; text-align: center; font-size: 0.85em; font-weight: 500;">Aurora</div>
                 </div>
                 <div class="theme-card" data-theme="cyberpunk" style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent;">
@@ -215,7 +215,7 @@ app.get('/fluid-placeholder', (c) => {
             </div>
             <div style="display: flex; flex-direction: column; gap: 5px;">
                 <label style="font-size: 0.85em; font-weight: bold; color: #555;">Color Stops (HEX, comma separated)</label>
-                <input type="text" id="stops-input" value="#00FF41, #00B8FF, #7000FF" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-family: monospace; font-size: 0.95em;">
+                <input type="text" id="stops-input" value="#FFD6A5, #FFADAD, #E2A0FF" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-family: monospace; font-size: 0.95em;">
             </div>
             <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 5px;">
                 <label style="font-size: 0.85em; font-weight: bold; color: #555;">Center Text (Optional, max 100 chars)</label>
@@ -254,14 +254,14 @@ app.get('/fluid-placeholder', (c) => {
         let currentTheme = 'aurora';
 
         const themes = {
-            aurora: "#00FF41, #00B8FF, #7000FF",
+            aurora: "#FFD6A5, #FFADAD, #E2A0FF",
             cyberpunk: "#FCEE09, #FF003C, #00B8FF",
             ocean: "#01CDFE, #05FFA1, #B967FF",
             sunset: "#FF71CE, #FFFB96, #E24E1B"
         };
         
         const themeColors = {
-            aurora: "#00FF41",
+            aurora: "#FFD6A5",
             cyberpunk: "#FCEE09",
             ocean: "#01CDFE",
             sunset: "#FF71CE"

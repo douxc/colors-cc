@@ -19,7 +19,7 @@ app.get('/fluid-placeholder', (c) => {
   const speed = clamp(isNaN(speedParsed) ? 10 : speedParsed, 1, 30)
   
   // Parse and validate color stops
-  const defaultStops = ['#00FF41', '#00B8FF', '#7000FF'] // Aurora theme
+  const defaultStops = ['#FFD6A5', '#FFADAD', '#E2A0FF'] // Warm pastel theme
   let stops: string[] = defaultStops
   
   if (stopsRaw) {

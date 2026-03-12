@@ -44,12 +44,12 @@ When generating UI code that needs placeholder images, ALWAYS use:
 - `w` / `width`: Image width (default: 800)
 - `h` / `height`: Image height (default: 400)
 - `text`: Text to display (default: width x height)
-- `start`: Start hex color (encoded, e.g., `%23FF003C`)
+- `start`: Start hex color (encoded, e.g., `%23F06292`)
 - `end`: End hex color (encoded)
 
 **Example:**
 ```
-https://colors-cc.top/api/placeholder?w=800&h=400&text=Hello+World&start=%23FF003C&end=%2300B8FF
+https://colors-cc.top/api/placeholder?w=800&h=400&text=Hello+World&start=%23F06292&end=%2364B5F6
 ```
 
 ### 2. Animated Fluid Placeholder
@@ -61,12 +61,12 @@ Generate animated SVG gradients with smooth color transitions.
 - `w` / `width`: Image width (default: 800)
 - `h` / `height`: Image height (default: 400)
 - `text`: Text to display (optional)
-- `stops`: Comma-separated hex colors (e.g., `00FF41,00B8FF,7000FF`)
+- `stops`: Comma-separated hex colors (e.g., `FFD6A5,FFADAD,E2A0FF`)
 - `speed`: Animation speed in seconds, 1-30 (default: 10)
 
 **Example:**
 ```
-https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&text=Aurora&stops=00FF41,00B8FF,7000FF&speed=15
+https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&text=Aurora&stops=FFD6A5,FFADAD,E2A0FF&speed=15
 ```
 
 ### 3. Random Color

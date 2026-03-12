@@ -32,7 +32,7 @@ Generate dynamic, lightweight placeholders for UI mockups with linear gradients.
   - `text`: Center text, URL-encoded (default: "{width} x {height}", max: 100 chars)
   - `start`: Start gradient color as hex (default: random, must be valid 6-digit hex)
   - `end`: End gradient color as hex (default: random, must be valid 6-digit hex)
-- **Example**: `<img src="https://colors-cc.top/api/placeholder?w=1200&h=630&text=Hero+Banner&start=%23FF003C&end=%2300B8FF" alt="Hero">`
+- **Example**: `<img src="https://colors-cc.top/api/placeholder?w=1200&h=630&text=Hero+Banner&start=%23F06292&end=%2364B5F6" alt="Hero">`
 - **Response**: SVG image with `Cache-Control: public, max-age=31536000, immutable`
 
 ### 2. Fluid Animated Placeholders
@@ -41,10 +41,10 @@ Generate dynamic SVG gradients with smooth color transitions and animations.
 - **Params**: 
   - `w`: Width in pixels (default: 800, range: 50-4000)
   - `h`: Height in pixels (default: 400, range: 50-4000)
-  - `stops`: Comma-separated HEX colors for gradient (default: aurora theme, range: 2-10 colors)
+  - `stops`: Comma-separated HEX colors for gradient (default: warm pastel theme, range: 2-10 colors)
   - `speed`: Animation duration in seconds (default: 10, range: 1-30)
   - `text`: Optional center text (max 100 chars)
-- **Example**: `<img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=400&stops=%2300FF41,%2300B8FF,%237000FF&speed=8&text=Animated+Hero" alt="Animated Aurora">`
+- **Example**: `<img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=400&stops=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=8&text=Animated+Hero" alt="Warm Gradient">`
 - **Response**: Animated SVG with smooth color transitions and `Cache-Control: public, max-age=31536000, immutable`
 
 ### 3. Random Colors
@@ -80,7 +80,7 @@ Get all standard CSS color names mapped to their HEX values (~140 colors).
 ```html
 <section class="hero">
   <!-- Animated hero banner with text -->
-  <img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&text=Hero+Section&stops=%23FCEE09,%23FF003C,%2300B8FF&speed=10" alt="Hero">
+  <img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&text=Hero+Section&stops=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=10" alt="Hero">
 </section>
 <div class="features">
   <!-- Static placeholder images -->
