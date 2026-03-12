@@ -8,6 +8,8 @@ A blazing fast, free, and stateless API designed to help **AI Agents (Cursor, Cl
 
 **🌐 Live Site:** [https://colors-cc.top/](https://colors-cc.top/)
 
+![Animated Fluid Gradient](https://colors-cc.top/api/fluid-placeholder?w=1200&h=300&stops=FFD6A5,FFADAD,E2A0FF&speed=12&text=Hi)
+
 ---
 
 ## 🚀 Features
@@ -55,7 +57,7 @@ https://colors-cc.top/api/placeholder?w=800&h=400&text=Hello+World&start=%23F062
 ### 2. Animated Fluid Placeholder
 `GET /api/fluid-placeholder`
 
-Generate animated SVG gradients with smooth color transitions.
+Generate animated SVG gradients with smooth, infinite color transitions perfect for modern hero banners, background effects, and loading states. The lightweight SVG format creates a "fluid" visual effect as colors seamlessly blend and cycle through your chosen palette.
 
 **Parameters:**
 - `w` / `width`: Image width (default: 800)
@@ -64,10 +66,38 @@ Generate animated SVG gradients with smooth color transitions.
 - `stops`: Comma-separated hex colors (e.g., `FFD6A5,FFADAD,E2A0FF`)
 - `speed`: Animation speed in seconds, 1-30 (default: 10)
 
-**Example:**
+**Basic URL Example:**
 ```
 https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&text=Aurora&stops=FFD6A5,FFADAD,E2A0FF&speed=15
 ```
+
+**As CSS Background:**
+```css
+/* Hero section with animated gradient */
+.hero {
+  background-image: url('https://colors-cc.top/api/fluid-placeholder?w=1920&h=1080&stops=FFD6A5,FFADAD,E2A0FF&speed=20');
+  background-size: cover;
+  background-position: center;
+  min-height: 600px;
+}
+```
+
+**As Inline Style:**
+```html
+<section style="
+  background: url('https://colors-cc.top/api/fluid-placeholder?w=1600&h=900&stops=FFD6A5,FFADAD,E2A0FF&speed=15') center/cover;
+  min-height: 400px;
+">
+  <h1>Your Content Here</h1>
+</section>
+```
+
+**Common Use Cases:**
+- Hero banners with eye-catching animated backgrounds
+- Landing page sections with dynamic visual interest
+- Loading screens and splash pages
+- Modern card backgrounds
+- Email headers (static fallback in most clients)
 
 ### 3. Random Color
 `GET /api/random`
@@ -150,15 +180,6 @@ ColorsCC also provides interactive web tools for designers and developers:
 - **[Fluid Placeholder Generator](https://colors-cc.top/tools/fluid-placeholder)** - Create animated gradient placeholders
 
 ---
-
-## 🛠 Development & Deployment
-
-### Commands
-- **Dev:** `pnpm dev` (Wrangler local dev)
-- **Deploy:** `pnpm deploy` (Cloudflare Workers)
-- **Type Check:** `pnpm typecheck` (TypeScript validation)
-- **Test:** `pnpm test` (Run Vitest tests)
-- **Validate:** `pnpm validate` (Type check + tests)
 
 ### Tech Stack
 - [Hono](https://hono.dev/) - Web framework
