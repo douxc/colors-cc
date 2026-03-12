@@ -205,6 +205,10 @@ app.get('/fluid-placeholder', (c) => {
                 <label style="font-size: 0.85em; font-weight: bold; color: #555;">Color Stops (HEX, comma separated)</label>
                 <input type="text" id="stops-input" value="#00FF41, #00B8FF, #7000FF" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-family: monospace; font-size: 0.95em;">
             </div>
+            <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 5px;">
+                <label style="font-size: 0.85em; font-weight: bold; color: #555;">Center Text (Optional, max 100 chars)</label>
+                <input type="text" id="text-input" placeholder="e.g. Coming Soon" maxlength="100" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-size: 0.95em;">
+            </div>
         </div>
 
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
@@ -231,6 +235,7 @@ app.get('/fluid-placeholder', (c) => {
         const speedRange = document.getElementById('speed-range');
         const speedValue = document.getElementById('speed-value');
         const stopsInput = document.getElementById('stops-input');
+        const textInput = document.getElementById('text-input');
         const urlOutput = document.getElementById('url-output');
         const copyBtn = document.getElementById('copy-btn');
 
@@ -244,14 +249,16 @@ app.get('/fluid-placeholder', (c) => {
         function generatePreview() {
             const stops = stopsInput.value.split(',').map(s => s.trim()).filter(s => s);
             const speed = speedRange.value;
+            const text = textInput.value.trim();
             speedValue.innerText = speed;
             
             const stopsParam = stops.map(s => s.replace('#', '%23')).join(',');
-            const apiURL = \`/api/fluid-placeholder?w=800&h=400&stops=\${stopsParam}&speed=\${speed}\`;
+            const textParam = text ? '&text=' + encodeURIComponent(text) : '';
+            const apiURL = \`/api/fluid-placeholder?w=800&h=400&stops=\${stopsParam}&speed=\${speed}\${textParam}\`;
             
             demoBox.style.backgroundImage = \`url(\${apiURL})\`;
             
-            const fullURL = \`https://colors-cc.top/api/fluid-placeholder?w=800&h=400&stops=\${stopsParam}&speed=\${speed}\`;
+            const fullURL = \`https://colors-cc.top/api/fluid-placeholder?w=800&h=400&stops=\${stopsParam}&speed=\${speed}\${textParam}\`;
             urlOutput.innerText = fullURL;
         }
 
@@ -262,6 +269,7 @@ app.get('/fluid-placeholder', (c) => {
 
         speedRange.oninput = generatePreview;
         stopsInput.oninput = generatePreview;
+        textInput.oninput = generatePreview;
 
         copyBtn.onclick = () => {
             navigator.clipboard.writeText(urlOutput.innerText);

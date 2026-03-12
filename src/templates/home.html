@@ -99,10 +99,30 @@
 
               <a href="/api/placeholder?w=800&amp;h=400&amp;text=Hello+World&amp;start=%23FF003C&amp;end=%2300B8FF" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
           </section>
+
+          <section class="endpoint">
+              <h2>4. Animated Fluid Gradient Placeholder API</h2>
+              <p class="desc">Generate animated SVG placeholders with smooth color transitions and dynamic gradient effects. Perfect for hero banners and modern UI designs.</p>
+              <p><code>GET /api/fluid-placeholder</code></p>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
+                  <strong style="display:block; margin-bottom:8px;">Query Parameters:</strong>
+                  <ul style="margin:0; padding-left:20px; color:#444;">
+                      <li><code>w</code>: Image width in pixels (default: 800, range: 50-4000)</li>
+                      <li><code>h</code>: Image height in pixels (default: 400, range: 50-4000)</li>
+                      <li><code>stops</code>: Comma-separated HEX colors (2-10 colors, e.g. %2300FF41,%2300B8FF,%237000FF)</li>
+                      <li><code>speed</code>: Animation duration in seconds (default: 10, range: 1-30)</li>
+                      <li><code>text</code>: Optional center text (max 100 chars)</li>
+                  </ul>
+              </div>
+
+              <a href="/api/fluid-placeholder?w=800&amp;h=400&amp;stops=%2300FF41,%2300B8FF,%237000FF&amp;speed=8&amp;text=Coming+Soon" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
+              <a href="/tools/fluid-placeholder" class="btn" style="background: #007bff; margin-left: 10px;">Interactive Generator &rarr;</a>
+          </section>
       
           
           <section class="endpoint">
-              <h2>4. Interactive Web Tools</h2>
+              <h2>5. Interactive Web Tools</h2>
               <p class="desc">A suite of visual utilities for developers and designers to work with colors right in the browser.</p>
               
               <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px;">

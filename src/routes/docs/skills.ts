@@ -33,6 +33,9 @@ A native UI asset and color toolset for AI Agents (OpenClaw, Cursor, Cline, GPTs
 
 <!-- With custom gradient -->
 <img src="https://colors-cc.top/api/placeholder?w=400&h=300&start=%23FF003C&end=%2300B8FF" alt="Card">
+
+<!-- Animated fluid placeholder with text -->
+<img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&stops=%2300FF41,%2300B8FF,%237000FF&text=Coming+Soon&speed=8" alt="Animated Hero">
 \`\`\`
 
 ### Random Colors (JSON)

@@ -55,8 +55,11 @@ Generate dynamic SVG gradients with smooth color transitions and animations.
 - "Create an animated aurora gradient banner"
   → <img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=400&stops=%2300FF41,%2300B8FF,%237000FF" alt="Aurora Banner">
   
-- "Generate a cyberpunk animated background"
-  → <img src="https://colors-cc.top/api/fluid-placeholder?stops=%23FCEE09,%23FF003C,%2300B8FF&speed=5" alt="Cyberpunk BG">
+- "Generate a cyberpunk animated background with text"
+  → <img src="https://colors-cc.top/api/fluid-placeholder?w=800&h=600&stops=%23FCEE09,%23FF003C,%2300B8FF&speed=5&text=Welcome" alt="Cyberpunk BG">
+  
+- "Make an animated hero banner with custom message"
+  → <img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=400&text=Coming+Soon&stops=%2300FF41,%2300B8FF,%237000FF&speed=12" alt="Hero with Text">
 
 **Response:** Animated SVG image with Cache-Control: public, max-age=31536000, immutable
 

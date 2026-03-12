@@ -79,9 +79,11 @@ Get all standard CSS color names mapped to their HEX values (~140 colors).
 ### Use Case 1: Building a Landing Page
 ```html
 <section class="hero">
-  <img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&text=Hero+Section&stops=%23FCEE09,%23FF003C,%2300B8FF" alt="Hero">
+  <!-- Animated hero banner with text -->
+  <img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&text=Hero+Section&stops=%23FCEE09,%23FF003C,%2300B8FF&speed=10" alt="Hero">
 </section>
 <div class="features">
+  <!-- Static placeholder images -->
   <img src="https://colors-cc.top/api/placeholder?w=400&h=300&text=Feature+1" alt="Feature 1">
   <img src="https://colors-cc.top/api/placeholder?w=400&h=300&text=Feature+2" alt="Feature 2">
 </div>
