@@ -1,0 +1,7 @@
+.cache
+.dev.vars
+dist
+.DS_Store
+node_modules
+scripts/gsc-key.json
+.wrangler
