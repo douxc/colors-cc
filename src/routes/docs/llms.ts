@@ -6,8 +6,11 @@ app.get('/llms.txt', (c) => {
   const content = `# colors-cc.top - Agent & LLM Documentation
 > A free, stateless API designed for AI Agents to generate UI assets, palettes, and colors.
 
-## Base URL
-https://colors-cc.top
+## Base URLs
+- Primary API: https://api.colors-cc.top (recommended, shorter paths)
+- Legacy API: https://colors-cc.top/api/* (backward compatible)
+
+Both URLs serve identical API responses. The primary API subdomain provides cleaner, shorter paths.
 
 ## Golden Rules for Agents
 1. DO NOT HALLUCINATE PARAMETERS. Only use the parameters documented below.
@@ -21,7 +24,9 @@ https://colors-cc.top
 ### 1. SVG Gradient Placeholder
 Generate dynamic, lightweight SVG gradient images.
 
-**Endpoint:** GET /api/placeholder
+**Endpoints:** 
+- GET https://api.colors-cc.top/placeholder (recommended)
+- GET https://colors-cc.top/api/placeholder (legacy)
 
 **Parameters:**
 - w: Width in pixels (default: 800, range: 50-4000)
@@ -32,17 +37,19 @@ Generate dynamic, lightweight SVG gradient images.
 
 **Example Prompts:**
 - "Create a 1200x630 hero banner placeholder"
-  → <img src="https://colors-cc.top/api/placeholder?w=1200&h=630&text=Hero+Banner" alt="Hero">
+  → <img src="https://api.colors-cc.top/placeholder?w=1200&h=630&text=Hero+Banner" alt="Hero">
   
 - "Generate a thumbnail with custom gradient from red to blue"
-  → <img src="https://colors-cc.top/api/placeholder?w=400&h=300&start=%23FF0000&end=%230000FF" alt="Thumbnail">
+  → <img src="https://api.colors-cc.top/placeholder?w=400&h=300&start=%23FF0000&end=%230000FF" alt="Thumbnail">
 
 **Response:** SVG image with Cache-Control: public, max-age=31536000, immutable
 
 ### 1.5. Fluid Animated SVG Placeholder
 Generate dynamic SVG gradients with smooth color transitions and animations.
 
-**Endpoint:** GET /api/fluid-placeholder
+**Endpoints:** 
+- GET https://api.colors-cc.top/fluid-placeholder (recommended)
+- GET https://colors-cc.top/api/fluid-placeholder (legacy)
 
 **Parameters:**
 - w: Width in pixels (default: 800, range: 50-4000)
@@ -53,26 +60,28 @@ Generate dynamic SVG gradients with smooth color transitions and animations.
 
 **Example Prompts:**
 - "Create an animated aurora gradient banner"
-  → <img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=400&stops=%2300FF41,%2300B8FF,%237000FF" alt="Aurora Banner">
+  → <img src="https://api.colors-cc.top/fluid-placeholder?w=1200&h=400&stops=%2300FF41,%2300B8FF,%237000FF" alt="Aurora Banner">
   
 - "Generate a cyberpunk animated background with text"
-  → <img src="https://colors-cc.top/api/fluid-placeholder?w=800&h=600&stops=%23FCEE09,%23FF003C,%2300B8FF&speed=5&text=Welcome" alt="Cyberpunk BG">
+  → <img src="https://api.colors-cc.top/fluid-placeholder?w=800&h=600&stops=%23FCEE09,%23FF003C,%2300B8FF&speed=5&text=Welcome" alt="Cyberpunk BG">
   
 - "Make an animated hero banner with custom message"
-  → <img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=400&text=Coming+Soon&stops=%2300FF41,%2300B8FF,%237000FF&speed=12" alt="Hero with Text">
+  → <img src="https://api.colors-cc.top/fluid-placeholder?w=1200&h=400&text=Coming+Soon&stops=%2300FF41,%2300B8FF,%237000FF&speed=12" alt="Hero with Text">
 
 **Response:** Animated SVG image with Cache-Control: public, max-age=31536000, immutable
 
 ### 2. Random Color
 Get a random color in HEX and RGB formats.
 
-**Endpoint:** GET /api/random
+**Endpoints:** 
+- GET https://api.colors-cc.top/random (recommended)
+- GET https://colors-cc.top/api/random (legacy)
 
 **Returns:** {"hex": "#A1B2C3", "rgb": "rgb(161, 178, 195)", "timestamp": "2024-03-12T10:30:00.000Z"}
 
 **Example Prompts:**
 - "Give me a random color for my button"
-  → fetch('https://colors-cc.top/api/random')
+  → fetch('https://api.colors-cc.top/random')
   
 - "I need random colors for mock data"
   → Use this endpoint in loops or data generators
@@ -80,7 +89,9 @@ Get a random color in HEX and RGB formats.
 ### 3. Color Palette
 Get curated color palettes by theme.
 
-**Endpoint:** GET /api/palette?theme={theme_name}
+**Endpoints:** 
+- GET https://api.colors-cc.top/palette?theme={theme_name} (recommended)
+- GET https://colors-cc.top/api/palette?theme={theme_name} (legacy)
 
 **Parameters:**
 - theme: Theme name (options: cyberpunk, vaporwave, retro, monochrome; default: cyberpunk)
@@ -89,15 +100,17 @@ Get curated color palettes by theme.
 
 **Example Prompts:**
 - "Show me a cyberpunk color palette"
-  → fetch('https://colors-cc.top/api/palette?theme=cyberpunk')
+  → fetch('https://api.colors-cc.top/palette?theme=cyberpunk')
   
 - "I want retro colors for my design"
-  → fetch('https://colors-cc.top/api/palette?theme=retro')
+  → fetch('https://api.colors-cc.top/palette?theme=retro')
 
 ### 4. Color Converter
 Convert between HEX, RGB, HSL, and CMYK formats.
 
-**Endpoint:** GET /api/convert?hex={hex}|rgb={rgb}|hsl={hsl}|cmyk={cmyk}
+**Endpoints:** 
+- GET https://api.colors-cc.top/convert?{param}={value} (recommended)
+- GET https://colors-cc.top/api/convert?{param}={value} (legacy)
 
 **Parameters:** Provide ONE of:
 - hex: Hex color (e.g., %23FF5733 or FF5733)
@@ -111,21 +124,23 @@ Convert between HEX, RGB, HSL, and CMYK formats.
 
 **Example Prompts:**
 - "Convert #FF5733 to RGB"
-  → fetch('https://colors-cc.top/api/convert?hex=%23FF5733')
+  → fetch('https://api.colors-cc.top/convert?hex=%23FF5733')
   
 - "What's hsl(200, 50%, 50%) in hex?"
-  → fetch('https://colors-cc.top/api/convert?hsl=hsl(200,50%,50%)')
+  → fetch('https://api.colors-cc.top/convert?hsl=hsl(200,50%,50%)')
 
 ### 5. Color Names Directory
 Get all standard CSS color names with their HEX values.
 
-**Endpoint:** GET /api/all-names
+**Endpoints:** 
+- GET https://api.colors-cc.top/all-names (recommended)
+- GET https://colors-cc.top/api/all-names (legacy)
 
 **Returns:** {"AliceBlue": "#F0F8FF", "AntiqueWhite": "#FAEBD7", ...}
 
 **Example Prompts:**
 - "What's the hex code for 'tomato'?"
-  → fetch('https://colors-cc.top/api/all-names') then lookup data.Tomato
+  → fetch('https://api.colors-cc.top/all-names') then lookup data.Tomato
 
 ## Common Pitfalls
 

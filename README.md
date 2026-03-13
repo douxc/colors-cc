@@ -6,14 +6,16 @@
 
 A blazing fast, free, and stateless API designed to help **AI Agents (Cursor, Cline, OpenClaw)** and developers instantly generate UI assets like SVG gradient placeholder images and random colors.
 
-**🌐 Live Site:** [https://colors-cc.top/](https://colors-cc.top/)
+**🌐 Live Site:** [https://colors-cc.top/](https://colors-cc.top/)  
+**🚀 API Endpoint:** [https://api.colors-cc.top/](https://api.colors-cc.top/)
 
-![Animated Fluid Gradient](https://colors-cc.top/api/fluid-placeholder?w=1200&h=300&stops=FFD6A5,FFADAD,E2A0FF&speed=12&text=Animated+Hero)
+![Animated Fluid Gradient](https://api.colors-cc.top/fluid-placeholder?w=1200&h=300&stops=FFD6A5,FFADAD,E2A0FF&speed=12&text=Animated+Hero)
 
 ---
 
 ## 🚀 Features
 
+- **🌐 Dual Domain Access:** Use `api.colors-cc.top/*` for cleaner API paths, or `colors-cc.top/api/*` for backward compatibility. Both return identical responses.
 - **✨ Animated Fluid Gradients:** Create smooth, infinitely-looping animated SVG gradients with custom color stops and speeds for hero banners and backgrounds.
 - **🤖 AI Native:** Built-in `llms.txt` and system prompts for seamless integration with AI coding assistants.
 - **🎨 SVG Image Placeholder:** Generate lightweight, beautiful gradient placeholders with custom text. No more broken images in your mockups.
@@ -28,7 +30,7 @@ ColorsCC is designed to be the "source of truth" for your AI assistant's UI gene
 Add this to your `.cursorrules` or Cline custom instructions:
 ```text
 When generating UI code that needs placeholder images, ALWAYS use: 
-<img src="https://colors-cc.top/api/placeholder?w=800&h=400&text=Label" alt="Placeholder" />
+<img src="https://api.colors-cc.top/placeholder?w=800&h=400&text=Label" alt="Placeholder" />
 ```
 
 ### 2. LLM-Optimized Documentation
@@ -40,8 +42,14 @@ When generating UI code that needs placeholder images, ALWAYS use:
 
 ## 🛠 API Usage
 
+> **💡 API Access:** All endpoints support two access patterns:
+> - **Primary (Recommended):** `https://api.colors-cc.top/{endpoint}` - Cleaner, shorter paths
+> - **Legacy:** `https://colors-cc.top/api/{endpoint}` - Backward compatible
+>
+> Both return identical responses. Examples below use the primary format.
+
 ### 1. SVG Gradient Placeholder
-`GET /api/placeholder`
+`GET /placeholder`
 
 **Parameters:**
 - `w` / `width`: Image width (default: 800)
@@ -52,11 +60,11 @@ When generating UI code that needs placeholder images, ALWAYS use:
 
 **Example:**
 ```
-https://colors-cc.top/api/placeholder?w=800&h=400&text=Hello+World&start=%23F06292&end=%2364B5F6
+https://api.colors-cc.top/placeholder?w=800&h=400&text=Hello+World&start=%23F06292&end=%2364B5F6
 ```
 
 ### 2. Animated Fluid Placeholder
-`GET /api/fluid-placeholder`
+`GET /fluid-placeholder`
 
 Generate animated SVG gradients with smooth, infinite color transitions perfect for modern hero banners, background effects, and loading states. The lightweight SVG format creates a "fluid" visual effect as colors seamlessly blend and cycle through your chosen palette.
 
@@ -69,14 +77,14 @@ Generate animated SVG gradients with smooth, infinite color transitions perfect 
 
 **Basic URL Example:**
 ```
-https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&text=Aurora&stops=FFD6A5,FFADAD,E2A0FF&speed=15
+https://api.colors-cc.top/fluid-placeholder?w=1200&h=600&text=Aurora&stops=FFD6A5,FFADAD,E2A0FF&speed=15
 ```
 
 **As CSS Background:**
 ```css
 /* Hero section with animated gradient */
 .hero {
-  background-image: url('https://colors-cc.top/api/fluid-placeholder?w=1920&h=1080&stops=FFD6A5,FFADAD,E2A0FF&speed=20');
+  background-image: url('https://api.colors-cc.top/fluid-placeholder?w=1920&h=1080&stops=FFD6A5,FFADAD,E2A0FF&speed=20');
   background-size: cover;
   background-position: center;
   min-height: 600px;
@@ -86,7 +94,7 @@ https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&text=Aurora&stops=FFD6A
 **As Inline Style:**
 ```html
 <section style="
-  background: url('https://colors-cc.top/api/fluid-placeholder?w=1600&h=900&stops=FFD6A5,FFADAD,E2A0FF&speed=15') center/cover;
+  background: url('https://api.colors-cc.top/fluid-placeholder?w=1600&h=900&stops=FFD6A5,FFADAD,E2A0FF&speed=15') center/cover;
   min-height: 400px;
 ">
   <h1>Your Content Here</h1>
@@ -101,7 +109,7 @@ https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&text=Aurora&stops=FFD6A
 - Email headers (static fallback in most clients)
 
 ### 3. Random Color
-`GET /api/random`
+`GET /random`
 
 **Response:**
 ```json
@@ -113,7 +121,7 @@ https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&text=Aurora&stops=FFD6A
 ```
 
 ### 4. Theme-Based Palettes
-`GET /api/palette`
+`GET /palette`
 
 Get curated color palettes by theme.
 
@@ -130,7 +138,7 @@ Get curated color palettes by theme.
 ```
 
 ### 5. Universal Color Converter
-`GET /api/convert`
+`GET /convert`
 
 Convert between HEX, RGB, HSL, and CMYK formats.
 
@@ -152,11 +160,11 @@ Convert between HEX, RGB, HSL, and CMYK formats.
 
 **Example:**
 ```
-https://colors-cc.top/api/convert?rgb=rgb(255,87,51)
+https://api.colors-cc.top/convert?rgb=rgb(255,87,51)
 ```
 
 ### 6. CSS Color Names
-`GET /api/all-names`
+`GET /all-names`
 
 Get a complete map of ~140 CSS color names to HEX values.
 

@@ -13,9 +13,18 @@ app.get('/openapi.json', (c) => {
         "url": "https://colors-cc.top"
       }
     },
-    "servers": [{"url": "https://colors-cc.top"}],
+    "servers": [
+      {
+        "url": "https://api.colors-cc.top",
+        "description": "Primary API server (recommended, cleaner paths)"
+      },
+      {
+        "url": "https://colors-cc.top/api",
+        "description": "Legacy API server (backward compatible)"
+      }
+    ],
     "paths": {
-      "/api/random": {
+      "/random": {
         "get": {
           "summary": "Get a random HEX and RGB color",
           "description": "Returns a randomly generated color in HEX and RGB formats with a timestamp.",
@@ -39,7 +48,7 @@ app.get('/openapi.json', (c) => {
           }
         }
       },
-      "/api/palette": {
+      "/palette": {
         "get": {
           "summary": "Get a curated color palette",
           "description": "Returns a curated color palette based on the specified theme.",
@@ -74,7 +83,7 @@ app.get('/openapi.json', (c) => {
           }
         }
       },
-      "/api/convert": {
+      "/convert": {
         "get": {
           "summary": "Convert between color formats",
           "description": "Convert a color between HEX, RGB, HSL, and CMYK formats. Provide ONE input parameter.",
@@ -117,7 +126,7 @@ app.get('/openapi.json', (c) => {
           }
         }
       },
-      "/api/all-names": {
+      "/all-names": {
         "get": {
           "summary": "Get all CSS color names",
           "description": "Returns a mapping of all standard CSS color names to their HEX values.",
@@ -137,7 +146,7 @@ app.get('/openapi.json', (c) => {
           }
         }
       },
-      "/api/placeholder": {
+      "/placeholder": {
         "get": {
           "summary": "Generate SVG placeholder image",
           "description": "Creates a dynamic SVG gradient placeholder image with customizable dimensions, text, and colors.",
@@ -159,7 +168,7 @@ app.get('/openapi.json', (c) => {
           }
         }
       },
-      "/api/fluid-placeholder": {
+      "/fluid-placeholder": {
         "get": {
           "summary": "Generate animated SVG placeholder",
           "description": "Creates a dynamic SVG gradient with smooth color transitions and animations.",

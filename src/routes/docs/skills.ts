@@ -21,39 +21,44 @@ A native UI asset and color toolset for AI Agents (OpenClaw, Cursor, Cline, GPTs
 4. **Dimensions are clamped** - Valid range is 50-4000px (auto-clamped if outside)
 5. **Text is truncated** - Max 100 characters for placeholder text
 
+## API Access
+Two ways to access the API (both return identical responses):
+- **Primary (Recommended)**: https://api.colors-cc.top/* - Shorter, cleaner paths
+- **Legacy**: https://colors-cc.top/api/* - Backward compatible
+
 ## Quick Reference
 
 ### Placeholder Images
 \`\`\`html
 <!-- Basic placeholder -->
-<img src="https://colors-cc.top/api/placeholder?w=800&h=400" alt="Placeholder">
+<img src="https://api.colors-cc.top/placeholder?w=800&h=400" alt="Placeholder">
 
 <!-- With custom text -->
-<img src="https://colors-cc.top/api/placeholder?w=1200&h=630&text=Hero+Banner" alt="Hero">
+<img src="https://api.colors-cc.top/placeholder?w=1200&h=630&text=Hero+Banner" alt="Hero">
 
 <!-- With custom gradient -->
-<img src="https://colors-cc.top/api/placeholder?w=400&h=300&start=%23FF003C&end=%2300B8FF" alt="Card">
+<img src="https://api.colors-cc.top/placeholder?w=400&h=300&start=%23FF003C&end=%2300B8FF" alt="Card">
 
 <!-- Animated fluid placeholder with text -->
-<img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&stops=%2300FF41,%2300B8FF,%237000FF&text=Coming+Soon&speed=8" alt="Animated Hero">
+<img src="https://api.colors-cc.top/fluid-placeholder?w=1200&h=600&stops=%2300FF41,%2300B8FF,%237000FF&text=Coming+Soon&speed=8" alt="Animated Hero">
 \`\`\`
 
 ### Random Colors (JSON)
 \`\`\`bash
-curl https://colors-cc.top/api/random
+curl https://api.colors-cc.top/random
 # Returns: {"hex": "#A1B2C3", "rgb": "rgb(161, 178, 195)", "timestamp": "..."}
 \`\`\`
 
 ### Theme Palettes (JSON)
 \`\`\`bash
-curl "https://colors-cc.top/api/palette?theme=cyberpunk"
+curl "https://api.colors-cc.top/palette?theme=cyberpunk"
 # Returns: {"theme": "cyberpunk", "colors": ["#FCEE09", ...], "count": 5}
 # Themes: cyberpunk, vaporwave, retro, monochrome
 \`\`\`
 
 ### Color Conversion (JSON)
 \`\`\`bash
-curl "https://colors-cc.top/api/convert?hex=%23FF5733"
+curl "https://api.colors-cc.top/convert?hex=%23FF5733"
 # Returns: {"hex": "#FF5733", "rgb": "...", "hsl": "...", "cmyk": "..."}
 
 # Also supports: ?rgb=..., ?hsl=..., ?cmyk=...
@@ -61,7 +66,7 @@ curl "https://colors-cc.top/api/convert?hex=%23FF5733"
 
 ### CSS Color Names (JSON)
 \`\`\`bash
-curl "https://colors-cc.top/api/all-names"
+curl "https://api.colors-cc.top/all-names"
 # Returns: {"AliceBlue": "#F0F8FF", "Tomato": "#FF6347", ...}
 \`\`\`
 
@@ -70,17 +75,17 @@ curl "https://colors-cc.top/api/all-names"
 ### 1. Building a Landing Page
 \`\`\`html
 <section>
-  <img src="https://colors-cc.top/api/placeholder?w=1200&h=600&text=Hero+Section" alt="Hero">
+  <img src="https://api.colors-cc.top/placeholder?w=1200&h=600&text=Hero+Section" alt="Hero">
 </section>
 <div class="features">
-  <img src="https://colors-cc.top/api/placeholder?w=400&h=300&text=Feature+1" alt="Feature 1">
-  <img src="https://colors-cc.top/api/placeholder?w=400&h=300&text=Feature+2" alt="Feature 2">
+  <img src="https://api.colors-cc.top/placeholder?w=400&h=300&text=Feature+1" alt="Feature 1">
+  <img src="https://api.colors-cc.top/placeholder?w=400&h=300&text=Feature+2" alt="Feature 2">
 </div>
 \`\`\`
 
 ### 2. Generating Mock Data with Colors
 \`\`\`javascript
-const colors = await fetch('https://colors-cc.top/api/palette?theme=vaporwave')
+const colors = await fetch('https://api.colors-cc.top/palette?theme=vaporwave')
   .then(r => r.json())
 
 const mockData = colors.colors.map((color, i) => ({
@@ -93,7 +98,7 @@ const mockData = colors.colors.map((color, i) => ({
 ### 3. Color Picker Component
 \`\`\`javascript
 async function getRandomColor() {
-  const res = await fetch('https://colors-cc.top/api/random')
+  const res = await fetch('https://api.colors-cc.top/random')
   const data = await res.json()
   return data.hex
 }
@@ -114,7 +119,7 @@ const svg = await fetch(placeholderUrl).then(r => r.text())
 const encoded = btoa(svg)
 
 // GOOD - Use URL directly
-<img src="https://colors-cc.top/api/placeholder?w=800&h=400" alt="Direct">
+<img src="https://api.colors-cc.top/placeholder?w=800&h=400" alt="Direct">
 \`\`\`
 
 ### ❌ Mistake 3: Invalid Dimensions
@@ -124,10 +129,10 @@ BAD:  w=9999 (too large, will be clamped to 4000)
 GOOD: w=800&h=600
 \`\`\`
 
-### ❌ Mistake 4: Multiple Color Parameters in /api/convert
+### ❌ Mistake 4: Multiple Color Parameters in /convert
 \`\`\`
-BAD:  /api/convert?hex=%23FF0000&rgb=rgb(255,0,0)
-GOOD: /api/convert?hex=%23FF0000
+BAD:  https://api.colors-cc.top/convert?hex=%23FF0000&rgb=rgb(255,0,0)
+GOOD: https://api.colors-cc.top/convert?hex=%23FF0000
 \`\`\`
 
 ## Web Tools (For Users)

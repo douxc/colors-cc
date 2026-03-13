@@ -1,16 +1,14 @@
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
+import type { Env, Variables } from './types'
 
 // Import HTML templates
 import homeTemplate from './templates/home.html'
 
-// Import API routes
-import randomApi from './routes/api/random'
-import paletteApi from './routes/api/palette'
-import convertApi from './routes/api/convert'
-import allNamesApi from './routes/api/all-names'
-import placeholderApi from './routes/api/placeholder'
-import fluidPlaceholderApi from './routes/api/fluid-placeholder'
+// Import middleware
+import { hostnameMiddleware } from './middleware/hostname'
+
+// Import unified API router
+import apiRouter from './routes/api/index'
 
 // Import documentation routes
 import llmsRoute from './routes/docs/llms'
@@ -24,18 +22,40 @@ import sitemapRoute from './routes/seo/sitemap'
 // Import tool pages
 import toolsRoute from './routes/pages/tools'
 
-const app = new Hono()
+const app = new Hono<{ Bindings: Env; Variables: Variables }>()
 
-// Enable CORS for all API routes
-app.use('/api/*', cors())
+// Apply hostname detection middleware globally
+app.use('*', hostnameMiddleware())
 
-// Mount API routes
-app.route('/api', randomApi)
-app.route('/api', paletteApi)
-app.route('/api', convertApi)
-app.route('/api', allNamesApi)
-app.route('/api', placeholderApi)
-app.route('/api', fluidPlaceholderApi)
+// Conditional routing based on hostname
+// For api.colors-cc.top: mount API routes at root level
+// For colors-cc.top: mount API routes at /api prefix
+app.use('*', async (c, next) => {
+  const isApiSubdomain = c.get('isApiSubdomain')
+  
+  if (isApiSubdomain) {
+    // API subdomain: only serve API endpoints at root
+    const path = new URL(c.req.url).pathname
+    
+    // Check if this is an API endpoint path
+    const apiPaths = ['/random', '/palette', '/convert', '/all-names', '/placeholder', '/fluid-placeholder']
+    const isApiPath = apiPaths.some(p => path === p || path.startsWith(p + '?'))
+    
+    if (isApiPath) {
+      // Route to API handler
+      return apiRouter.fetch(c.req.raw, c.env)
+    } else {
+      // For non-API paths on subdomain, return 404
+      return c.json({ error: 'Not found. This subdomain only serves API endpoints.' }, 404)
+    }
+  }
+  
+  await next()
+})
+
+// Main domain routes (colors-cc.top)
+// Mount API routes with /api prefix
+app.route('/api', apiRouter)
 
 // Mount documentation routes
 app.route('/', llmsRoute)

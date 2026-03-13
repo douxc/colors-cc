@@ -132,7 +132,7 @@ describe('colors-cc API', () => {
   })
 
   describe('GET /api/fluid-placeholder', () => {
-    it('should return animated SVG with default aurora theme', async () => {
+    it('should return animated SVG with default pastel theme', async () => {
       const res = await app.request('/api/fluid-placeholder')
       expect(res.status).toBe(200)
       expect(res.headers.get('Content-Type')).toBe('image/svg+xml')
@@ -141,9 +141,9 @@ describe('colors-cc API', () => {
       const svg = await res.text()
       expect(svg).toContain('<animate')
       expect(svg).toContain('attributeName="stop-color"')
-      expect(svg).toContain('#00FF41')
-      expect(svg).toContain('#00B8FF')
-      expect(svg).toContain('#7000FF')
+      expect(svg).toContain('#FFD6A5')
+      expect(svg).toContain('#FFADAD')
+      expect(svg).toContain('#E2A0FF')
     })
 
     it('should accept custom color stops', async () => {
@@ -199,9 +199,9 @@ describe('colors-cc API', () => {
       expect(res.status).toBe(200)
       
       const svg = await res.text()
-      expect(svg).toContain('#00FF41')
-      expect(svg).toContain('#00B8FF')
-      expect(svg).toContain('#7000FF')
+      expect(svg).toContain('#FFD6A5')
+      expect(svg).toContain('#FFADAD')
+      expect(svg).toContain('#E2A0FF')
     })
 
     it('should accept optional text parameter', async () => {
@@ -220,13 +220,16 @@ describe('colors-cc API', () => {
       expect(res.status).toBe(200)
       expect(res.headers.get('Cache-Control')).toContain('max-age=86400')
       
-      const spec = await res.json() as { openapi: string; info: { title: string }; paths: Record<string, unknown> }
+      const spec = await res.json() as { openapi: string; info: { title: string }; paths: Record<string, unknown>; servers: Array<{ url: string }> }
       expect(spec.openapi).toBe('3.0.0')
       expect(spec.info.title).toBe('colors-cc API')
-      expect(spec.paths).toHaveProperty('/api/random')
-      expect(spec.paths).toHaveProperty('/api/palette')
-      expect(spec.paths).toHaveProperty('/api/convert')
-      expect(spec.paths).toHaveProperty('/api/placeholder')
+      expect(spec.paths).toHaveProperty('/random')
+      expect(spec.paths).toHaveProperty('/palette')
+      expect(spec.paths).toHaveProperty('/convert')
+      expect(spec.paths).toHaveProperty('/placeholder')
+      expect(spec.servers).toHaveLength(2)
+      expect(spec.servers[0].url).toBe('https://api.colors-cc.top')
+      expect(spec.servers[1].url).toBe('https://colors-cc.top/api')
     })
   })
 
@@ -303,6 +306,175 @@ describe('colors-cc API', () => {
     it('should return 404 for invalid conversion route', async () => {
       const res = await app.request('/tools/invalid-conversion')
       expect(res.status).toBe(404)
+    })
+  })
+
+  describe('Dual Domain Support', () => {
+    describe('API Subdomain (api.colors-cc.top)', () => {
+      it('should serve API endpoints at root path', async () => {
+        const res = await app.request('/random', {
+          headers: { 'host': 'api.colors-cc.top' }
+        })
+        expect(res.status).toBe(200)
+        
+        const data = await res.json() as { hex: string; rgb: string }
+        expect(data).toHaveProperty('hex')
+        expect(data).toHaveProperty('rgb')
+      })
+
+      it('should serve /palette at root path', async () => {
+        const res = await app.request('/palette?theme=vaporwave', {
+          headers: { 'host': 'api.colors-cc.top' }
+        })
+        expect(res.status).toBe(200)
+        
+        const data = await res.json() as { theme: string }
+        expect(data.theme).toBe('vaporwave')
+      })
+
+      it('should serve /convert at root path', async () => {
+        const res = await app.request('/convert?hex=%23FF5733', {
+          headers: { 'host': 'api.colors-cc.top' }
+        })
+        expect(res.status).toBe(200)
+        
+        const data = await res.json() as { hex: string }
+        expect(data.hex).toBe('#FF5733')
+      })
+
+      it('should serve /placeholder at root path', async () => {
+        const res = await app.request('/placeholder?w=800&h=400', {
+          headers: { 'host': 'api.colors-cc.top' }
+        })
+        expect(res.status).toBe(200)
+        expect(res.headers.get('Content-Type')).toBe('image/svg+xml')
+      })
+
+      it('should serve /fluid-placeholder at root path', async () => {
+        const res = await app.request('/fluid-placeholder', {
+          headers: { 'host': 'api.colors-cc.top' }
+        })
+        expect(res.status).toBe(200)
+        expect(res.headers.get('Content-Type')).toBe('image/svg+xml')
+      })
+
+      it('should serve /all-names at root path', async () => {
+        const res = await app.request('/all-names', {
+          headers: { 'host': 'api.colors-cc.top' }
+        })
+        expect(res.status).toBe(200)
+        
+        const data = await res.json() as Record<string, string>
+        expect(data).toHaveProperty('AliceBlue')
+      })
+
+      it('should return 404 for non-API paths', async () => {
+        const res = await app.request('/', {
+          headers: { 'host': 'api.colors-cc.top' }
+        })
+        expect(res.status).toBe(404)
+        
+        const data = await res.json() as { error: string }
+        expect(data.error).toContain('only serves API endpoints')
+      })
+
+      it('should return 404 for /tools on API subdomain', async () => {
+        const res = await app.request('/tools/converter', {
+          headers: { 'host': 'api.colors-cc.top' }
+        })
+        expect(res.status).toBe(404)
+      })
+    })
+
+    describe('Main Domain (colors-cc.top) - Legacy API paths', () => {
+      it('should continue serving /api/random', async () => {
+        const res = await app.request('/api/random', {
+          headers: { 'host': 'colors-cc.top' }
+        })
+        expect(res.status).toBe(200)
+        
+        const data = await res.json() as { hex: string }
+        expect(data).toHaveProperty('hex')
+      })
+
+      it('should continue serving /api/palette', async () => {
+        const res = await app.request('/api/palette', {
+          headers: { 'host': 'colors-cc.top' }
+        })
+        expect(res.status).toBe(200)
+        
+        const data = await res.json() as { theme: string }
+        expect(data.theme).toBe('cyberpunk')
+      })
+
+      it('should serve homepage at root', async () => {
+        const res = await app.request('/', {
+          headers: { 'host': 'colors-cc.top' }
+        })
+        expect(res.status).toBe(200)
+        expect(res.headers.get('Content-Type')).toContain('text/html')
+      })
+
+      it('should serve tool pages', async () => {
+        const res = await app.request('/tools/converter', {
+          headers: { 'host': 'colors-cc.top' }
+        })
+        expect(res.status).toBe(200)
+        expect(res.headers.get('Content-Type')).toContain('text/html')
+      })
+    })
+
+    describe('Response Consistency', () => {
+      it('should return identical responses for both domain formats', async () => {
+        const res1 = await app.request('/random', {
+          headers: { 'host': 'api.colors-cc.top' }
+        })
+        const res2 = await app.request('/api/random', {
+          headers: { 'host': 'colors-cc.top' }
+        })
+        
+        expect(res1.status).toBe(res2.status)
+        
+        const data1 = await res1.json() as { hex: string; rgb: string }
+        const data2 = await res2.json() as { hex: string; rgb: string }
+        
+        expect(data1).toHaveProperty('hex')
+        expect(data1).toHaveProperty('rgb')
+        expect(data2).toHaveProperty('hex')
+        expect(data2).toHaveProperty('rgb')
+      })
+
+      it('should have consistent CORS headers', async () => {
+        const res1 = await app.request('/random', {
+          headers: { 'host': 'api.colors-cc.top', 'origin': 'https://example.com' }
+        })
+        const res2 = await app.request('/api/random', {
+          headers: { 'host': 'colors-cc.top', 'origin': 'https://example.com' }
+        })
+        
+        expect(res1.headers.get('access-control-allow-origin')).toBeTruthy()
+        expect(res2.headers.get('access-control-allow-origin')).toBeTruthy()
+      })
+    })
+
+    describe('Local Development Support', () => {
+      it('should detect api.localhost for local dev', async () => {
+        const res = await app.request('/random', {
+          headers: { 'host': 'api.localhost:8787' }
+        })
+        expect(res.status).toBe(200)
+        
+        const data = await res.json() as { hex: string }
+        expect(data).toHaveProperty('hex')
+      })
+
+      it('should treat localhost as main domain', async () => {
+        const res = await app.request('/', {
+          headers: { 'host': 'localhost:8787' }
+        })
+        expect(res.status).toBe(200)
+        expect(res.headers.get('Content-Type')).toContain('text/html')
+      })
     })
   })
 })
