@@ -15,7 +15,7 @@ A blazing fast, free, and stateless API designed to help **AI Agents (Cursor, Cl
 
 ## 🚀 Features
 
-- **🌐 Dual Domain Access:** Use `api.colors-cc.top/*` for cleaner API paths, or `colors-cc.top/api/*` for backward compatibility. Both return identical responses.
+- **🌐 Dual Domain Access:** Use `https://api.colors-cc.top/*` for cleaner API paths, or `colors-cc.top/api/*` for backward compatibility. Both return identical responses.
 - **✨ Animated Fluid Gradients:** Create smooth, infinitely-looping animated SVG gradients with custom color stops and speeds for hero banners and backgrounds.
 - **🤖 AI Native:** Built-in `llms.txt` and system prompts for seamless integration with AI coding assistants.
 - **🎨 SVG Image Placeholder:** Generate lightweight, beautiful gradient placeholders with custom text. No more broken images in your mockups.

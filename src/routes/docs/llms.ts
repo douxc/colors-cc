@@ -7,10 +7,7 @@ app.get('/llms.txt', (c) => {
 > A free, stateless API designed for AI Agents to generate UI assets, palettes, and colors.
 
 ## Base URLs
-- Primary API: https://api.colors-cc.top (recommended, shorter paths)
-- Legacy API: https://colors-cc.top/api/* (backward compatible)
-
-Both URLs serve identical API responses. The primary API subdomain provides cleaner, shorter paths.
+- API Endpoint: https://api.colors-cc.top
 
 ## Golden Rules for Agents
 1. DO NOT HALLUCINATE PARAMETERS. Only use the parameters documented below.
@@ -25,8 +22,7 @@ Both URLs serve identical API responses. The primary API subdomain provides clea
 Generate dynamic, lightweight SVG gradient images.
 
 **Endpoints:** 
-- GET https://api.colors-cc.top/placeholder (recommended)
-- GET https://colors-cc.top/api/placeholder (legacy)
+- GET https://api.colors-cc.top/placeholder
 
 **Parameters:**
 - w: Width in pixels (default: 800, range: 50-4000)
@@ -48,8 +44,7 @@ Generate dynamic, lightweight SVG gradient images.
 Generate dynamic SVG gradients with smooth color transitions and animations.
 
 **Endpoints:** 
-- GET https://api.colors-cc.top/fluid-placeholder (recommended)
-- GET https://colors-cc.topapi.colors-cc.top/fluid-placeholder (legacy)
+- GET https://api.colors-cc.top/fluid-placeholder
 
 **Parameters:**
 - w: Width in pixels (default: 800, range: 50-4000)
@@ -74,8 +69,7 @@ Generate dynamic SVG gradients with smooth color transitions and animations.
 Get a random color in HEX and RGB formats.
 
 **Endpoints:** 
-- GET https://api.colors-cc.top/random (recommended)
-- GET https://colors-cc.top/api/random (legacy)
+- GET https://api.colors-cc.top/random
 
 **Returns:** {"hex": "#A1B2C3", "rgb": "rgb(161, 178, 195)", "timestamp": "2024-03-12T10:30:00.000Z"}
 
@@ -90,8 +84,7 @@ Get a random color in HEX and RGB formats.
 Get curated color palettes by theme.
 
 **Endpoints:** 
-- GET https://api.colors-cc.top/palette?theme={theme_name} (recommended)
-- GET https://colors-cc.top/api/palette?theme={theme_name} (legacy)
+- GET https://api.colors-cc.top/palette?theme={theme_name}
 
 **Parameters:**
 - theme: Theme name (options: cyberpunk, vaporwave, retro, monochrome; default: cyberpunk)
@@ -109,8 +102,7 @@ Get curated color palettes by theme.
 Convert between HEX, RGB, HSL, and CMYK formats.
 
 **Endpoints:** 
-- GET https://api.colors-cc.top/convert?{param}={value} (recommended)
-- GET https://colors-cc.top/api/convert?{param}={value} (legacy)
+- GET https://api.colors-cc.top/convert?{param}={value}
 
 **Parameters:** Provide ONE of:
 - hex: Hex color (e.g., %23FF5733 or FF5733)
@@ -133,8 +125,7 @@ Convert between HEX, RGB, HSL, and CMYK formats.
 Get all standard CSS color names with their HEX values.
 
 **Endpoints:** 
-- GET https://api.colors-cc.top/all-names (recommended)
-- GET https://colors-cc.top/api/all-names (legacy)
+- GET https://api.colors-cc.top/all-names
 
 **Returns:** {"AliceBlue": "#F0F8FF", "AntiqueWhite": "#FAEBD7", ...}
 

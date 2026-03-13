@@ -266,12 +266,12 @@ All routes are defined in `src/index.tsx`. **Do not duplicate existing routes.**
 ### API Endpoints
 | Route | Returns | Description |
 |-------|---------|-------------|
-| `GET /api/random` | JSON | Random color with HEX, RGB, and timestamp |
-| `GET /api/palette?theme=` | JSON | Curated palette (themes: `cyberpunk`, `vaporwave`, `retro`, `monochrome`) |
-| `GET /api/convert?hex=\|rgb=\|hsl=\|cmyk=` | JSON | Universal color converter returning all formats |
-| `GET /api/all-names` | JSON | Map of ~140 CSS color names to HEX values |
-| `GET /api/placeholder?w=&h=&text=&start=&end=` | SVG | Dynamic SVG gradient placeholder image |
-| `GET api.colors-cc.top/fluid-placeholder?w=&h=&stops=&speed=&text=` | SVG | Animated SVG gradient with smooth color transitions |
+| `GET https://api.colors-cc.top/random` | JSON | Random color with HEX, RGB, and timestamp |
+| `GET https://api.colors-cc.top/palette?theme=` | JSON | Curated palette (themes: `cyberpunk`, `vaporwave`, `retro`, `monochrome`) |
+| `GET https://api.colors-cc.top/convert?hex=\|rgb=\|hsl=\|cmyk=` | JSON | Universal color converter returning all formats |
+| `GET https://api.colors-cc.top/all-names` | JSON | Map of ~140 CSS color names to HEX values |
+| `GET https://api.colors-cc.top/placeholder?w=&h=&text=&start=&end=` | SVG | Dynamic SVG gradient placeholder image |
+| `GET https://api.colors-cc.top/fluid-placeholder?w=&h=&stops=&speed=&text=` | SVG | Animated SVG gradient with smooth color transitions |
 
 ### Meta & Documentation Routes
 | Route | Type | Description |
