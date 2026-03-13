@@ -49,7 +49,7 @@ Generate dynamic SVG gradients with smooth color transitions and animations.
 
 **Endpoints:** 
 - GET https://api.colors-cc.top/fluid-placeholder (recommended)
-- GET https://colors-cc.top/api/fluid-placeholder (legacy)
+- GET https://colors-cc.topapi.colors-cc.top/fluid-placeholder (legacy)
 
 **Parameters:**
 - w: Width in pixels (default: 800, range: 50-4000)

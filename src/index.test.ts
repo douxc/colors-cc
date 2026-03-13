@@ -131,9 +131,9 @@ describe('colors-cc API', () => {
     })
   })
 
-  describe('GET /api/fluid-placeholder', () => {
+  describe('GET api.colors-cc.top/fluid-placeholder', () => {
     it('should return animated SVG with default pastel theme', async () => {
-      const res = await app.request('/api/fluid-placeholder')
+      const res = await app.request('api.colors-cc.top/fluid-placeholder')
       expect(res.status).toBe(200)
       expect(res.headers.get('Content-Type')).toBe('image/svg+xml')
       expect(res.headers.get('Cache-Control')).toContain('immutable')
@@ -147,7 +147,7 @@ describe('colors-cc API', () => {
     })
 
     it('should accept custom color stops', async () => {
-      const res = await app.request('/api/fluid-placeholder?stops=%23FF0000,%230000FF')
+      const res = await app.request('api.colors-cc.top/fluid-placeholder?stops=%23FF0000,%230000FF')
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -157,7 +157,7 @@ describe('colors-cc API', () => {
     })
 
     it('should accept custom speed parameter', async () => {
-      const res = await app.request('/api/fluid-placeholder?speed=15')
+      const res = await app.request('api.colors-cc.top/fluid-placeholder?speed=15')
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -165,17 +165,17 @@ describe('colors-cc API', () => {
     })
 
     it('should clamp speed to 1-30 range', async () => {
-      const res1 = await app.request('/api/fluid-placeholder?speed=0')
+      const res1 = await app.request('api.colors-cc.top/fluid-placeholder?speed=0')
       const svg1 = await res1.text()
       expect(svg1).toContain('dur="1s"')
       
-      const res2 = await app.request('/api/fluid-placeholder?speed=50')
+      const res2 = await app.request('api.colors-cc.top/fluid-placeholder?speed=50')
       const svg2 = await res2.text()
       expect(svg2).toContain('dur="30s"')
     })
 
     it('should accept custom dimensions', async () => {
-      const res = await app.request('/api/fluid-placeholder?w=1200&h=600')
+      const res = await app.request('api.colors-cc.top/fluid-placeholder?w=1200&h=600')
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -184,7 +184,7 @@ describe('colors-cc API', () => {
     })
 
     it('should validate and filter invalid hex colors', async () => {
-      const res = await app.request('/api/fluid-placeholder?stops=FF0000,invalid,%230000FF,12345,%2300FF00')
+      const res = await app.request('api.colors-cc.top/fluid-placeholder?stops=FF0000,invalid,%230000FF,12345,%2300FF00')
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -195,7 +195,7 @@ describe('colors-cc API', () => {
     })
 
     it('should use default stops if less than 2 valid colors provided', async () => {
-      const res = await app.request('/api/fluid-placeholder?stops=%23FF0000')
+      const res = await app.request('api.colors-cc.top/fluid-placeholder?stops=%23FF0000')
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -205,7 +205,7 @@ describe('colors-cc API', () => {
     })
 
     it('should accept optional text parameter', async () => {
-      const res = await app.request('/api/fluid-placeholder?text=Animated')
+      const res = await app.request('api.colors-cc.top/fluid-placeholder?text=Animated')
       expect(res.status).toBe(200)
       
       const svg = await res.text()

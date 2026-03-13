@@ -231,7 +231,7 @@ app.get('/fluid-placeholder', (c) => {
 
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <h3>API Parameters</h3>
-            <p class="desc">Endpoint: <code style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; color: #e83e8c;">GET /api/fluid-placeholder</code></p>
+            <p class="desc">Endpoint: <code style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; color: #e83e8c;">GET api.colors-cc.top/fluid-placeholder</code></p>
             <ul style="color: #666; line-height: 1.8; margin-top: 10px;">
                 <li><code>w</code> - Width (50-4000px, default: 800)</li>
                 <li><code>h</code> - Height (50-4000px, default: 400)</li>
@@ -288,7 +288,7 @@ app.get('/fluid-placeholder', (c) => {
             
             const stopsParam = stops.map(s => s.replace('#', '%23')).join(',');
             const textParam = text ? '&text=' + encodeURIComponent(text) : '';
-            const apiURL = \`/api/fluid-placeholder?w=800&h=400&stops=\${stopsParam}&speed=\${speed}\${textParam}\`;
+            const apiURL = \`api.colors-cc.top/fluid-placeholder?w=800&h=400&stops=\${stopsParam}&speed=\${speed}\${textParam}\`;
             
             demoBox.style.backgroundImage = \`url(\${apiURL})\`;
             

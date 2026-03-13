@@ -42,11 +42,7 @@ When generating UI code that needs placeholder images, ALWAYS use:
 
 ## 🛠 API Usage
 
-> **💡 API Access:** All endpoints support two access patterns:
-> - **Primary (Recommended):** `https://api.colors-cc.top/{endpoint}` - Cleaner, shorter paths
-> - **Legacy:** `https://colors-cc.top/api/{endpoint}` - Backward compatible
->
-> Both return identical responses. Examples below use the primary format.
+> **💡 API Access:**  `https://api.colors-cc.top/{endpoint}` - Cleaner, shorter paths
 
 ### 1. SVG Gradient Placeholder
 `GET /placeholder`

@@ -271,7 +271,7 @@ All routes are defined in `src/index.tsx`. **Do not duplicate existing routes.**
 | `GET /api/convert?hex=\|rgb=\|hsl=\|cmyk=` | JSON | Universal color converter returning all formats |
 | `GET /api/all-names` | JSON | Map of ~140 CSS color names to HEX values |
 | `GET /api/placeholder?w=&h=&text=&start=&end=` | SVG | Dynamic SVG gradient placeholder image |
-| `GET /api/fluid-placeholder?w=&h=&stops=&speed=&text=` | SVG | Animated SVG gradient with smooth color transitions |
+| `GET api.colors-cc.top/fluid-placeholder?w=&h=&stops=&speed=&text=` | SVG | Animated SVG gradient with smooth color transitions |
 
 ### Meta & Documentation Routes
 | Route | Type | Description |

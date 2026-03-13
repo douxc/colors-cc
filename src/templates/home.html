@@ -164,7 +164,7 @@
               position: relative;
               margin: -40px -20px 40px -20px;
               padding: 80px 20px 60px;
-              background-image: url('/api/fluid-placeholder?w=1600&h=400&stops=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=15&text=');
+              background-image: url('api.colors-cc.top/fluid-placeholder?w=1600&h=400&stops=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=15&text=');
               background-size: cover;
               background-position: center;
               border-radius: 0 0 16px 16px;
@@ -339,7 +339,7 @@
                   <div class="hero-text">
                       <h2>1. Animated Fluid Gradient Placeholder API</h2>
                       <p class="desc">Generate animated SVG placeholders with smooth color transitions and dynamic gradient effects. Perfect for hero banners and modern UI designs.</p>
-                      <p><code>GET /api/fluid-placeholder</code></p>
+                      <p><code>GET api.colors-cc.top/fluid-placeholder</code></p>
                       
                       <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
                           <strong style="display:block; margin-bottom:8px;">Query Parameters:</strong>
@@ -352,11 +352,11 @@
                           </ul>
                       </div>
 
-                      <a href="/api/fluid-placeholder?w=800&amp;h=400&amp;stops=%23FFD6A5,%23FFADAD,%23E2A0FF&amp;speed=8&amp;text=Coming+Soon" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
+                      <a href="https://api.colors-cc.top/fluid-placeholder?w=800&amp;h=400&amp;stops=%23FFD6A5,%23FFADAD,%23E2A0FF&amp;speed=8&amp;text=Coming+Soon" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
                       <a href="/tools/fluid-placeholder" class="btn" style="background: #007bff; margin-left: 10px;">Interactive Generator &rarr;</a>
                   </div>
                   <div class="hero-preview">
-                      <img src="/api/fluid-placeholder?w=400&amp;h=200&amp;stops=%23FFD6A5,%23FFADAD,%23E2A0FF&amp;speed=12" alt="Live animated gradient preview" loading="eager">
+                      <img src="https://api.colors-cc.top/fluid-placeholder?w=400&amp;h=200&amp;stops=%23FFD6A5,%23FFADAD,%23E2A0FF&amp;speed=12" alt="Live animated gradient preview" loading="eager">
                   </div>
               </div>
           </section>
@@ -366,7 +366,7 @@
                   <div class="hero-text">
                       <h2>2. SVG Image Placeholder API</h2>
                       <p class="desc">Generate dynamic, lightweight, and customizable SVG gradient placeholder images for your projects.</p>
-                      <p><code>GET /api/placeholder</code></p>
+                      <p><code>GET https://api.colors-cc.top/placeholder</code></p>
                       
                       <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
                           <strong style="display:block; margin-bottom:8px;">Query Parameters:</strong>
@@ -379,10 +379,10 @@
                           </ul>
                       </div>
 
-                      <a href="/api/placeholder?w=800&amp;h=400&amp;text=Hello+World&amp;start=%23F06292&amp;end=%2364B5F6" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
+                      <a href="https://api.colors-cc.top/placeholder?w=800&amp;h=400&amp;text=Hello+World&amp;start=%23F06292&amp;end=%2364B5F6" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
                   </div>
                   <div class="hero-preview">
-                      <img src="/api/placeholder?w=400&amp;h=200&amp;text=Placeholder&amp;start=%23F06292&amp;end=%2364B5F6" alt="SVG gradient placeholder preview" loading="eager">
+                      <img src="https://api.colors-cc.top/placeholder?w=400&amp;h=200&amp;text=Placeholder&amp;start=%23F06292&amp;end=%2364B5F6" alt="SVG gradient placeholder preview" loading="eager">
                   </div>
               </div>
           </section>
@@ -390,7 +390,7 @@
           <section class="endpoint endpoint-mid" data-theme="vaporwave">
               <h2>3. Color Palette API</h2>
               <p class="desc">Fetch a curated color palette by theme for UI design inspiration.</p>
-              <p><code>GET /api/palette</code></p>
+              <p><code>GET https://api.colors-cc.top/palette</code></p>
 
               <div class="api-preview">
                   <strong style="display:block; margin-bottom:12px; color:#444;">Available Themes:</strong>
@@ -443,13 +443,13 @@
                   </ul>
               </div>
 
-              <a href="/api/palette?theme=cyberpunk" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
+              <a href="https://api.colors-cc.top/palette?theme=cyberpunk" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
           </section>
 
           <section class="endpoint endpoint-mid" data-theme="retro">
               <h2>4. Random Color API</h2>
               <p class="desc">Generate a completely random color in HEX and RGB formats. Perfect for frontend mock data and placeholders.</p>
-              <p><code>GET /api/random</code></p>
+              <p><code>GET https://api.colors-cc.top/random</code></p>
               
               <div class="api-preview">
                   <div style="display: flex; align-items: center; gap: 15px;">
@@ -471,13 +471,13 @@
                   </ul>
               </div>
 
-              <a href="/api/random" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
+              <a href="https://api.colors-cc.top/random" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
           </section>
           
           <script>
               async function loadRandomColor() {
                   try {
-                      const res = await fetch('/api/random');
+                      const res = await fetch('https://api.colors-cc.top/random');
                       const data = await res.json();
                       document.getElementById('randomColorSwatch').style.background = data.hex;
                       document.getElementById('randomColorHex').textContent = data.hex;
