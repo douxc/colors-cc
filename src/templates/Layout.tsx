@@ -2,7 +2,7 @@ import type { FC } from 'hono/jsx'
 
 export const Layout: FC<{ title: string; desc: string; path?: string; children?: any }> = (props) => {
   const canonicalUrl = `https://colors-cc.top${props.path || ''}`
-  const ogImage = 'https://colors-cc.top/api/placeholder?w=1200&h=630&text=colors-cc+API&start=%23FF003C&end=%2300B8FF'
+  const ogImage = 'https://api.colors-cc.top/placeholder?w=1200&h=630&text=colors-cc+API&start=%23FF003C&end=%2300B8FF'
   const fullTitle = `${props.title} | colors-cc`
   
   const jsonLd = {

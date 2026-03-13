@@ -292,7 +292,7 @@ app.get('/fluid-placeholder', (c) => {
             
             demoBox.style.backgroundImage = \`url(\${apiURL})\`;
             
-            const fullURL = \`https://colors-cc.top/api/fluid-placeholder?w=800&h=400&stops=\${stopsParam}&speed=\${speed}\${textParam}\`;
+            const fullURL = \`https://api.colors-cc.top/fluid-placeholder?w=800&h=400&stops=\${stopsParam}&speed=\${speed}\${textParam}\`;
             urlOutput.innerText = fullURL;
         }
 

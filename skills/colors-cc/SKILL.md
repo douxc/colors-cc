@@ -25,52 +25,52 @@ A high-performance, stateless Color API and toolset optimized for AI Agents (Ope
 
 ### 1. SVG Gradient Placeholders
 Generate dynamic, lightweight placeholders for UI mockups with linear gradients.
-- **Endpoint**: `https://colors-cc.top/api/placeholder`
+- **Endpoint**: `https://api.colors-cc.top/placeholder`
 - **Params**: 
   - `w`: Width in pixels (default: 800, range: 50-4000)
   - `h`: Height in pixels (default: 400, range: 50-4000)
   - `text`: Center text, URL-encoded (default: "{width} x {height}", max: 100 chars)
   - `start`: Start gradient color as hex (default: random, must be valid 6-digit hex)
   - `end`: End gradient color as hex (default: random, must be valid 6-digit hex)
-- **Example**: `<img src="https://colors-cc.top/api/placeholder?w=1200&h=630&text=Hero+Banner&start=%23F06292&end=%2364B5F6" alt="Hero">`
+- **Example**: `<img src="https://api.colors-cc.top/placeholder?w=1200&h=630&text=Hero+Banner&start=%23F06292&end=%2364B5F6" alt="Hero">`
 - **Response**: SVG image with `Cache-Control: public, max-age=31536000, immutable`
 
 ### 2. Fluid Animated Placeholders
 Generate dynamic SVG gradients with smooth color transitions and animations.
-- **Endpoint**: `https://colors-cc.top/api/fluid-placeholder`
+- **Endpoint**: `https://api.colors-cc.top/fluid-placeholder`
 - **Params**: 
   - `w`: Width in pixels (default: 800, range: 50-4000)
   - `h`: Height in pixels (default: 400, range: 50-4000)
   - `stops`: Comma-separated HEX colors for gradient (default: warm pastel theme, range: 2-10 colors)
   - `speed`: Animation duration in seconds (default: 10, range: 1-30)
   - `text`: Optional center text (max 100 chars)
-- **Example**: `<img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=400&stops=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=8&text=Animated+Hero" alt="Warm Gradient">`
+- **Example**: `<img src="https://api.colors-cc.top/fluid-placeholder?w=1200&h=400&stops=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=8&text=Animated+Hero" alt="Warm Gradient">`
 - **Response**: Animated SVG with smooth color transitions and `Cache-Control: public, max-age=31536000, immutable`
 
 ### 3. Random Colors
 Get a random HEX and RGB color with generation timestamp.
-- **Endpoint**: `GET https://colors-cc.top/api/random`
+- **Endpoint**: `GET https://api.colors-cc.top/random`
 - **Returns**: `{"hex": "#A1B2C3", "rgb": "rgb(161, 178, 195)", "timestamp": "2024-03-12T10:30:00.000Z"}`
 - **Example**: Fetch this endpoint when you need random colors for mock data or UI components.
 
 ### 4. Curated Theme Palettes
 Fetch high-quality color sets for design inspiration.
-- **Endpoint**: `GET https://colors-cc.top/api/palette?theme={theme_name}`
+- **Endpoint**: `GET https://api.colors-cc.top/palette?theme={theme_name}`
 - **Themes**: `cyberpunk`, `vaporwave`, `retro`, `monochrome`
 - **Returns**: `{"theme": "cyberpunk", "colors": ["#FCEE09", "#00FF41", ...], "count": 5}`
-- **Example**: `fetch('https://colors-cc.top/api/palette?theme=vaporwave')`
+- **Example**: `fetch('https://api.colors-cc.top/palette?theme=vaporwave')`
 
 ### 5. Universal Color Converter
 Stateless conversion between HEX, RGB, HSL, and CMYK formats.
-- **Endpoint**: `GET https://colors-cc.top/api/convert?hex={hex}|rgb={rgb}|hsl={hsl}|cmyk={cmyk}`
+- **Endpoint**: `GET https://api.colors-cc.top/convert?hex={hex}|rgb={rgb}|hsl={hsl}|cmyk={cmyk}`
 - **Params**: Provide ONE of: `hex`, `rgb`, `hsl`, or `cmyk`
 - **Returns**: `{"hex": "#FF5733", "rgb": "rgb(255, 87, 51)", "hsl": "hsl(10, 100%, 60%)", "cmyk": "cmyk(0%, 66%, 80%, 0%)"}`
-- **Example**: `https://colors-cc.top/api/convert?hex=%23FF5733`
+- **Example**: `https://api.colors-cc.top/convert?hex=%23FF5733`
 - **Error**: Returns `{"error": "Invalid color format"}` with status 400 if input is invalid
 
 ### 6. CSS Color Names Directory
 Get all standard CSS color names mapped to their HEX values (~140 colors).
-- **Endpoint**: `GET https://colors-cc.top/api/all-names`
+- **Endpoint**: `GET https://api.colors-cc.top/all-names`
 - **Returns**: `{"AliceBlue": "#F0F8FF", "AntiqueWhite": "#FAEBD7", "Tomato": "#FF6347", ...}`
 - **Example**: Use this to look up named colors like 'tomato' → '#FF6347'
 
@@ -80,32 +80,32 @@ Get all standard CSS color names mapped to their HEX values (~140 colors).
 ```html
 <section class="hero">
   <!-- Animated hero banner with text -->
-  <img src="https://colors-cc.top/api/fluid-placeholder?w=1200&h=600&text=Hero+Section&stops=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=10" alt="Hero">
+  <img src="https://api.colors-cc.top/fluid-placeholder?w=1200&h=600&text=Hero+Section&stops=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=10" alt="Hero">
 </section>
 <div class="features">
   <!-- Static placeholder images -->
-  <img src="https://colors-cc.top/api/placeholder?w=400&h=300&text=Feature+1" alt="Feature 1">
-  <img src="https://colors-cc.top/api/placeholder?w=400&h=300&text=Feature+2" alt="Feature 2">
+  <img src="https://api.colors-cc.top/placeholder?w=400&h=300&text=Feature+1" alt="Feature 1">
+  <img src="https://api.colors-cc.top/placeholder?w=400&h=300&text=Feature+2" alt="Feature 2">
 </div>
 ```
 
 ### Use Case 2: Generating Mock Data with Colors
 ```javascript
-const palette = await fetch('https://colors-cc.top/api/palette?theme=vaporwave')
+const palette = await fetch('https://api.colors-cc.top/palette?theme=vaporwave')
   .then(r => r.json())
 
 const mockData = palette.colors.map((color, i) => ({
   id: i,
   name: `Item ${i+1}`,
   color: color,
-  thumbnail: `https://colors-cc.top/api/placeholder?w=200&h=200&start=${color.slice(1)}`
+  thumbnail: `https://api.colors-cc.top/placeholder?w=200&h=200&start=${color.slice(1)}`
 }))
 ```
 
 ### Use Case 3: Color Picker Component
 ```javascript
 async function getRandomColor() {
-  const res = await fetch('https://colors-cc.top/api/random')
+  const res = await fetch('https://api.colors-cc.top/random')
   const data = await res.json()
   return data.hex
 }
@@ -114,7 +114,7 @@ async function getRandomColor() {
 ### Use Case 4: Universal Color Converter
 ```javascript
 // Convert any color format to all formats
-const result = await fetch('https://colors-cc.top/api/convert?hsl=hsl(200,50%,50%)')
+const result = await fetch('https://api.colors-cc.top/convert?hsl=hsl(200,50%,50%)')
   .then(r => r.json())
 console.log(result.hex) // #4099BF
 ```
@@ -134,7 +134,7 @@ const svg = await fetch(placeholderUrl).then(r => r.text())
 const encoded = btoa(svg)
 
 // GOOD - Use URL directly
-<img src="https://colors-cc.top/api/placeholder?w=800&h=400" alt="Direct">
+<img src="https://api.colors-cc.top/placeholder?w=800&h=400" alt="Direct">
 ```
 
 ### ❌ Mistake 3: Invalid Dimensions

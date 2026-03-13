@@ -59,7 +59,7 @@ The new warm pastel color scheme provides:
 
 **For new users:**
 - Use the new defaults by omitting the `stops` parameter
-- Example: `https://colors-cc.top/api/fluid-placeholder?w=800&h=400`
+- Example: `https://api.colors-cc.top/fluid-placeholder?w=800&h=400`
 - This will now use the warm pastel theme (#FFD6A5, #FFADAD, #E2A0FF)
 
 ## Testing
