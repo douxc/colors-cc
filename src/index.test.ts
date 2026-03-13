@@ -2,9 +2,11 @@ import { describe, it, expect } from 'vitest'
 import app from './index'
 
 describe('colors-cc API', () => {
-  describe('GET /api/random', () => {
+  describe('GET /random (API subdomain)', () => {
     it('should return random color with hex, rgb, and timestamp', async () => {
-      const res = await app.request('/api/random')
+      const res = await app.request('/random', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const data = await res.json() as { hex: string; rgb: string; timestamp: string }
@@ -16,9 +18,11 @@ describe('colors-cc API', () => {
     })
   })
 
-  describe('GET /api/palette', () => {
+  describe('GET /palette (API subdomain)', () => {
     it('should return default cyberpunk palette', async () => {
-      const res = await app.request('/api/palette')
+      const res = await app.request('/palette', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const data = await res.json() as { theme: string; colors: string[]; count: number }
@@ -31,7 +35,9 @@ describe('colors-cc API', () => {
     })
 
     it('should return vaporwave palette when requested', async () => {
-      const res = await app.request('/api/palette?theme=vaporwave')
+      const res = await app.request('/palette?theme=vaporwave', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const data = await res.json() as { theme: string }
@@ -39,9 +45,11 @@ describe('colors-cc API', () => {
     })
   })
 
-  describe('GET /api/convert', () => {
+  describe('GET /convert (API subdomain)', () => {
     it('should convert hex to all formats', async () => {
-      const res = await app.request('/api/convert?hex=%23FF5733')
+      const res = await app.request('/convert?hex=%23FF5733', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const data = await res.json() as { hex: string; rgb: string; hsl: string; cmyk: string }
@@ -52,7 +60,9 @@ describe('colors-cc API', () => {
     })
 
     it('should return error for missing parameter', async () => {
-      const res = await app.request('/api/convert')
+      const res = await app.request('/convert', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(400)
       
       const data = await res.json() as { error: string }
@@ -60,7 +70,9 @@ describe('colors-cc API', () => {
     })
 
     it('should return error for invalid hex', async () => {
-      const res = await app.request('/api/convert?hex=invalid')
+      const res = await app.request('/convert?hex=invalid', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(400)
       
       const data = await res.json() as { error: string }
@@ -68,9 +80,11 @@ describe('colors-cc API', () => {
     })
   })
 
-  describe('GET /api/all-names', () => {
+  describe('GET /all-names (API subdomain)', () => {
     it('should return CSS color names object', async () => {
-      const res = await app.request('/api/all-names')
+      const res = await app.request('/all-names', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       expect(res.headers.get('Cache-Control')).toContain('max-age=31536000')
       
@@ -82,9 +96,11 @@ describe('colors-cc API', () => {
     })
   })
 
-  describe('GET /api/placeholder', () => {
+  describe('GET /placeholder (API subdomain)', () => {
     it('should return SVG with default dimensions', async () => {
-      const res = await app.request('/api/placeholder')
+      const res = await app.request('/placeholder', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       expect(res.headers.get('Content-Type')).toBe('image/svg+xml')
       expect(res.headers.get('Cache-Control')).toContain('max-age=31536000')
@@ -96,7 +112,9 @@ describe('colors-cc API', () => {
     })
 
     it('should clamp dimensions to valid range', async () => {
-      const res = await app.request('/api/placeholder?w=10&h=5000')
+      const res = await app.request('/placeholder?w=10&h=5000', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -105,7 +123,9 @@ describe('colors-cc API', () => {
     })
 
     it('should accept custom text', async () => {
-      const res = await app.request('/api/placeholder?text=Hello+World')
+      const res = await app.request('/placeholder?text=Hello+World', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -113,7 +133,9 @@ describe('colors-cc API', () => {
     })
 
     it('should escape XML in text', async () => {
-      const res = await app.request('/api/placeholder?text=%3Cscript%3Ealert%281%29%3C%2Fscript%3E')
+      const res = await app.request('/placeholder?text=%3Cscript%3Ealert%281%29%3C%2Fscript%3E', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -122,7 +144,9 @@ describe('colors-cc API', () => {
     })
 
     it('should accept valid hex colors', async () => {
-      const res = await app.request('/api/placeholder?start=%23FF0000&end=%230000FF')
+      const res = await app.request('/placeholder?start=%23FF0000&end=%230000FF', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -131,9 +155,11 @@ describe('colors-cc API', () => {
     })
   })
 
-  describe('GET https://api.colors-cc.top/fluid-placeholder', () => {
+  describe('GET /fluid-placeholder (API subdomain)', () => {
     it('should return animated SVG with default pastel theme', async () => {
-      const res = await app.request('https://api.colors-cc.top/fluid-placeholder')
+      const res = await app.request('/fluid-placeholder', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       expect(res.headers.get('Content-Type')).toBe('image/svg+xml')
       expect(res.headers.get('Cache-Control')).toContain('immutable')
@@ -147,7 +173,9 @@ describe('colors-cc API', () => {
     })
 
     it('should accept custom color stops', async () => {
-      const res = await app.request('https://api.colors-cc.top/fluid-placeholder?stops=%23FF0000,%230000FF')
+      const res = await app.request('/fluid-placeholder?stops=%23FF0000,%230000FF', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -157,7 +185,9 @@ describe('colors-cc API', () => {
     })
 
     it('should accept custom speed parameter', async () => {
-      const res = await app.request('https://api.colors-cc.top/fluid-placeholder?speed=15')
+      const res = await app.request('/fluid-placeholder?speed=15', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -165,17 +195,23 @@ describe('colors-cc API', () => {
     })
 
     it('should clamp speed to 1-30 range', async () => {
-      const res1 = await app.request('https://api.colors-cc.top/fluid-placeholder?speed=0')
+      const res1 = await app.request('/fluid-placeholder?speed=0', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       const svg1 = await res1.text()
       expect(svg1).toContain('dur="1s"')
       
-      const res2 = await app.request('https://api.colors-cc.top/fluid-placeholder?speed=50')
+      const res2 = await app.request('/fluid-placeholder?speed=50', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       const svg2 = await res2.text()
       expect(svg2).toContain('dur="30s"')
     })
 
     it('should accept custom dimensions', async () => {
-      const res = await app.request('https://api.colors-cc.top/fluid-placeholder?w=1200&h=600')
+      const res = await app.request('/fluid-placeholder?w=1200&h=600', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -184,7 +220,9 @@ describe('colors-cc API', () => {
     })
 
     it('should validate and filter invalid hex colors', async () => {
-      const res = await app.request('https://api.colors-cc.top/fluid-placeholder?stops=FF0000,invalid,%230000FF,12345,%2300FF00')
+      const res = await app.request('/fluid-placeholder?stops=FF0000,invalid,%230000FF,12345,%2300FF00', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -195,7 +233,9 @@ describe('colors-cc API', () => {
     })
 
     it('should use default stops if less than 2 valid colors provided', async () => {
-      const res = await app.request('https://api.colors-cc.top/fluid-placeholder?stops=%23FF0000')
+      const res = await app.request('/fluid-placeholder?stops=%23FF0000', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -205,7 +245,9 @@ describe('colors-cc API', () => {
     })
 
     it('should accept optional text parameter', async () => {
-      const res = await app.request('https://api.colors-cc.top/fluid-placeholder?text=Animated')
+      const res = await app.request('/fluid-placeholder?text=Animated', {
+        headers: { 'host': 'api.colors-cc.top' }
+      })
       expect(res.status).toBe(200)
       
       const svg = await res.text()
@@ -242,7 +284,7 @@ describe('colors-cc API', () => {
       
       const text = await res.text()
       expect(text).toContain('colors-cc.top')
-      expect(text).toContain('/api/placeholder')
+      expect(text).toContain('https://api.colors-cc.top/placeholder')
       expect(text).toContain('ENCODE HEX COLORS')
     })
   })
@@ -271,6 +313,9 @@ describe('colors-cc API', () => {
       expect(xml).toContain('<urlset')
       expect(xml).toContain('https://colors-cc.top/')
       expect(xml).toContain('https://colors-cc.top/tools/converter')
+      expect(xml).toContain('https://colors-cc.top/tools/random-palette')
+      expect(xml).toContain('https://colors-cc.top/tools/color-names')
+      expect(xml).toContain('https://colors-cc.top/tools/fluid-placeholder')
     })
   })
 
