@@ -16,11 +16,7 @@ app.get('/openapi.json', (c) => {
     "servers": [
       {
         "url": "https://api.colors-cc.top",
-        "description": "Primary API server (recommended, cleaner paths)"
-      },
-      {
-        "url": "https://colors-cc.top/api",
-        "description": "Legacy API server (backward compatible)"
+        "description": "API server"
       }
     ],
     "paths": {

@@ -1,263 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import app from './index'
 
-describe('colors-cc API', () => {
-  describe('GET /random (API subdomain)', () => {
-    it('should return random color with hex, rgb, and timestamp', async () => {
-      const res = await app.request('/random', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const data = await res.json() as { hex: string; rgb: string; timestamp: string }
-      expect(data).toHaveProperty('hex')
-      expect(data).toHaveProperty('rgb')
-      expect(data).toHaveProperty('timestamp')
-      expect(data.hex).toMatch(/^#[0-9A-F]{6}$/)
-      expect(data.rgb).toMatch(/^rgb\(\d+, \d+, \d+\)$/)
-    })
-  })
-
-  describe('GET /palette (API subdomain)', () => {
-    it('should return default cyberpunk palette', async () => {
-      const res = await app.request('/palette', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const data = await res.json() as { theme: string; colors: string[]; count: number }
-      expect(data).toHaveProperty('theme')
-      expect(data).toHaveProperty('colors')
-      expect(data).toHaveProperty('count')
-      expect(data.theme).toBe('cyberpunk')
-      expect(Array.isArray(data.colors)).toBe(true)
-      expect(data.colors.length).toBeGreaterThan(0)
-    })
-
-    it('should return vaporwave palette when requested', async () => {
-      const res = await app.request('/palette?theme=vaporwave', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const data = await res.json() as { theme: string }
-      expect(data.theme).toBe('vaporwave')
-    })
-  })
-
-  describe('GET /convert (API subdomain)', () => {
-    it('should convert hex to all formats', async () => {
-      const res = await app.request('/convert?hex=%23FF5733', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const data = await res.json() as { hex: string; rgb: string; hsl: string; cmyk: string }
-      expect(data.hex).toBe('#FF5733')
-      expect(data.rgb).toBe('rgb(255, 87, 51)')
-      expect(data.hsl).toMatch(/^hsl\(\d+, \d+%, \d+%\)$/)
-      expect(data.cmyk).toMatch(/^cmyk\(\d+%, \d+%, \d+%, \d+%\)$/)
-    })
-
-    it('should return error for missing parameter', async () => {
-      const res = await app.request('/convert', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(400)
-      
-      const data = await res.json() as { error: string }
-      expect(data).toHaveProperty('error')
-    })
-
-    it('should return error for invalid hex', async () => {
-      const res = await app.request('/convert?hex=invalid', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(400)
-      
-      const data = await res.json() as { error: string }
-      expect(data).toHaveProperty('error')
-    })
-  })
-
-  describe('GET /all-names (API subdomain)', () => {
-    it('should return CSS color names object', async () => {
-      const res = await app.request('/all-names', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      expect(res.headers.get('Cache-Control')).toContain('max-age=31536000')
-      
-      const data = await res.json() as Record<string, string>
-      expect(data).toHaveProperty('AliceBlue')
-      expect(data).toHaveProperty('Tomato')
-      expect(data.AliceBlue).toBe('#F0F8FF')
-      expect(data.Tomato).toBe('#FF6347')
-    })
-  })
-
-  describe('GET /placeholder (API subdomain)', () => {
-    it('should return SVG with default dimensions', async () => {
-      const res = await app.request('/placeholder', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      expect(res.headers.get('Content-Type')).toBe('image/svg+xml')
-      expect(res.headers.get('Cache-Control')).toContain('max-age=31536000')
-      
-      const svg = await res.text()
-      expect(svg).toContain('<svg')
-      expect(svg).toContain('width="800"')
-      expect(svg).toContain('height="400"')
-    })
-
-    it('should clamp dimensions to valid range', async () => {
-      const res = await app.request('/placeholder?w=10&h=5000', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const svg = await res.text()
-      expect(svg).toContain('width="50"')
-      expect(svg).toContain('height="4000"')
-    })
-
-    it('should accept custom text', async () => {
-      const res = await app.request('/placeholder?text=Hello+World', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const svg = await res.text()
-      expect(svg).toContain('Hello World')
-    })
-
-    it('should escape XML in text', async () => {
-      const res = await app.request('/placeholder?text=%3Cscript%3Ealert%281%29%3C%2Fscript%3E', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const svg = await res.text()
-      expect(svg).toContain('&lt;script&gt;')
-      expect(svg).not.toContain('<script>')
-    })
-
-    it('should accept valid hex colors', async () => {
-      const res = await app.request('/placeholder?start=%23FF0000&end=%230000FF', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const svg = await res.text()
-      expect(svg).toContain('#FF0000')
-      expect(svg).toContain('#0000FF')
-    })
-  })
-
-  describe('GET /fluid-placeholder (API subdomain)', () => {
-    it('should return animated SVG with default pastel theme', async () => {
-      const res = await app.request('/fluid-placeholder', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      expect(res.headers.get('Content-Type')).toBe('image/svg+xml')
-      expect(res.headers.get('Cache-Control')).toContain('immutable')
-      
-      const svg = await res.text()
-      expect(svg).toContain('<animate')
-      expect(svg).toContain('attributeName="stop-color"')
-      expect(svg).toContain('#FFD6A5')
-      expect(svg).toContain('#FFADAD')
-      expect(svg).toContain('#E2A0FF')
-    })
-
-    it('should accept custom color stops', async () => {
-      const res = await app.request('/fluid-placeholder?stops=%23FF0000,%230000FF', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const svg = await res.text()
-      expect(svg).toContain('#FF0000')
-      expect(svg).toContain('#0000FF')
-      expect(svg).toContain('<animate')
-    })
-
-    it('should accept custom speed parameter', async () => {
-      const res = await app.request('/fluid-placeholder?speed=15', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const svg = await res.text()
-      expect(svg).toContain('dur="15s"')
-    })
-
-    it('should clamp speed to 1-30 range', async () => {
-      const res1 = await app.request('/fluid-placeholder?speed=0', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      const svg1 = await res1.text()
-      expect(svg1).toContain('dur="1s"')
-      
-      const res2 = await app.request('/fluid-placeholder?speed=50', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      const svg2 = await res2.text()
-      expect(svg2).toContain('dur="30s"')
-    })
-
-    it('should accept custom dimensions', async () => {
-      const res = await app.request('/fluid-placeholder?w=1200&h=600', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const svg = await res.text()
-      expect(svg).toContain('width="1200"')
-      expect(svg).toContain('height="600"')
-    })
-
-    it('should validate and filter invalid hex colors', async () => {
-      const res = await app.request('/fluid-placeholder?stops=FF0000,invalid,%230000FF,12345,%2300FF00', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const svg = await res.text()
-      expect(svg).toContain('#FF0000')
-      expect(svg).toContain('#0000FF')
-      expect(svg).toContain('#00FF00')
-      expect(svg).not.toContain('invalid')
-    })
-
-    it('should use default stops if less than 2 valid colors provided', async () => {
-      const res = await app.request('/fluid-placeholder?stops=%23FF0000', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const svg = await res.text()
-      expect(svg).toContain('#FFD6A5')
-      expect(svg).toContain('#FFADAD')
-      expect(svg).toContain('#E2A0FF')
-    })
-
-    it('should accept optional text parameter', async () => {
-      const res = await app.request('/fluid-placeholder?text=Animated', {
-        headers: { 'host': 'api.colors-cc.top' }
-      })
-      expect(res.status).toBe(200)
-      
-      const svg = await res.text()
-      expect(svg).toContain('Animated')
-      expect(svg).toContain('<text')
-    })
-  })
-
-  describe('GET /openapi.json', () => {
-    it('should return valid OpenAPI spec', async () => {
+describe('colors-cc Frontend', () => {
+  describe('Documentation Routes', () => {
+    it('should serve /openapi.json', async () => {
       const res = await app.request('/openapi.json')
       expect(res.status).toBe(200)
       expect(res.headers.get('Cache-Control')).toContain('max-age=86400')
@@ -269,14 +15,11 @@ describe('colors-cc API', () => {
       expect(spec.paths).toHaveProperty('/palette')
       expect(spec.paths).toHaveProperty('/convert')
       expect(spec.paths).toHaveProperty('/placeholder')
-      expect(spec.servers).toHaveLength(2)
+      expect(spec.servers).toHaveLength(1)
       expect(spec.servers[0].url).toBe('https://api.colors-cc.top')
-      expect(spec.servers[1].url).toBe('https://colors-cc.top/api')
     })
-  })
 
-  describe('GET /llms.txt', () => {
-    it('should return LLM documentation', async () => {
+    it('should serve /llms.txt', async () => {
       const res = await app.request('/llms.txt')
       expect(res.status).toBe(200)
       expect(res.headers.get('Content-Type')).toContain('text/plain')
@@ -287,10 +30,21 @@ describe('colors-cc API', () => {
       expect(text).toContain('https://api.colors-cc.top/placeholder')
       expect(text).toContain('ENCODE HEX COLORS')
     })
+
+    it('should serve /skills/colors-cc.md', async () => {
+      const res = await app.request('/skills/colors-cc.md')
+      expect(res.status).toBe(200)
+      expect(res.headers.get('Content-Type')).toContain('text/markdown')
+      expect(res.headers.get('Cache-Control')).toContain('max-age=86400')
+      
+      const text = await res.text()
+      expect(text).toContain('SKILL: ColorsCC')
+      expect(text).toContain('https://api.colors-cc.top')
+    })
   })
 
-  describe('GET /robots.txt', () => {
-    it('should return robots.txt with sitemap', async () => {
+  describe('SEO Routes', () => {
+    it('should serve /robots.txt', async () => {
       const res = await app.request('/robots.txt')
       expect(res.status).toBe(200)
       expect(res.headers.get('Content-Type')).toContain('text/plain')
@@ -300,10 +54,8 @@ describe('colors-cc API', () => {
       expect(text).toContain('Allow: /')
       expect(text).toContain('Sitemap: https://colors-cc.top/sitemap.xml')
     })
-  })
 
-  describe('GET /sitemap.xml', () => {
-    it('should return valid sitemap', async () => {
+    it('should serve /sitemap.xml', async () => {
       const res = await app.request('/sitemap.xml')
       expect(res.status).toBe(200)
       expect(res.headers.get('Content-Type')).toBe('text/xml')
@@ -348,178 +100,42 @@ describe('colors-cc API', () => {
       expect(html).toContain('HTML Color Names')
     })
 
+    it('should render /tools/fluid-placeholder', async () => {
+      const res = await app.request('/tools/fluid-placeholder')
+      expect(res.status).toBe(200)
+      
+      const html = await res.text()
+      expect(html).toContain('Animated Fluid Gradient Placeholder')
+    })
+
+    it('should return 404 for invalid tool route', async () => {
+      const res = await app.request('/tools/invalid-tool')
+      expect(res.status).toBe(404)
+    })
+
+    it('should render /tools/hex-to-rgb', async () => {
+      const res = await app.request('/tools/hex-to-rgb')
+      expect(res.status).toBe(200)
+      
+      const html = await res.text()
+      expect(html).toContain('HEX to RGB Converter')
+    })
+
     it('should return 404 for invalid conversion route', async () => {
-      const res = await app.request('/tools/invalid-conversion')
+      const res = await app.request('/tools/invalid-to-invalid')
       expect(res.status).toBe(404)
     })
   })
 
-  describe('Dual Domain Support', () => {
-    describe('API Subdomain (api.colors-cc.top)', () => {
-      it('should serve API endpoints at root path', async () => {
-        const res = await app.request('/random', {
-          headers: { 'host': 'api.colors-cc.top' }
-        })
-        expect(res.status).toBe(200)
-        
-        const data = await res.json() as { hex: string; rgb: string }
-        expect(data).toHaveProperty('hex')
-        expect(data).toHaveProperty('rgb')
-      })
-
-      it('should serve /palette at root path', async () => {
-        const res = await app.request('/palette?theme=vaporwave', {
-          headers: { 'host': 'api.colors-cc.top' }
-        })
-        expect(res.status).toBe(200)
-        
-        const data = await res.json() as { theme: string }
-        expect(data.theme).toBe('vaporwave')
-      })
-
-      it('should serve /convert at root path', async () => {
-        const res = await app.request('/convert?hex=%23FF5733', {
-          headers: { 'host': 'api.colors-cc.top' }
-        })
-        expect(res.status).toBe(200)
-        
-        const data = await res.json() as { hex: string }
-        expect(data.hex).toBe('#FF5733')
-      })
-
-      it('should serve /placeholder at root path', async () => {
-        const res = await app.request('/placeholder?w=800&h=400', {
-          headers: { 'host': 'api.colors-cc.top' }
-        })
-        expect(res.status).toBe(200)
-        expect(res.headers.get('Content-Type')).toBe('image/svg+xml')
-      })
-
-      it('should serve /fluid-placeholder at root path', async () => {
-        const res = await app.request('/fluid-placeholder', {
-          headers: { 'host': 'api.colors-cc.top' }
-        })
-        expect(res.status).toBe(200)
-        expect(res.headers.get('Content-Type')).toBe('image/svg+xml')
-      })
-
-      it('should serve /all-names at root path', async () => {
-        const res = await app.request('/all-names', {
-          headers: { 'host': 'api.colors-cc.top' }
-        })
-        expect(res.status).toBe(200)
-        
-        const data = await res.json() as Record<string, string>
-        expect(data).toHaveProperty('AliceBlue')
-      })
-
-      it('should return 404 for non-API paths', async () => {
-        const res = await app.request('/', {
-          headers: { 'host': 'api.colors-cc.top' }
-        })
-        expect(res.status).toBe(404)
-        
-        const data = await res.json() as { error: string }
-        expect(data.error).toContain('only serves API endpoints')
-      })
-
-      it('should return 404 for /tools on API subdomain', async () => {
-        const res = await app.request('/tools/converter', {
-          headers: { 'host': 'api.colors-cc.top' }
-        })
-        expect(res.status).toBe(404)
-      })
-    })
-
-    describe('Main Domain (colors-cc.top) - Legacy API paths', () => {
-      it('should continue serving /api/random', async () => {
-        const res = await app.request('/api/random', {
-          headers: { 'host': 'colors-cc.top' }
-        })
-        expect(res.status).toBe(200)
-        
-        const data = await res.json() as { hex: string }
-        expect(data).toHaveProperty('hex')
-      })
-
-      it('should continue serving /api/palette', async () => {
-        const res = await app.request('/api/palette', {
-          headers: { 'host': 'colors-cc.top' }
-        })
-        expect(res.status).toBe(200)
-        
-        const data = await res.json() as { theme: string }
-        expect(data.theme).toBe('cyberpunk')
-      })
-
-      it('should serve homepage at root', async () => {
-        const res = await app.request('/', {
-          headers: { 'host': 'colors-cc.top' }
-        })
-        expect(res.status).toBe(200)
-        expect(res.headers.get('Content-Type')).toContain('text/html')
-      })
-
-      it('should serve tool pages', async () => {
-        const res = await app.request('/tools/converter', {
-          headers: { 'host': 'colors-cc.top' }
-        })
-        expect(res.status).toBe(200)
-        expect(res.headers.get('Content-Type')).toContain('text/html')
-      })
-    })
-
-    describe('Response Consistency', () => {
-      it('should return identical responses for both domain formats', async () => {
-        const res1 = await app.request('/random', {
-          headers: { 'host': 'api.colors-cc.top' }
-        })
-        const res2 = await app.request('/api/random', {
-          headers: { 'host': 'colors-cc.top' }
-        })
-        
-        expect(res1.status).toBe(res2.status)
-        
-        const data1 = await res1.json() as { hex: string; rgb: string }
-        const data2 = await res2.json() as { hex: string; rgb: string }
-        
-        expect(data1).toHaveProperty('hex')
-        expect(data1).toHaveProperty('rgb')
-        expect(data2).toHaveProperty('hex')
-        expect(data2).toHaveProperty('rgb')
-      })
-
-      it('should have consistent CORS headers', async () => {
-        const res1 = await app.request('/random', {
-          headers: { 'host': 'api.colors-cc.top', 'origin': 'https://example.com' }
-        })
-        const res2 = await app.request('/api/random', {
-          headers: { 'host': 'colors-cc.top', 'origin': 'https://example.com' }
-        })
-        
-        expect(res1.headers.get('access-control-allow-origin')).toBeTruthy()
-        expect(res2.headers.get('access-control-allow-origin')).toBeTruthy()
-      })
-    })
-
-    describe('Local Development Support', () => {
-      it('should detect api.localhost for local dev', async () => {
-        const res = await app.request('/random', {
-          headers: { 'host': 'api.localhost:8787' }
-        })
-        expect(res.status).toBe(200)
-        
-        const data = await res.json() as { hex: string }
-        expect(data).toHaveProperty('hex')
-      })
-
-      it('should treat localhost as main domain', async () => {
-        const res = await app.request('/', {
-          headers: { 'host': 'localhost:8787' }
-        })
-        expect(res.status).toBe(200)
-        expect(res.headers.get('Content-Type')).toContain('text/html')
-      })
+  describe('Homepage', () => {
+    it('should render /', async () => {
+      const res = await app.request('/')
+      expect(res.status).toBe(200)
+      expect(res.headers.get('Content-Type')).toContain('text/html')
+      
+      const html = await res.text()
+      expect(html).toContain('<!DOCTYPE html>')
+      expect(html).toContain('colors-cc')
     })
   })
 })

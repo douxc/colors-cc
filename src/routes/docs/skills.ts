@@ -22,9 +22,7 @@ A native UI asset and color toolset for AI Agents (OpenClaw, Cursor, Cline, GPTs
 5. **Text is truncated** - Max 100 characters for placeholder text
 
 ## API Access
-Two ways to access the API (both return identical responses):
-- **Primary (Recommended)**: https://api.colors-cc.top/* - Shorter, cleaner paths
-- **Legacy**: https://colors-cc.top/api/* - Backward compatible
+- **API Endpoint**: https://api.colors-cc.top/*
 
 ## Quick Reference
 

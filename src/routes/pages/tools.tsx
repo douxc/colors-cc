@@ -25,7 +25,7 @@ app.get('/random-palette', (c) => {
         
         <div style="margin-top: 35px; border-top: 1px solid #eee; padding-top: 20px;">
             <h3>API Access</h3>
-            <p class="desc">Endpoint: <code style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; color: #e83e8c;">GET /api/palette?theme=cyberpunk</code></p>
+            <p class="desc">Endpoint: <code style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; color: #e83e8c;">GET https://api.colors-cc.top/palette?theme=cyberpunk</code></p>
             <p class="desc" style="margin-top: 10px;">Available themes: <code>cyberpunk</code>, <code>vaporwave</code>, <code>retro</code>, <code>monochrome</code></p>
         </div>
     </div>
@@ -37,7 +37,7 @@ app.get('/random-palette', (c) => {
         async function loadPalette() {
             const theme = themeSelect.value;
             try {
-                const res = await fetch('/api/palette?theme=' + theme);
+                const res = await fetch('https://api.colors-cc.top/palette?theme=' + theme);
                 const data = await res.json();
                 renderPalette(data.colors);
             } catch(e) {
@@ -100,7 +100,7 @@ app.get('/color-names', (c) => {
 
         <div style="margin-top: 35px; border-top: 1px solid #eee; padding-top: 20px;">
             <h3>API Access</h3>
-            <p class="desc">Get all color names as JSON: <code>GET /api/all-names</code></p>
+            <p class="desc">Get all color names as JSON: <code>GET https://api.colors-cc.top/all-names</code></p>
         </div>
     </div>
 
@@ -110,7 +110,7 @@ app.get('/color-names', (c) => {
         let allColors = {};
 
         async function loadColors() {
-            const res = await fetch('/api/all-names');
+            const res = await fetch('https://api.colors-cc.top/all-names');
             allColors = await res.json();
             renderColors(allColors);
         }
@@ -379,7 +379,7 @@ app.get('/:conversion', (c) => {
             </div>
         </div>
         <div id="preview" style="width: 100%; height: 50px; border-radius: 8px; border: 1px solid #eee; background: #fff; margin-bottom: 20px;"></div>
-        <p class="desc">API Endpoint: <code>GET /api/convert?hex=%23FF5733</code> or <code>?rgb=255,87,51</code> etc.</p>
+        <p class="desc">API Endpoint: <code>GET https://api.colors-cc.top/convert?hex=%23FF5733</code> or <code>?rgb=255,87,51</code> etc.</p>
         <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
             <h3 style="font-size: 1.1em; color: #555; margin-bottom: 15px;">More Conversions</h3>
             <div style="display: flex; flex-wrap: wrap; gap: 5px;">
@@ -402,7 +402,7 @@ app.get('/:conversion', (c) => {
             if (source === 'hex' && !value.startsWith('#')) param = '%23' + value;
             
             try {
-                const res = await fetch(\`/api/convert?\${source}=\${param}\`);
+                const res = await fetch(\`https://api.colors-cc.top/convert?\${source}=\${param}\`);
                 const data = await res.json();
                 if (data.hex) {
                     if (source !== 'hex') inputs.hex.value = data.hex;

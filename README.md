@@ -4,10 +4,12 @@
 [![Hono](https://img.shields.io/badge/Hono-Framework-E36002?logo=hono&logoColor=white)](https://hono.dev/)
 [![AI Ready](https://img.shields.io/badge/AI-Ready-blueviolet)](https://colors-cc.top/llms.txt)
 
+> **Note:** This repository contains the **frontend-only** application (https://colors-cc.top). The API service (https://api.colors-cc.top) is maintained separately.
+
 A blazing fast, free, and stateless API designed to help **AI Agents (Cursor, Cline, OpenClaw)** and developers instantly generate UI assets like SVG gradient placeholder images and random colors.
 
-**🌐 Live Site:** [https://colors-cc.top/](https://colors-cc.top/)  
-**🚀 API Endpoint:** [https://api.colors-cc.top/](https://api.colors-cc.top/)
+**🌐 Frontend Site:** [https://colors-cc.top/](https://colors-cc.top/)  
+**🚀 External API:** [https://api.colors-cc.top/](https://api.colors-cc.top/)
 
 ![Animated Fluid Gradient](https://api.colors-cc.top/fluid-placeholder?w=1200&h=300&stops=FFD6A5,FFADAD,E2A0FF&speed=12&text=Animated+Hero)
 
@@ -15,12 +17,17 @@ A blazing fast, free, and stateless API designed to help **AI Agents (Cursor, Cl
 
 ## 🚀 Features
 
-- **🌐 Dual Domain Access:** Use `https://api.colors-cc.top/*` for cleaner API paths, or `colors-cc.top/api/*` for backward compatibility. Both return identical responses.
-- **✨ Animated Fluid Gradients:** Create smooth, infinitely-looping animated SVG gradients with custom color stops and speeds for hero banners and backgrounds.
-- **🤖 AI Native:** Built-in `llms.txt` and system prompts for seamless integration with AI coding assistants.
-- **🎨 SVG Image Placeholder:** Generate lightweight, beautiful gradient placeholders with custom text. No more broken images in your mockups.
-- **🎲 Random Color API:** Get random HEX/RGB colors in JSON format instantly.
-- **⚡ Edge Runtime:** Powered by Cloudflare Workers for global low-latency.
+This frontend application provides:
+- **📚 Interactive Documentation:** Web-based color conversion tools and palette generators
+- **🎨 Visual Playground:** Interactive demos for all API endpoints
+- **🤖 AI-Optimized Docs:** Built-in `llms.txt`, OpenAPI spec, and skill files for AI agent integration
+- **📱 Responsive Design:** Beautiful, mobile-friendly interface for exploring color utilities
+
+The external API service provides:
+- **✨ Animated Fluid Gradients:** Create smooth, infinitely-looping animated SVG gradients with custom color stops and speeds
+- **🎨 SVG Image Placeholder:** Generate lightweight, beautiful gradient placeholders with custom text
+- **🎲 Random Color API:** Get random HEX/RGB colors in JSON format instantly
+- **⚡ Edge Runtime:** Powered by Cloudflare Workers for global low-latency
 
 ## 🤖 For AI Agents (Cursor/Cline/OpenClaw)
 
