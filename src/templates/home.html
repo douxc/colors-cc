@@ -1,588 +1,855 @@
 <!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Free Color API - Random HEX, RGB & Palette Generator | colors-cc</title>
-      <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
-      
-      <!-- SEO Meta Tags -->
-      <meta name="description" content="A blazing fast, free, and stateless Color API for developers and designers. Generate random HEX/RGB colors and curated palettes in JSON format with zero authentication.">
-      <meta name="keywords" content="Color API, free API, random hex generator, color palette API, JSON color, frontend tools, colors-cc, web design">
-      <meta name="author" content="colors-cc">
-      <meta name="robots" content="index, follow">
-      <link rel="canonical" href="https://colors-cc.top/">
-      
-      <!-- Open Graph / Facebook / Discord -->
-      <meta property="og:type" content="website">
-      <meta property="og:url" content="https://colors-cc.top/">
-      <meta property="og:title" content="Free Color API for Developers | colors-cc">
-      <meta property="og:description" content="Generate random colors and curated palettes instantly. A free, stateless JSON API built on Cloudflare edge nodes.">
-      
-      <!-- Twitter Card -->
-      <meta name="twitter:card" content="summary_large_image">
-      <meta name="twitter:url" content="https://colors-cc.top/">
-      <meta name="twitter:title" content="Free Color API for Developers | colors-cc">
-      <meta name="twitter:description" content="Generate random colors and curated palettes instantly. A free, stateless JSON API.">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placeholder Image Generator — Free Color API | colors-cc</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
 
-      <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; background: #fafafa; }
-          header { text-align: left; margin-bottom: 45px; }
-          h1 { color: #111; letter-spacing: -0.5px; font-size: 2.5em; margin-bottom: 10px; }
-          .subtitle { color: #666; font-size: 1.1em; }
-          
-          /* Base endpoint card */
-          section.endpoint { 
-              background: #fff; 
-              padding: 25px; 
-              border-radius: 12px; 
-              margin-bottom: 25px; 
-              box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
-              border: 1px solid #eaeaea; 
-              position: relative;
-              overflow: hidden;
-          }
-          
-          /* Hero cards (top 2 APIs) with two-column layout */
-          section.endpoint-hero {
-              padding: 30px;
-              background: linear-gradient(to bottom, #fff 0%, #f8f9fa 100%);
-          }
-          
-          section.endpoint-hero::before {
-              content: '';
-              position: absolute;
-              top: 0;
-              left: 0;
-              right: 0;
-              height: 3px;
-          }
-          
-          section.endpoint-hero[data-theme="aurora"]::before {
-              background: linear-gradient(90deg, #FFD6A5 0%, #FFADAD 50%, #E2A0FF 100%);
-          }
-          
-          section.endpoint-hero[data-theme="cyberpunk"]::before {
-              background: linear-gradient(90deg, #F06292 0%, #64B5F6 100%);
-          }
-          
-          .hero-content {
-              display: flex;
-              gap: 30px;
-              align-items: flex-start;
-          }
-          
-          .hero-text {
-              flex: 1;
-              min-width: 0;
-          }
-          
-          .hero-preview {
-              flex-shrink: 0;
-              width: 320px;
-              border-radius: 8px;
-              overflow: hidden;
-              box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          }
-          
-          .hero-preview img {
-              width: 100%;
-              height: auto;
-              display: block;
-          }
-          
-          /* Mid-tier cards with gradient border */
-          section.endpoint-mid {
-              position: relative;
-          }
-          
-          section.endpoint-mid::before {
-              content: '';
-              position: absolute;
-              top: 0;
-              left: 0;
-              right: 0;
-              height: 2px;
-          }
-          
-          section.endpoint-mid[data-theme="vaporwave"]::before {
-              background: linear-gradient(90deg, #FF71CE 0%, #01CDFE 50%, #05FFA1 100%);
-          }
-          
-          section.endpoint-mid[data-theme="retro"]::before {
-              background: linear-gradient(90deg, #E24E1B 0%, #F8A91F 100%);
-          }
-          
-          .api-preview {
-              margin: 20px 0;
-              padding: 15px;
-              background: #f8f9fa;
-              border-radius: 8px;
-              border: 1px solid #eee;
-          }
-          
-          /* Inline preview elements */
-          .color-swatch {
-              display: inline-block;
-              width: 100px;
-              height: 100px;
-              border-radius: 8px;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-              cursor: pointer;
-              transition: transform 0.2s;
-          }
-          
-          .color-swatch:hover {
-              transform: scale(1.05);
-          }
-          
-          .palette-strip {
-              display: flex;
-              gap: 8px;
-              margin: 8px 0;
-          }
-          
-          .palette-color {
-              flex: 1;
-              height: 60px;
-              border-radius: 6px;
-              box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-          }
-          
-          h2 { margin-top: 0; color: #222; font-size: 1.3em; }
-          p.desc { color: #555; margin-bottom: 15px; }
-          code { background: #f0f0f0; padding: 5px 10px; border-radius: 6px; font-size: 0.95em; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; color: #e83e8c; }
-          .btn { display: inline-block; padding: 10px 20px; background: #111; color: #fff; text-decoration: none; border-radius: 8px; margin-top: 15px; font-size: 0.9em; font-weight: 500; transition: transform 0.1s, background 0.2s; }
-          .btn:hover { background: #333; }
-          .btn:active { transform: scale(0.98); }
-          footer { margin-top: 50px; text-align: center; color: #999; font-size: 0.85em; padding-top: 20px; border-top: 1px solid #eaeaea; }
-          a { color: #666; text-decoration: none; }
-          a:hover { text-decoration: underline; }
-          
-          /* Hero banner */
-          .hero-banner {
-              position: relative;
-              margin: -40px -20px 40px -20px;
-              padding: 80px 20px 60px;
-              background-image: url('https://api.colors-cc.top/fluid-placeholder?w=1600&h=400&stops=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=15&text=');
-              background-size: cover;
-              background-position: center;
-              border-radius: 0 0 16px 16px;
-              box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-              overflow: hidden;
-          }
-          
-          .hero-banner::before {
-              content: '';
-              position: absolute;
-              inset: 0;
-              background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%);
-          }
-          
-          .hero-banner-content {
-              position: relative;
-              max-width: 800px;
-              margin: 0 auto;
-              text-align: center;
-              color: #fff;
-          }
-          
-          .hero-banner-content h1 {
-              font-size: 3em;
-              margin: 0 0 15px 0;
-              text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-              color: #fff;
-          }
-          
-          .hero-banner-content p {
-              font-size: 1.3em;
-              margin: 0 0 25px 0;
-              text-shadow: 0 1px 4px rgba(0,0,0,0.3);
-              opacity: 0.95;
-          }
-          
-          .hero-cta {
-              display: inline-flex;
-              gap: 12px;
-              flex-wrap: wrap;
-              justify-content: center;
-          }
-          
-          .hero-cta .btn {
-              margin: 0;
-              padding: 12px 28px;
-              font-size: 1em;
-              background: rgba(255,255,255,0.95);
-              color: #111;
-              box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-          }
-          
-          .hero-cta .btn:hover {
-              background: #fff;
-              transform: translateY(-2px);
-              box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-          }
-          
-          .hero-cta .btn.btn-secondary {
-              background: rgba(0,0,0,0.3);
-              color: #fff;
-              backdrop-filter: blur(10px);
-          }
-          
-          .hero-cta .btn.btn-secondary:hover {
-              background: rgba(0,0,0,0.4);
-          }
-          
-          /* Responsive */
-          @media (max-width: 768px) {
-              .hero-content {
-                  flex-direction: column;
-              }
-              .hero-preview {
-                  width: 100%;
-                  max-height: 250px;
-              }
-              .hero-preview img {
-                  object-fit: cover;
-              }
-              .hero-banner {
-                  margin-top: -40px;
-                  padding: 60px 20px 40px;
-              }
-              .hero-banner-content h1 {
-                  font-size: 2.2em;
-              }
-              .hero-banner-content p {
-                  font-size: 1.1em;
-              }
-              .hero-cta {
-                  flex-direction: column;
-                  width: 100%;
-              }
-              .hero-cta .btn {
-                  width: 100%;
-                  text-align: center;
-              }
-              section.endpoint-hero {
-                  padding: 20px;
-              }
-              section.endpoint {
-                  padding: 20px;
-              }
-              .api-preview {
-                  padding: 12px;
-              }
-              .palette-strip {
-                  gap: 4px;
-              }
-              .palette-color {
-                  height: 50px;
-              }
-              .color-swatch {
-                  width: 80px;
-                  height: 80px;
-              }
-          }
-          
-          @media (max-width: 640px) {
-              body {
-                  margin: 20px auto;
-              }
-              h1 {
-                  font-size: 2em;
-              }
-              h2 {
-                  font-size: 1.2em;
-              }
-              .subtitle {
-                  font-size: 1em;
-              }
-              .hero-banner-content h1 {
-                  font-size: 1.8em;
-              }
-              .hero-banner-content p {
-                  font-size: 1em;
-              }
-              code {
-                  font-size: 0.85em;
-                  padding: 4px 6px;
-              }
-              footer {
-                  margin-top: 40px;
-              }
-              footer div {
-                  flex-direction: column;
-                  gap: 10px;
-              }
-          }
-      </style>
-  </head>
-  <body>
-      <div class="hero-banner">
-          <div class="hero-banner-content">
-              <h1>🎨 colors-cc API</h1>
-              <p>Free, stateless color & placeholder API built for developers and AI agents</p>
-              <div class="hero-cta">
-                  <a href="#main" class="btn">Explore APIs &darr;</a>
-                  <a href="/tools/fluid-placeholder" class="btn btn-secondary">Try Interactive Tools &rarr;</a>
-              </div>
-          </div>
-      </div>
-      
-      <header style="margin-bottom: 35px; margin-top: 20px;">
-          <p class="subtitle">Built on the edge with Cloudflare Workers. Generate random colors, curated palettes, and dynamic SVG placeholders instantly.</p>
-      </header>
-      
-      <main id="main">
-          <section class="endpoint endpoint-hero" data-theme="aurora">
-              <div class="hero-content">
-                  <div class="hero-text">
-                      <h2>1. Animated Fluid Gradient Placeholder API</h2>
-                      <p class="desc">Generate animated SVG placeholders with smooth color transitions and dynamic gradient effects. Perfect for hero banners and modern UI designs.</p>
-                      <p><code>GET https://api.colors-cc.top/fluid-placeholder</code></p>
-                      
-                      <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
-                          <strong style="display:block; margin-bottom:8px;">Query Parameters:</strong>
-                          <ul style="margin:0; padding-left:20px; color:#444;">
-                              <li><code>w</code>: Image width in pixels (default: 800, range: 50-4000)</li>
-                              <li><code>h</code>: Image height in pixels (default: 400, range: 50-4000)</li>
-                              <li><code>stops</code>: Comma-separated HEX colors (2-10 colors, e.g. %23FFD6A5,%23FFADAD,%23E2A0FF)</li>
-                              <li><code>speed</code>: Animation duration in seconds (default: 10, range: 1-30)</li>
-                              <li><code>text</code>: Optional center text (max 100 chars)</li>
-                          </ul>
-                      </div>
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Generate animated SVG placeholder images instantly. Customize size, effect, and colors — get a ready-to-use URL. Free, stateless API built for developers and AI agents.">
+    <meta name="keywords" content="placeholder image generator, SVG placeholder, animated gradient, color API, free API, random hex, color palette, web design tools, colors-cc">
+    <meta name="author" content="colors-cc">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://colors-cc.top/">
 
-                      <a href="https://api.colors-cc.top/fluid-placeholder?w=800&amp;h=400&amp;stops=%23FFD6A5,%23FFADAD,%23E2A0FF&amp;speed=8&amp;text=Coming+Soon" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
-                      <a href="/tools/fluid-placeholder" class="btn" style="background: #007bff; margin-left: 10px;">Interactive Generator &rarr;</a>
-                  </div>
-                  <div class="hero-preview">
-                      <img src="https://api.colors-cc.top/fluid-placeholder?w=400&amp;h=200&amp;stops=%23FFD6A5,%23FFADAD,%23E2A0FF&amp;speed=12" alt="Live animated gradient preview" loading="eager">
-                  </div>
-              </div>
-          </section>
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://colors-cc.top/">
+    <meta property="og:title" content="Placeholder Generator — Free Color API | colors-cc">
+    <meta property="og:description" content="Generate animated SVG placeholder images instantly. Customize size, effect, colors, and get a ready-to-use URL. Free API for developers and AI agents.">
+    <meta property="og:image" content="https://api.colors-cc.top/placeholder?w=1200&h=630&text=colors-cc&effect=mesh&palette=%23FFD6A5,%23FFADAD,%23E2A0FF">
+    <meta property="og:site_name" content="colors-cc">
 
-          <section class="endpoint endpoint-hero" data-theme="cyberpunk">
-              <div class="hero-content">
-                  <div class="hero-text">
-                      <h2>2. SVG Image Placeholder API</h2>
-                      <p class="desc">Generate dynamic, lightweight, and customizable SVG gradient placeholder images for your projects.</p>
-                      <p><code>GET https://api.colors-cc.top/placeholder</code></p>
-                      
-                      <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
-                          <strong style="display:block; margin-bottom:8px;">Query Parameters:</strong>
-                          <ul style="margin:0; padding-left:20px; color:#444;">
-                              <li><code>w</code> / <code>width</code>: Image width in pixels (default: 800)</li>
-                              <li><code>h</code> / <code>height</code>: Image height in pixels (default: 400)</li>
-                              <li><code>text</code>: Center text content (default: width x height)</li>
-                              <li><code>start</code>: Gradient start hex color (e.g. %23F06292)</li>
-                              <li><code>end</code>: Gradient end hex color (e.g. %2364B5F6)</li>
-                          </ul>
-                      </div>
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://colors-cc.top/">
+    <meta name="twitter:title" content="Placeholder Generator — Free Color API | colors-cc">
+    <meta name="twitter:description" content="Generate animated SVG placeholder images instantly. Free API for developers and AI agents.">
+    <meta name="twitter:image" content="https://api.colors-cc.top/placeholder?w=1200&h=630&text=colors-cc&effect=mesh&palette=%23FFD6A5,%23FFADAD,%23E2A0FF">
 
-                      <a href="https://api.colors-cc.top/placeholder?w=800&amp;h=400&amp;text=Hello+World&amp;start=%23F06292&amp;end=%2364B5F6" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
-                  </div>
-                  <div class="hero-preview">
-                      <img src="https://api.colors-cc.top/placeholder?w=400&amp;h=200&amp;text=Placeholder&amp;start=%23F06292&amp;end=%2364B5F6" alt="SVG gradient placeholder preview" loading="eager">
-                  </div>
-              </div>
-          </section>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "colors-cc Placeholder Generator",
+        "description": "Generate animated SVG placeholder images with a live preview. Customize size, effect, and colors — get a ready-to-use API URL. Free and stateless.",
+        "url": "https://colors-cc.top/",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": { "@type": "Organization", "name": "colors-cc", "url": "https://colors-cc.top" }
+    }
+    </script>
 
-          <section class="endpoint endpoint-mid" data-theme="vaporwave">
-              <h2>3. Color Palette API</h2>
-              <p class="desc">Fetch a curated color palette by theme for UI design inspiration.</p>
-              <p><code>GET https://api.colors-cc.top/palette</code></p>
+    <style>
+        /* ── Reset ── */
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 20px 72px;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #f2f2f2;
+        }
 
-              <div class="api-preview">
-                  <strong style="display:block; margin-bottom:12px; color:#444;">Available Themes:</strong>
-                  <div style="margin-bottom: 10px;">
-                      <div style="font-size: 0.85em; color: #666; margin-bottom: 4px;">Cyberpunk</div>
-                      <div class="palette-strip">
-                          <div class="palette-color" style="background: #FCEE09;"></div>
-                          <div class="palette-color" style="background: #00FF41;"></div>
-                          <div class="palette-color" style="background: #00B8FF;"></div>
-                          <div class="palette-color" style="background: #FF003C;"></div>
-                          <div class="palette-color" style="background: #D902EE;"></div>
-                      </div>
-                  </div>
-                  <div style="margin-bottom: 10px;">
-                      <div style="font-size: 0.85em; color: #666; margin-bottom: 4px;">Vaporwave</div>
-                      <div class="palette-strip">
-                          <div class="palette-color" style="background: #FF71CE;"></div>
-                          <div class="palette-color" style="background: #01CDFE;"></div>
-                          <div class="palette-color" style="background: #05FFA1;"></div>
-                          <div class="palette-color" style="background: #B967FF;"></div>
-                          <div class="palette-color" style="background: #FFFB96;"></div>
-                      </div>
-                  </div>
-                  <div style="margin-bottom: 10px;">
-                      <div style="font-size: 0.85em; color: #666; margin-bottom: 4px;">Retro</div>
-                      <div class="palette-strip">
-                          <div class="palette-color" style="background: #E24E1B;"></div>
-                          <div class="palette-color" style="background: #F8A91F;"></div>
-                          <div class="palette-color" style="background: #F2E8CF;"></div>
-                          <div class="palette-color" style="background: #386641;"></div>
-                          <div class="palette-color" style="background: #BC4749;"></div>
-                      </div>
-                  </div>
-                  <div>
-                      <div style="font-size: 0.85em; color: #666; margin-bottom: 4px;">Monochrome</div>
-                      <div class="palette-strip">
-                          <div class="palette-color" style="background: #121212;"></div>
-                          <div class="palette-color" style="background: #333333;"></div>
-                          <div class="palette-color" style="background: #777777;"></div>
-                          <div class="palette-color" style="background: #CCCCCC;"></div>
-                          <div class="palette-color" style="background: #F5F5F5;"></div>
-                      </div>
-                  </div>
-              </div>
+        /* ── Header ── */
+        .site-header {
+            padding: 26px 0 22px;
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 28px;
+        }
+        .site-header h1 {
+            font-size: 1.15em;
+            font-weight: 700;
+            margin: 0;
+            color: #111;
+            letter-spacing: -0.2px;
+        }
+        .site-header h1 a { color: inherit; text-decoration: none; }
+        .site-tagline {
+            font-size: 0.875em;
+            color: #999;
+            margin: 0;
+        }
 
-              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
-                  <strong style="display:block; margin-bottom:8px;">Query Parameters:</strong>
-                  <ul style="margin:0; padding-left:20px; color:#444;">
-                      <li><code>theme</code>: Theme name. Options: <code>cyberpunk</code>, <code>vaporwave</code>, <code>retro</code>, <code>monochrome</code> (default: cyberpunk)</li>
-                  </ul>
-              </div>
+        /* ── Generator Card ── */
+        .generator-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 20px rgba(0,0,0,0.07);
+            border: 1px solid #e4e4e4;
+            overflow: hidden;
+            margin-bottom: 36px;
+        }
 
-              <a href="https://api.colors-cc.top/palette?theme=cyberpunk" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
-          </section>
+        /* ── Preview ── */
+        .preview-area {
+            width: 100%;
+            aspect-ratio: 2 / 1;
+            min-height: 200px;
+            max-height: 420px;
+            background: #181818;
+            position: relative;
+            overflow: hidden;
+        }
+        .preview-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: opacity 0.2s;
+        }
+        .preview-area img.loading { opacity: 0.5; }
+        .preview-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px;
+            height: 28px;
+            border: 2.5px solid rgba(255,255,255,0.2);
+            border-top-color: rgba(255,255,255,0.7);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            opacity: 0;
+            transition: opacity 0.15s;
+            pointer-events: none;
+        }
+        .preview-spinner.visible { opacity: 1; }
+        @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
-          <section class="endpoint endpoint-mid" data-theme="retro">
-              <h2>4. Random Color API</h2>
-              <p class="desc">Generate a completely random color in HEX and RGB formats. Perfect for frontend mock data and placeholders.</p>
-              <p><code>GET https://api.colors-cc.top/random</code></p>
-              
-              <div class="api-preview">
-                  <div style="display: flex; align-items: center; gap: 15px;">
-                      <div class="color-swatch" id="randomColorSwatch" style="background: #FF5733;" title="Click to generate new color"></div>
-                      <div>
-                          <div style="font-family: monospace; font-size: 1.1em; color: #222; margin-bottom: 4px;" id="randomColorHex">#FF5733</div>
-                          <div style="font-size: 0.9em; color: #666;" id="randomColorRgb">rgb(255, 87, 51)</div>
-                          <button onclick="loadRandomColor()" style="margin-top: 8px; padding: 6px 12px; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em;">Generate New &rarr;</button>
-                      </div>
-                  </div>
-              </div>
+        /* ── Controls ── */
+        .controls-area { padding: 22px 24px 20px; }
 
-              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9em; border: 1px solid #eee;">
-                  <strong style="display:block; margin-bottom:8px;">Response format:</strong>
-                  <ul style="margin:0; padding-left:20px; color:#444;">
-                      <li><code>hex</code>: The color in HEX format (e.g. #FF5733)</li>
-                      <li><code>rgb</code>: The color in RGB format</li>
-                      <li><code>timestamp</code>: Generation time</li>
-                  </ul>
-              </div>
+        .control-group { margin-bottom: 18px; }
+        .control-group:last-child { margin-bottom: 0; }
 
-              <a href="https://api.colors-cc.top/random" class="btn" target="_blank" rel="noopener">Try Endpoint &rarr;</a>
-          </section>
-          
-          <script>
-              async function loadRandomColor() {
-                  try {
-                      const res = await fetch('https://api.colors-cc.top/random');
-                      const data = await res.json();
-                      document.getElementById('randomColorSwatch').style.background = data.hex;
-                      document.getElementById('randomColorHex').textContent = data.hex;
-                      document.getElementById('randomColorRgb').textContent = data.rgb;
-                  } catch(e) {
-                      console.error('Failed to load random color:', e);
-                  }
-              }
-              
-              document.getElementById('randomColorSwatch').onclick = loadRandomColor;
-          </script>
-      
-          
-          <section class="endpoint">
-              <h2>5. Interactive Web Tools</h2>
-              <p class="desc">A suite of visual utilities for developers and designers to work with colors right in the browser.</p>
-              
-              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;">
-                  <a href="/tools/converter" style="display: flex; flex-direction: column; align-items: center; padding: 20px; background: #fff; border: 2px solid #eee; border-radius: 12px; text-decoration: none; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                      <div style="font-size: 3em; margin-bottom: 10px;">🔄</div>
-                      <h4 style="margin: 0 0 5px 0; color: #222; font-size: 1em;">Universal Color Converter</h4>
-                      <p style="margin: 0; font-size: 0.85em; color: #666; text-align: center;">HEX ↔ RGB ↔ HSL ↔ CMYK</p>
-                  </a>
-                  <a href="/tools/random-palette" style="display: flex; flex-direction: column; align-items: center; padding: 20px; background: #fff; border: 2px solid #eee; border-radius: 12px; text-decoration: none; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                      <div style="font-size: 3em; margin-bottom: 10px;">🎨</div>
-                      <h4 style="margin: 0 0 5px 0; color: #222; font-size: 1em;">Random Palette Generator</h4>
-                      <p style="margin: 0; font-size: 0.85em; color: #666; text-align: center;">Curated color themes</p>
-                  </a>
-                  <a href="/tools/color-names" style="display: flex; flex-direction: column; align-items: center; padding: 20px; background: #fff; border: 2px solid #eee; border-radius: 12px; text-decoration: none; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                      <div style="font-size: 3em; margin-bottom: 10px;">📚</div>
-                      <h4 style="margin: 0 0 5px 0; color: #222; font-size: 1em;">CSS Color Names</h4>
-                      <p style="margin: 0; font-size: 0.85em; color: #666; text-align: center;">~140 named colors</p>
-                  </a>
-                  <a href="/tools/fluid-placeholder" style="display: flex; flex-direction: column; align-items: center; padding: 20px; background: #fff; border: 2px solid #eee; border-radius: 12px; text-decoration: none; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                      <div style="font-size: 3em; margin-bottom: 10px;">🌊</div>
-                      <h4 style="margin: 0 0 5px 0; color: #222; font-size: 1em;">Fluid Gradient Placeholder</h4>
-                      <p style="margin: 0; font-size: 0.85em; color: #666; text-align: center;">Animated gradients</p>
-                  </a>
-              </div>
-              
-              <style>
-                  a[href^="/tools/"]:hover {
-                      transform: translateY(-4px);
-                      box-shadow: 0 6px 16px rgba(0,0,0,0.12) !important;
-                      border-color: #007bff !important;
-                  }
-                  
-                  @media (max-width: 640px) {
-                      a[href^="/tools/"] {
-                          padding: 16px !important;
-                      }
-                      a[href^="/tools/"] div:first-child {
-                          font-size: 2.5em !important;
-                      }
-                      a[href^="/tools/"] h4 {
-                          font-size: 0.9em !important;
-                      }
-                      a[href^="/tools/"] p {
-                          font-size: 0.8em !important;
-                      }
-                  }
-              </style>
-          </section>
+        .control-label {
+            font-size: 0.72em;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            display: block;
+            margin-bottom: 9px;
+        }
+        .control-label .opt {
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+            color: #bbb;
+        }
 
-          <section class="endpoint" style="position: relative; background: #fffcfdfa; border: 1px solid #eaeaea;">
-              <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #FF41B8 0%, #A020F0 50%, #5B21B6 100%);"></div>
-              
-              <h2>🤖 For AI Agents &amp; LLMs</h2>
-              <p class="desc">colors-cc is natively optimized for AI coding assistants (Cursor, Cline, OpenClaw, GPTs) to generate beautiful UI assets without hallucinations.</p>
-              
-              <div style="border-top: 1px solid #f0f0f0; margin-top: 25px; padding-top: 20px;">
-                  <h3 style="margin-top:0; font-size:1.1em; color:#111;">1. System Prompt (Copy &amp; Paste)</h3>
-                  <p class="desc">Add this to your Cursor/Cline rules or custom instructions:</p>
-                  <p><code>When generating UI code that needs placeholder images, ALWAYS use: &lt;img src="https://api.colors-cc.top/placeholder?w=800&amp;h=400&amp;text=Hero" alt="Placeholder" /&gt;</code></p>
-              </div>
+        /* Effect pills */
+        .effect-pills {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .effect-pill {
+            padding: 5px 13px;
+            border-radius: 20px;
+            border: 1.5px solid #ddd;
+            background: #fafafa;
+            color: #555;
+            font-size: 0.82em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: border-color 0.12s, background 0.12s, color 0.12s;
+            user-select: none;
+            line-height: 1.4;
+        }
+        .effect-pill:hover { border-color: #bbb; background: #f0f0f0; color: #222; }
+        .effect-pill.active {
+            border-color: #111;
+            background: #111;
+            color: #fff;
+        }
 
-              <div style="border-top: 1px solid #f0f0f0; margin-top: 25px; padding-top: 20px;">
-                  <h3 style="margin-top:0; font-size:1.1em; color:#111;">2. LLMs.txt Context</h3>
-                  <p class="desc">Feed our documentation directly to your AI's context window by mentioning this URL:</p>
-                  <p><code>@Web https://colors-cc.top/llms.txt</code></p>
-              </div>
+        /* Theme swatches */
+        .theme-row {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+        .theme-card {
+            flex: 1;
+            min-width: 64px;
+            max-width: 96px;
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: border-color 0.12s, transform 0.12s;
+            outline: none;
+        }
+        .theme-card:hover { transform: translateY(-2px); }
+        .theme-card.active { border-color: #111; }
+        .theme-swatch { height: 40px; }
+        .theme-name {
+            background: #fff;
+            text-align: center;
+            font-size: 0.72em;
+            font-weight: 600;
+            color: #555;
+            padding: 3px 4px 5px;
+            border-top: 1px solid #f0f0f0;
+            white-space: nowrap;
+        }
 
-              <div style="border-top: 1px solid #f0f0f0; margin-top: 25px; padding-top: 20px;">
-                  <h3 style="margin-top:0; font-size:1.1em; color:#111;">3. ClawHub Installation</h3>
-                  <p class="desc">Install the colors-cc skill to your OpenClaw agent with one command:</p>
-                  <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #e0e0e0; position: relative;">
-                      <code style="font-size: 1em; color: #A020F0; font-weight: 500;">clawhub install colors-cc-skill</code>
-                  </div>
-                  <a href="https://github.com/douxc/colors-cc-skill/blob/main/SKILL.md" class="btn" style="background: #A020F0; font-size: 0.9em;" target="_blank">View Skill Documentation &rarr;</a>
-              </div>
-          </section>
-      </main>
+        .custom-colors-row {
+            margin-top: 9px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        .custom-colors-row.visible { display: flex; }
+        .custom-palette-input {
+            flex: 1;
+            padding: 7px 11px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 0.82em;
+            color: #333;
+            transition: border-color 0.12s;
+        }
+        .custom-palette-input:focus { outline: none; border-color: #aaa; }
 
-      <footer style="margin-top: 50px; padding-top: 30px; border-top: 1px solid #eaeaea;">
-          <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 15px;">
-              <a href="https://github.com/douxc/colors-cc" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 8px; color: #666; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#111'" onmouseout="this.style.color='#666'">
-                  <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-                  </svg>
-                  <span style="font-size: 0.9em; font-weight: 500;">GitHub</span>
-              </a>
-          </div>
-          <p style="text-align: center; color: #999; font-size: 0.85em; margin: 0;">
-              Powered by <a href="https://hono.dev" style="color: #999;">Hono.js</a> &amp; <a href="https://workers.cloudflare.com" style="color: #999;">Cloudflare Workers</a> | <a href="https://colors-cc.top" style="color: #999;">colors-cc.top</a>
-          </p>
-      </footer>
-  </body>
-  </html>
+        /* Dimensions */
+        .dims-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        .dim-control { display: flex; flex-direction: column; gap: 5px; }
+        .dim-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #888;
+        }
+        .dim-label-row strong { color: #333; font-variant-numeric: tabular-nums; }
+
+        /* Range inputs */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #e0e0e0;
+            outline: none;
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #111;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        input[type=range]::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #111;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Speed control */
+        .speed-group { display: flex; flex-direction: column; gap: 5px; }
+        .speed-group.hidden { display: none; }
+
+        /* Text input */
+        .text-input-field {
+            width: 100%;
+            padding: 8px 11px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.875em;
+            color: #333;
+            transition: border-color 0.12s;
+        }
+        .text-input-field:focus { outline: none; border-color: #aaa; }
+
+        /* ── URL bar ── */
+        .url-bar {
+            border-top: 1px solid #efefef;
+            padding: 14px 20px;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .url-display {
+            flex: 1;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 0.76em;
+            color: #444;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 7px 11px;
+            background: #fff;
+            border: 1px solid #e4e4e4;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.1s;
+            user-select: all;
+        }
+        .url-display:hover { background: #f3f3f3; }
+        .copy-btn {
+            padding: 7px 16px;
+            background: #111;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8em;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: background 0.12s;
+        }
+        .copy-btn:hover { background: #333; }
+        .copy-btn.copied { background: #16a34a; }
+
+        /* ── Section divider ── */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 36px 0 20px;
+        }
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+        .section-divider span {
+            font-size: 0.7em;
+            font-weight: 700;
+            color: #bbb;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            white-space: nowrap;
+        }
+
+        /* ── Secondary grid ── */
+        .secondary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .secondary-card {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.12s, box-shadow 0.12s;
+        }
+        .secondary-card:hover {
+            border-color: #ccc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            text-decoration: none;
+        }
+        .secondary-icon {
+            font-size: 1.25em;
+            line-height: 1;
+        }
+        .secondary-title {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .secondary-desc {
+            font-size: 0.7em;
+            color: #999;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Tools row (2-column, more compact) */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        /* ── Agent block ── */
+        .agent-block {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 8px;
+        }
+        .agent-block-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 9px;
+        }
+        .agent-block-header h3 {
+            font-size: 0.8em;
+            font-weight: 700;
+            color: #555;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .agent-items { display: flex; flex-direction: column; gap: 5px; }
+        .agent-item {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            font-size: 0.78em;
+            color: #888;
+            flex-wrap: wrap;
+        }
+        .agent-item code {
+            background: #f4f4f4;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-family: ui-monospace, monospace;
+            color: #a21caf;
+            font-size: 0.9em;
+        }
+
+        /* ── Footer ── */
+        footer {
+            margin-top: 48px;
+            padding-top: 18px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 8px;
+        }
+        .footer-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8em;
+            color: #bbb;
+            text-decoration: none;
+            transition: color 0.12s;
+        }
+        .footer-link:hover { color: #666; }
+        footer p { font-size: 0.78em; color: #ccc; margin: 0; }
+        footer a { color: #bbb; text-decoration: none; }
+        footer a:hover { color: #666; }
+
+        /* ── Responsive ── */
+        @media (max-width: 680px) {
+            body { padding: 0 14px 56px; }
+            .site-header { flex-direction: column; gap: 2px; padding: 18px 0 14px; }
+            .preview-area { min-height: 160px; max-height: 280px; }
+            .controls-area { padding: 16px; }
+            .dims-row { grid-template-columns: 1fr; gap: 12px; }
+            .secondary-grid { grid-template-columns: repeat(2, 1fr); }
+            .tools-grid { grid-template-columns: repeat(2, 1fr); }
+            .url-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 14px; }
+            .copy-btn { text-align: center; }
+            .theme-card { min-width: 54px; }
+        }
+
+        @media (max-width: 420px) {
+            .secondary-grid { grid-template-columns: 1fr 1fr; }
+            .tools-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="/">colors-cc</a></h1>
+        <p class="site-tagline">Free color &amp; placeholder API for developers and AI agents</p>
+    </header>
+
+    <main>
+        <!-- ═══════════════════ GENERATOR ═══════════════════ -->
+        <div class="generator-card">
+
+            <!-- Live preview -->
+            <div class="preview-area">
+                <img id="previewImg" src="" alt="Live placeholder preview" />
+                <div class="preview-spinner" id="spinner"></div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls-area">
+
+                <!-- Effect -->
+                <div class="control-group">
+                    <span class="control-label">Effect</span>
+                    <div class="effect-pills">
+                        <div class="effect-pill" data-effect="static">Static</div>
+                        <div class="effect-pill" data-effect="fluid">Fluid</div>
+                        <div class="effect-pill" data-effect="breathe">Breathe</div>
+                        <div class="effect-pill" data-effect="holographic">Holographic</div>
+                        <div class="effect-pill active" data-effect="mesh">Mesh</div>
+                    </div>
+                </div>
+
+                <!-- Colors -->
+                <div class="control-group">
+                    <span class="control-label">Colors</span>
+                    <div class="theme-row" id="themeRow">
+                        <div class="theme-card active" data-palette="#FFD6A5,#FFADAD,#E2A0FF">
+                            <div class="theme-swatch" style="background: linear-gradient(135deg, #FFD6A5, #FFADAD, #E2A0FF);"></div>
+                            <div class="theme-name">Aurora</div>
+                        </div>
+                        <div class="theme-card" data-palette="#FCEE09,#FF003C,#00B8FF">
+                            <div class="theme-swatch" style="background: linear-gradient(135deg, #FCEE09, #FF003C, #00B8FF);"></div>
+                            <div class="theme-name">Cyberpunk</div>
+                        </div>
+                        <div class="theme-card" data-palette="#01CDFE,#05FFA1,#B967FF">
+                            <div class="theme-swatch" style="background: linear-gradient(135deg, #01CDFE, #05FFA1, #B967FF);"></div>
+                            <div class="theme-name">Ocean</div>
+                        </div>
+                        <div class="theme-card" data-palette="#FF71CE,#FFFB96,#E24E1B">
+                            <div class="theme-swatch" style="background: linear-gradient(135deg, #FF71CE, #FFFB96, #E24E1B);"></div>
+                            <div class="theme-name">Sunset</div>
+                        </div>
+                        <div class="theme-card" data-palette="custom">
+                            <div class="theme-swatch" id="customSwatch" style="background: linear-gradient(135deg, #e0e0e0, #c0c0c0);"></div>
+                            <div class="theme-name">Custom</div>
+                        </div>
+                    </div>
+                    <div class="custom-colors-row" id="customRow">
+                        <input type="text" class="custom-palette-input" id="customInput"
+                            placeholder="#FF0080, #00FFFF, #FFFF00"
+                            spellcheck="false" autocomplete="off">
+                    </div>
+                </div>
+
+                <!-- Dimensions -->
+                <div class="control-group">
+                    <span class="control-label">Dimensions</span>
+                    <div class="dims-row">
+                        <div class="dim-control">
+                            <div class="dim-label-row">
+                                <span>Width</span>
+                                <span><strong id="wVal">800</strong> px</span>
+                            </div>
+                            <input type="range" id="wRange" min="50" max="4000" step="50" value="800">
+                        </div>
+                        <div class="dim-control">
+                            <div class="dim-label-row">
+                                <span>Height</span>
+                                <span><strong id="hVal">400</strong> px</span>
+                            </div>
+                            <input type="range" id="hRange" min="50" max="4000" step="50" value="400">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Speed (hidden for static) -->
+                <div class="control-group speed-group" id="speedGroup">
+                    <span class="control-label">Animation Speed</span>
+                    <div class="dim-label-row">
+                        <span>Duration</span>
+                        <span><strong id="speedVal">10</strong> s</span>
+                    </div>
+                    <input type="range" id="speedRange" min="1" max="30" step="1" value="10">
+                </div>
+
+                <!-- Text -->
+                <div class="control-group">
+                    <span class="control-label">Label <span class="opt">(optional)</span></span>
+                    <input type="text" class="text-input-field" id="textInput"
+                        placeholder="Coming Soon" maxlength="100"
+                        autocomplete="off">
+                </div>
+
+            </div>
+
+            <!-- URL bar -->
+            <div class="url-bar">
+                <div class="url-display" id="urlDisplay" title="Click to copy"></div>
+                <button class="copy-btn" id="copyBtn">Copy URL</button>
+            </div>
+
+        </div>
+
+        <!-- ═══════════════════ MORE FEATURES ═══════════════════ -->
+        <div class="section-divider"><span>More from colors-cc</span></div>
+
+        <!-- API endpoints -->
+        <div class="secondary-grid">
+            <a href="https://api.colors-cc.top/random" class="secondary-card" target="_blank" rel="noopener">
+                <span class="secondary-icon">🎲</span>
+                <p class="secondary-title">Random Color</p>
+                <p class="secondary-desc">GET /random</p>
+            </a>
+            <a href="https://api.colors-cc.top/palette?theme=cyberpunk" class="secondary-card" target="_blank" rel="noopener">
+                <span class="secondary-icon">🎨</span>
+                <p class="secondary-title">Color Palette</p>
+                <p class="secondary-desc">GET /palette?theme=…</p>
+            </a>
+            <a href="https://api.colors-cc.top/convert?hex=%23FF5733" class="secondary-card" target="_blank" rel="noopener">
+                <span class="secondary-icon">🔄</span>
+                <p class="secondary-title">Converter</p>
+                <p class="secondary-desc">HEX ↔ RGB ↔ HSL ↔ CMYK</p>
+            </a>
+            <a href="https://api.colors-cc.top/all-names" class="secondary-card" target="_blank" rel="noopener">
+                <span class="secondary-icon">📚</span>
+                <p class="secondary-title">Color Names</p>
+                <p class="secondary-desc">~140 CSS colors</p>
+            </a>
+        </div>
+
+        <!-- Tool pages -->
+        <div class="tools-grid">
+            <a href="/tools/converter" class="secondary-card">
+                <span class="secondary-icon">⚗️</span>
+                <p class="secondary-title">Converter Tool</p>
+                <p class="secondary-desc">Visual color converter</p>
+            </a>
+            <a href="/tools/random-palette" class="secondary-card">
+                <span class="secondary-icon">✨</span>
+                <p class="secondary-title">Palette Tool</p>
+                <p class="secondary-desc">Interactive palettes</p>
+            </a>
+            <a href="/tools/color-names" class="secondary-card">
+                <span class="secondary-icon">🔍</span>
+                <p class="secondary-title">Color Names</p>
+                <p class="secondary-desc">Search CSS names</p>
+            </a>
+            <a href="/tools/fluid-placeholder" class="secondary-card">
+                <span class="secondary-icon">🌊</span>
+                <p class="secondary-title">Fluid Generator</p>
+                <p class="secondary-desc">Animated gradients</p>
+            </a>
+        </div>
+
+        <!-- AI Agent integration -->
+        <div class="agent-block">
+            <div class="agent-block-header">
+                <span style="font-size:0.95em;">🤖</span>
+                <h3>For AI Agents &amp; LLMs</h3>
+            </div>
+            <div class="agent-items">
+                <div class="agent-item">
+                    <span>Cursor/Cline rule:</span>
+                    <code>Use https://api.colors-cc.top/placeholder for placeholder images</code>
+                </div>
+                <div class="agent-item">
+                    <span>LLM context:</span>
+                    <code>@Web https://colors-cc.top/llms.txt</code>
+                </div>
+                <div class="agent-item">
+                    <span>ClawHub:</span>
+                    <code>clawhub install colors-cc-skill</code>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="https://github.com/douxc/colors-cc" target="_blank" rel="noopener" class="footer-link">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+                GitHub
+            </a>
+            <a href="/llms.txt" class="footer-link">llms.txt</a>
+            <a href="/openapi.json" class="footer-link">OpenAPI</a>
+            <a href="/sitemap.xml" class="footer-link">Sitemap</a>
+        </div>
+        <p>
+            Powered by <a href="https://hono.dev">Hono.js</a> &amp; <a href="https://workers.cloudflare.com">Cloudflare Workers</a>
+            &nbsp;·&nbsp; <a href="https://colors-cc.top">colors-cc.top</a>
+        </p>
+    </footer>
+
+    <script>
+        // ── State ──
+        let state = {
+            effect: 'mesh',
+            palette: '#FFD6A5,#FFADAD,#E2A0FF',
+            width: 800,
+            height: 400,
+            speed: 10,
+            text: ''
+        }
+        let debounce = null
+        const ANIMATED = ['fluid', 'breathe', 'holographic', 'mesh']
+
+        // ── DOM refs ──
+        const previewImg  = document.getElementById('previewImg')
+        const spinner     = document.getElementById('spinner')
+        const urlDisplay  = document.getElementById('urlDisplay')
+        const copyBtn     = document.getElementById('copyBtn')
+        const wRange      = document.getElementById('wRange')
+        const wVal        = document.getElementById('wVal')
+        const hRange      = document.getElementById('hRange')
+        const hVal        = document.getElementById('hVal')
+        const speedRange  = document.getElementById('speedRange')
+        const speedVal    = document.getElementById('speedVal')
+        const speedGroup  = document.getElementById('speedGroup')
+        const textInput   = document.getElementById('textInput')
+        const customRow   = document.getElementById('customRow')
+        const customInput = document.getElementById('customInput')
+        const customSwatch = document.getElementById('customSwatch')
+
+        // ── Build URL ──
+        function buildURL() {
+            const pal = state.palette.split(',').map(c => c.trim().replace('#', '%23')).join(',')
+            let url = `https://api.colors-cc.top/placeholder?w=${state.width}&h=${state.height}&effect=${state.effect}&palette=${pal}`
+            if (ANIMATED.includes(state.effect)) url += `&speed=${state.speed}`
+            if (state.text) url += `&text=${encodeURIComponent(state.text)}`
+            return url
+        }
+
+        // ── Update preview + URL display ──
+        function update() {
+            const url = buildURL()
+            urlDisplay.textContent = url
+
+            spinner.classList.add('visible')
+            previewImg.classList.add('loading')
+
+            const img = new Image()
+            img.onload = () => {
+                previewImg.src = url
+                previewImg.classList.remove('loading')
+                spinner.classList.remove('visible')
+            }
+            img.onerror = () => {
+                previewImg.classList.remove('loading')
+                spinner.classList.remove('visible')
+            }
+            img.src = url
+        }
+
+        function scheduleUpdate(delay) {
+            clearTimeout(debounce)
+            debounce = setTimeout(update, delay || 280)
+        }
+
+        // ── Effect pills ──
+        document.querySelectorAll('.effect-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                document.querySelectorAll('.effect-pill').forEach(p => p.classList.remove('active'))
+                pill.classList.add('active')
+                state.effect = pill.dataset.effect
+                speedGroup.classList.toggle('hidden', !ANIMATED.includes(state.effect))
+                scheduleUpdate(100)
+            })
+        })
+
+        // ── Theme cards ──
+        document.querySelectorAll('.theme-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'))
+                card.classList.add('active')
+
+                if (card.dataset.palette === 'custom') {
+                    customRow.classList.add('visible')
+                    customInput.focus()
+                    if (customInput.value.trim()) state.palette = customInput.value
+                } else {
+                    customRow.classList.remove('visible')
+                    state.palette = card.dataset.palette
+                }
+                scheduleUpdate(100)
+            })
+        })
+
+        customInput.addEventListener('input', () => {
+            const val = customInput.value.trim()
+            if (!val) return
+            state.palette = val
+            const colors = val.split(',').map(c => c.trim()).filter(Boolean)
+            if (colors.length >= 2) {
+                customSwatch.style.background = `linear-gradient(135deg, ${colors.join(', ')})`
+            }
+            scheduleUpdate()
+        })
+
+        // ── Sliders ──
+        wRange.addEventListener('input', () => {
+            state.width = parseInt(wRange.value)
+            wVal.textContent = state.width
+            scheduleUpdate()
+        })
+
+        hRange.addEventListener('input', () => {
+            state.height = parseInt(hRange.value)
+            hVal.textContent = state.height
+            scheduleUpdate()
+        })
+
+        speedRange.addEventListener('input', () => {
+            state.speed = parseInt(speedRange.value)
+            speedVal.textContent = state.speed
+            scheduleUpdate()
+        })
+
+        // ── Text ──
+        textInput.addEventListener('input', () => {
+            state.text = textInput.value
+            scheduleUpdate()
+        })
+
+        // ── Copy ──
+        function copyURL() {
+            navigator.clipboard.writeText(buildURL()).then(() => {
+                copyBtn.textContent = 'Copied ✓'
+                copyBtn.classList.add('copied')
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy URL'
+                    copyBtn.classList.remove('copied')
+                }, 1800)
+            }).catch(() => {
+                // Fallback for older browsers
+                const ta = document.createElement('textarea')
+                ta.value = buildURL()
+                document.body.appendChild(ta)
+                ta.select()
+                document.execCommand('copy')
+                document.body.removeChild(ta)
+            })
+        }
+
+        copyBtn.addEventListener('click', copyURL)
+        urlDisplay.addEventListener('click', copyURL)
+
+        // ── Init ──
+        update()
+    </script>
+</body>
+</html>
