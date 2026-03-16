@@ -31,10 +31,9 @@ Generate dynamic, lightweight placeholders for UI mockups with various gradient 
   - `h`: Height in pixels (default: 400, range: 50-4000)
   - `text`: Center text, URL-encoded (default: "{width} x {height}", max: 100 chars)
   - `effect`: Visual effect. Options: `static` (default), `fluid`, `breathe`, `holographic`, `mesh`
-  - `palette`: Comma-separated HEX colors (default: 2 random colors, range: 2-10 colors). e.g., `%23FFD6A5,%23FFADAD`
+  - `palette`: Comma-separated colors — HEX, RGB, or HSL (default: 2 random colors, range: 2-10 colors). e.g., `%23FFD6A5,%23FFADAD`
   - `speed`: Animation duration in seconds for non-static effects (default: 10, range: 1-30)
   - `attribution`: Include branding watermark (default: true). Set to `false` or `0` to disable. When enabled, adds a subtle "colors-cc.top" watermark (15% opacity) in bottom-right corner and HTML comment for viral sharing.
-  - `start` / `end`: (Legacy) Start and end gradient colors as hex. Prefer `palette`.
 - **Examples**: 
   - **Static**: `<img src="https://api.colors-cc.top/placeholder?w=1200&h=630&text=Hero+Banner&palette=%23F06292,%2364B5F6" alt="Hero">`
   - **Holographic**: `<img src="https://api.colors-cc.top/placeholder?w=800&h=400&effect=holographic&palette=%2300FF41,%2300B8FF&speed=5" alt="Holo">`
@@ -46,8 +45,8 @@ Generate dynamic SVG gradients with smooth color transitions and animations.
 - **Endpoint**: `https://api.colors-cc.top/fluid-placeholder`
 - **Params**: 
   - `w`, `h`, `text`, `speed`, `attribution` (same as above)
-  - `stops` or `palette`: Comma-separated HEX colors for gradient (default: random, range: 2-10 colors)
-- **Example**: `<img src="https://api.colors-cc.top/fluid-placeholder?w=1200&h=400&stops=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=8&text=Animated+Hero" alt="Warm Gradient">`
+  - `palette`: Comma-separated colors — HEX, RGB, or HSL (default: random, range: 2-10 colors)
+- **Example**: `<img src="https://api.colors-cc.top/fluid-placeholder?w=1200&h=400&palette=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=8&text=Animated+Hero" alt="Warm Gradient">`
 - **Response**: Animated SVG with smooth color transitions and `Cache-Control: public, max-age=31536000, immutable`
 
 ### 3. Random Colors
@@ -126,8 +125,8 @@ console.log(result.hex) // #4099BF
 
 ### ❌ Mistake 1: Unencoded Hash Symbol
 ```
-BAD:  start=#FF0000
-GOOD: start=%23FF0000
+BAD:  palette=#FF0000,%230000FF
+GOOD: palette=%23FF0000,%230000FF
 ```
 
 ### ✅ Tip: Disable Attribution for Internal Tools
@@ -171,10 +170,10 @@ GOOD: palette=%23FF0000,%230000FF,%2300FF00 (2-10 colors)
 ```
 
 ## 🌐 Web Tools (For Users)
+- Placeholder Generator: https://colors-cc.top/
 - Universal Color Converter: https://colors-cc.top/tools/converter
 - Random Palette Generator: https://colors-cc.top/tools/random-palette
 - CSS Color Names Reference: https://colors-cc.top/tools/color-names
-- Fluid Gradient Placeholder: https://colors-cc.top/tools/fluid-placeholder
 
 ## 📚 Full Documentation
 For complete API documentation, reference:

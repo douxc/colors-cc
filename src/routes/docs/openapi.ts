@@ -145,13 +145,15 @@ app.get('/openapi.json', (c) => {
       "/placeholder": {
         "get": {
           "summary": "Generate SVG placeholder image",
-          "description": "Creates a dynamic SVG gradient placeholder image with customizable dimensions, text, and colors.",
+          "description": "Creates a dynamic SVG gradient placeholder image with customizable dimensions, text, colors, and visual effects.",
           "parameters": [
             {"name": "w", "in": "query", "description": "Width in pixels (50-4000, default: 800)", "schema": {"type": "integer", "minimum": 50, "maximum": 4000, "default": 800}},
             {"name": "h", "in": "query", "description": "Height in pixels (50-4000, default: 400)", "schema": {"type": "integer", "minimum": 50, "maximum": 4000, "default": 400}},
             {"name": "text", "in": "query", "description": "Center text (max 100 chars, default: dimensions)", "schema": {"type": "string", "maxLength": 100}},
-            {"name": "start", "in": "query", "description": "Start gradient color (6-digit hex, default: random)", "schema": {"type": "string", "pattern": "^#?[0-9A-F]{6}$"}},
-            {"name": "end", "in": "query", "description": "End gradient color (6-digit hex, default: random)", "schema": {"type": "string", "pattern": "^#?[0-9A-F]{6}$"}}
+            {"name": "effect", "in": "query", "description": "Visual effect (default: static)", "schema": {"type": "string", "enum": ["static", "fluid", "breathe", "holographic", "mesh"], "default": "static"}},
+            {"name": "palette", "in": "query", "description": "Comma-separated colors in HEX, RGB, or HSL format (2-10 colors, default: 2 random colors). Example: %23FFD6A5,%23FFADAD", "schema": {"type": "string"}},
+            {"name": "speed", "in": "query", "description": "Animation duration in seconds for non-static effects (1-30, default: 10)", "schema": {"type": "integer", "minimum": 1, "maximum": 30, "default": 10}},
+            {"name": "attribution", "in": "query", "description": "Include branding watermark (default: true). Set to false or 0 to disable", "schema": {"type": "string", "default": "true"}}
           ],
           "responses": {
             "200": {
@@ -166,14 +168,15 @@ app.get('/openapi.json', (c) => {
       },
       "/fluid-placeholder": {
         "get": {
-          "summary": "Generate animated SVG placeholder",
-          "description": "Creates a dynamic SVG gradient with smooth color transitions and animations.",
+          "summary": "Generate animated fluid SVG placeholder",
+          "description": "Alias for /placeholder?effect=fluid. Creates a dynamic SVG gradient with smooth, infinitely-looping color transitions.",
           "parameters": [
             {"name": "w", "in": "query", "description": "Width in pixels (50-4000, default: 800)", "schema": {"type": "integer", "minimum": 50, "maximum": 4000, "default": 800}},
             {"name": "h", "in": "query", "description": "Height in pixels (50-4000, default: 400)", "schema": {"type": "integer", "minimum": 50, "maximum": 4000, "default": 400}},
-            {"name": "stops", "in": "query", "description": "Comma-separated HEX colors (2-10 colors, default: aurora theme)", "schema": {"type": "string", "example": "#00FF41,#00B8FF,#7000FF"}},
+            {"name": "palette", "in": "query", "description": "Comma-separated colors in HEX, RGB, or HSL format (2-10 colors, default: 2 random colors). Example: %23FFD6A5,%23FFADAD", "schema": {"type": "string"}},
             {"name": "speed", "in": "query", "description": "Animation duration in seconds (1-30, default: 10)", "schema": {"type": "integer", "minimum": 1, "maximum": 30, "default": 10}},
-            {"name": "text", "in": "query", "description": "Optional center text (max 100 chars)", "schema": {"type": "string", "maxLength": 100}}
+            {"name": "text", "in": "query", "description": "Optional center text (max 100 chars)", "schema": {"type": "string", "maxLength": 100}},
+            {"name": "attribution", "in": "query", "description": "Include branding watermark (default: true). Set to false or 0 to disable", "schema": {"type": "string", "default": "true"}}
           ],
           "responses": {
             "200": {
