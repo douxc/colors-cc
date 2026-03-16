@@ -54,16 +54,31 @@ When generating UI code that needs placeholder images, ALWAYS use:
 ### 1. SVG Gradient Placeholder
 `GET /placeholder`
 
-**Parameters:**
-- `w` / `width`: Image width (default: 800)
-- `h` / `height`: Image height (default: 400)
-- `text`: Text to display (default: width x height)
-- `start`: Start hex color (encoded, e.g., `%23F06292`)
-- `end`: End hex color (encoded)
+Generate dynamic SVG placeholders with multiple visual effects including static gradients, animated fluids, breathing radials, holographic shifts, and mesh patterns.
 
-**Example:**
+**Parameters:**
+- `w` / `width`: Image width (default: 800, range: 50-4000)
+- `h` / `height`: Image height (default: 400, range: 50-4000)
+- `text`: Text to display (default: width × height, max: 100 chars, URL-encoded)
+- `effect`: Visual effect - `static` (default), `fluid`, `breathe`, `holographic`, `mesh`
+- `palette`: Comma-separated hex colors (default: 2 random colors, range: 2-10 colors)
+- `speed`: Animation duration in seconds for non-static effects (default: 10, range: 1-30)
+- `attribution`: Include branding watermark (default: `true`). Set to `false` or `0` to disable
+- `start` / `end`: (Legacy) Start/end gradient colors. Use `palette` instead
+
+**Examples:**
 ```
-https://api.colors-cc.top/placeholder?w=800&h=400&text=Hello+World&start=%23F06292&end=%2364B5F6
+Static gradient:
+https://api.colors-cc.top/placeholder?w=800&h=400&text=Hello+World&palette=%23F06292,%2364B5F6
+
+Holographic effect:
+https://api.colors-cc.top/placeholder?w=800&h=400&effect=holographic&palette=%2300FF41,%2300B8FF&speed=5
+
+Mesh gradient:
+https://api.colors-cc.top/placeholder?w=800&h=400&effect=mesh&palette=%23FFD6A5,%23FFADAD,%23E2A0FF
+
+Without attribution:
+https://api.colors-cc.top/placeholder?w=800&h=400&attribution=false
 ```
 
 ### 2. Animated Fluid Placeholder
@@ -71,12 +86,15 @@ https://api.colors-cc.top/placeholder?w=800&h=400&text=Hello+World&start=%23F062
 
 Generate animated SVG gradients with smooth, infinite color transitions perfect for modern hero banners, background effects, and loading states. The lightweight SVG format creates a "fluid" visual effect as colors seamlessly blend and cycle through your chosen palette.
 
+> **Note:** This is an alias for `/placeholder?effect=fluid`. All parameters work the same way.
+
 **Parameters:**
-- `w` / `width`: Image width (default: 800)
-- `h` / `height`: Image height (default: 400)
-- `text`: Text to display (optional)
-- `stops`: Comma-separated hex colors (e.g., `FFD6A5,FFADAD,E2A0FF`)
-- `speed`: Animation speed in seconds, 1-30 (default: 10)
+- `w` / `width`: Image width (default: 800, range: 50-4000)
+- `h` / `height`: Image height (default: 400, range: 50-4000)
+- `text`: Text to display (optional, max: 100 chars, URL-encoded)
+- `stops` or `palette`: Comma-separated hex colors (default: 2 random, range: 2-10 colors)
+- `speed`: Animation speed in seconds (default: 10, range: 1-30)
+- `attribution`: Include branding watermark (default: `true`). Set to `false` or `0` to disable
 
 **Basic URL Example:**
 ```

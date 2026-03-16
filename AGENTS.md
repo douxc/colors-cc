@@ -190,8 +190,24 @@ The following endpoints are provided by the external API service at `https://api
 | `GET https://api.colors-cc.top/palette?theme=` | JSON | Curated palette (themes: `cyberpunk`, `vaporwave`, `retro`, `monochrome`) |
 | `GET https://api.colors-cc.top/convert?hex=\|rgb=\|hsl=\|cmyk=` | JSON | Universal color converter returning all formats |
 | `GET https://api.colors-cc.top/all-names` | JSON | Map of ~140 CSS color names to HEX values |
-| `GET https://api.colors-cc.top/placeholder?w=&h=&text=&start=&end=` | SVG | Dynamic SVG gradient placeholder image |
-| `GET https://api.colors-cc.top/fluid-placeholder?w=&h=&stops=&speed=&text=` | SVG | Animated SVG gradient with smooth color transitions |
+| `GET https://api.colors-cc.top/placeholder` | SVG | Dynamic SVG placeholder with multiple effects (static, fluid, breathe, holographic, mesh) |
+| `GET https://api.colors-cc.top/fluid-placeholder` | SVG | Alias for `/placeholder?effect=fluid` - Animated SVG gradient with smooth color transitions |
+
+#### Detailed API Parameters
+
+**`/placeholder` endpoint:**
+- `w` / `width`: Width in pixels (default: 800, range: 50-4000)
+- `h` / `height`: Height in pixels (default: 400, range: 50-4000)
+- `text`: Center text, URL-encoded (default: "{width} × {height}", max: 100 chars)
+- `effect`: Visual effect - `static` (default), `fluid`, `breathe`, `holographic`, `mesh`
+- `palette`: Comma-separated HEX colors (default: 2 random colors, range: 2-10 colors)
+- `speed`: Animation duration in seconds for non-static effects (default: 10, range: 1-30)
+- `attribution`: Include branding watermark (default: `true`). Set to `false` or `0` to disable. When enabled, adds a subtle "colors-cc.top" watermark (15% opacity) in bottom-right corner and HTML comment for viral sharing.
+- `start` / `end`: (Legacy) Start and end gradient colors as hex. Prefer `palette` parameter.
+
+**`/fluid-placeholder` endpoint:**
+- Same parameters as `/placeholder`, automatically sets `effect=fluid`
+- `stops`: Alias for `palette` parameter
 
 ### Meta & Documentation Routes
 | Route | Type | Description |
