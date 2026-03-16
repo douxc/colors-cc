@@ -19,7 +19,7 @@ app.get('/llms.txt', (c) => {
 ## API Endpoints
 
 ### 1. SVG Gradient Placeholder
-Generate dynamic, lightweight SVG gradient images.
+Generate dynamic, lightweight SVG gradient images with multiple visual effects.
 
 **Endpoints:** 
 - GET https://api.colors-cc.top/placeholder
@@ -28,20 +28,26 @@ Generate dynamic, lightweight SVG gradient images.
 - w: Width in pixels (default: 800, range: 50-4000)
 - h: Height in pixels (default: 400, range: 50-4000)
 - text: Center text, URL-encoded (default: "{width} x {height}", max: 100 chars)
-- start: Start gradient color as hex (default: random, must be valid 6-digit hex)
-- end: End gradient color as hex (default: random, must be valid 6-digit hex)
+- effect: Visual effect — static (default), fluid, breathe, holographic, mesh
+- palette: Comma-separated colors — HEX, RGB, or HSL (default: 2 random colors, range: 2-10 colors)
+- speed: Animation duration in seconds for non-static effects (default: 10, range: 1-30)
+- attribution: Include branding watermark (default: true). Set to false or 0 to disable
 
 **Example Prompts:**
 - "Create a 1200x630 hero banner placeholder"
   → <img src="https://api.colors-cc.top/placeholder?w=1200&h=630&text=Hero+Banner" alt="Hero">
   
-- "Generate a thumbnail with custom gradient from red to blue"
-  → <img src="https://api.colors-cc.top/placeholder?w=400&h=300&start=%23FF0000&end=%230000FF" alt="Thumbnail">
+- "Generate a mesh gradient placeholder with warm colors"
+  → <img src="https://api.colors-cc.top/placeholder?w=800&h=400&effect=mesh&palette=%23FFD6A5,%23FFADAD,%23E2A0FF" alt="Warm Mesh">
+
+- "Create a holographic animated banner"
+  → <img src="https://api.colors-cc.top/placeholder?w=800&h=400&effect=holographic&palette=%2300FF41,%2300B8FF&speed=5" alt="Holo">
 
 **Response:** SVG image with Cache-Control: public, max-age=31536000, immutable
 
-### 1.5. Fluid Animated SVG Placeholder
+### 2. Fluid Animated SVG Placeholder
 Generate dynamic SVG gradients with smooth color transitions and animations.
+This is an alias for /placeholder?effect=fluid.
 
 **Endpoints:** 
 - GET https://api.colors-cc.top/fluid-placeholder
@@ -49,23 +55,21 @@ Generate dynamic SVG gradients with smooth color transitions and animations.
 **Parameters:**
 - w: Width in pixels (default: 800, range: 50-4000)
 - h: Height in pixels (default: 400, range: 50-4000)
-- stops: Comma-separated HEX colors for gradient (default: aurora theme, range: 2-10 colors)
+- palette: Comma-separated colors — HEX, RGB, or HSL (default: 2 random colors, range: 2-10 colors)
 - speed: Animation duration in seconds (default: 10, range: 1-30)
 - text: Optional center text (max 100 chars)
+- attribution: Include branding watermark (default: true). Set to false or 0 to disable
 
 **Example Prompts:**
 - "Create an animated aurora gradient banner"
-  → <img src="https://api.colors-cc.top/fluid-placeholder?w=1200&h=400&stops=%2300FF41,%2300B8FF,%237000FF" alt="Aurora Banner">
+  → <img src="https://api.colors-cc.top/fluid-placeholder?w=1200&h=400&palette=%2300FF41,%2300B8FF,%237000FF" alt="Aurora Banner">
   
 - "Generate a cyberpunk animated background with text"
-  → <img src="https://api.colors-cc.top/fluid-placeholder?w=800&h=600&stops=%23FCEE09,%23FF003C,%2300B8FF&speed=5&text=Welcome" alt="Cyberpunk BG">
-  
-- "Make an animated hero banner with custom message"
-  → <img src="https://api.colors-cc.top/fluid-placeholder?w=1200&h=400&text=Coming+Soon&stops=%2300FF41,%2300B8FF,%237000FF&speed=12" alt="Hero with Text">
+  → <img src="https://api.colors-cc.top/fluid-placeholder?w=800&h=600&palette=%23FCEE09,%23FF003C,%2300B8FF&speed=5&text=Welcome" alt="Cyberpunk BG">
 
 **Response:** Animated SVG image with Cache-Control: public, max-age=31536000, immutable
 
-### 2. Random Color
+### 3. Random Color
 Get a random color in HEX and RGB formats.
 
 **Endpoints:** 
@@ -80,7 +84,7 @@ Get a random color in HEX and RGB formats.
 - "I need random colors for mock data"
   → Use this endpoint in loops or data generators
 
-### 3. Color Palette
+### 4. Color Palette
 Get curated color palettes by theme.
 
 **Endpoints:** 
@@ -98,7 +102,7 @@ Get curated color palettes by theme.
 - "I want retro colors for my design"
   → fetch('https://api.colors-cc.top/palette?theme=retro')
 
-### 4. Color Converter
+### 5. Color Converter
 Convert between HEX, RGB, HSL, and CMYK formats.
 
 **Endpoints:** 
@@ -121,7 +125,7 @@ Convert between HEX, RGB, HSL, and CMYK formats.
 - "What's hsl(200, 50%, 50%) in hex?"
   → fetch('https://api.colors-cc.top/convert?hsl=hsl(200,50%,50%)')
 
-### 5. Color Names Directory
+### 6. Color Names Directory
 Get all standard CSS color names with their HEX values.
 
 **Endpoints:** 
@@ -135,8 +139,8 @@ Get all standard CSS color names with their HEX values.
 
 ## Common Pitfalls
 
-❌ WRONG: start=#FF0000 (unencoded hash)
-✅ RIGHT: start=%23FF0000 (encoded hash)
+❌ WRONG: palette=#FF0000,%230000FF (unencoded hash)
+✅ RIGHT: palette=%23FF0000,%230000FF (encoded hash)
 
 ❌ WRONG: Dimensions outside 50-4000 range (will be clamped)
 ✅ RIGHT: Use w=800&h=600 or any value between 50-4000
@@ -144,14 +148,17 @@ Get all standard CSS color names with their HEX values.
 ❌ WRONG: Fetching SVG content and re-encoding
 ✅ RIGHT: Use the URL directly in <img> tags
 
+❌ WRONG: Only 1 color in palette (palette=%23FF0000)
+✅ RIGHT: At least 2 colors required (palette=%23FF0000,%230000FF)
+
 ## Rate Limits
 None. All endpoints are free and unlimited.
 
 ## Web Tools
+- Placeholder Generator: https://colors-cc.top/
 - Universal Color Converter: https://colors-cc.top/tools/converter
 - Random Palette Generator: https://colors-cc.top/tools/random-palette
 - CSS Color Names: https://colors-cc.top/tools/color-names
-- Fluid Gradient Placeholder: https://colors-cc.top/tools/fluid-placeholder
 `
   c.header('Content-Type', 'text/plain; charset=utf-8')
   c.header('Cache-Control', 'public, max-age=86400')

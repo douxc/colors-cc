@@ -11,7 +11,7 @@ A blazing fast, free, and stateless API designed to help **AI Agents (Cursor, Cl
 **🌐 Frontend Site:** [https://colors-cc.top/](https://colors-cc.top/)  
 **🚀 External API:** [https://api.colors-cc.top/](https://api.colors-cc.top/)
 
-![Animated Fluid Gradient](https://api.colors-cc.top/fluid-placeholder?w=1200&h=300&stops=FFD6A5,FFADAD,E2A0FF&speed=12&text=Animated+Hero)
+![Animated Fluid Gradient](https://api.colors-cc.top/fluid-placeholder?w=1200&h=300&palette=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=12&text=Animated+Hero)
 
 ---
 
@@ -61,10 +61,9 @@ Generate dynamic SVG placeholders with multiple visual effects including static 
 - `h` / `height`: Image height (default: 400, range: 50-4000)
 - `text`: Text to display (default: width × height, max: 100 chars, URL-encoded)
 - `effect`: Visual effect - `static` (default), `fluid`, `breathe`, `holographic`, `mesh`
-- `palette`: Comma-separated hex colors (default: 2 random colors, range: 2-10 colors)
+- `palette`: Comma-separated colors — HEX, RGB, or HSL (default: 2 random colors, range: 2-10 colors)
 - `speed`: Animation duration in seconds for non-static effects (default: 10, range: 1-30)
 - `attribution`: Include branding watermark (default: `true`). Set to `false` or `0` to disable
-- `start` / `end`: (Legacy) Start/end gradient colors. Use `palette` instead
 
 **Examples:**
 ```
@@ -92,20 +91,20 @@ Generate animated SVG gradients with smooth, infinite color transitions perfect 
 - `w` / `width`: Image width (default: 800, range: 50-4000)
 - `h` / `height`: Image height (default: 400, range: 50-4000)
 - `text`: Text to display (optional, max: 100 chars, URL-encoded)
-- `stops` or `palette`: Comma-separated hex colors (default: 2 random, range: 2-10 colors)
+- `palette`: Comma-separated colors — HEX, RGB, or HSL (default: 2 random, range: 2-10 colors)
 - `speed`: Animation speed in seconds (default: 10, range: 1-30)
 - `attribution`: Include branding watermark (default: `true`). Set to `false` or `0` to disable
 
 **Basic URL Example:**
 ```
-https://api.colors-cc.top/fluid-placeholder?w=1200&h=600&text=Aurora&stops=FFD6A5,FFADAD,E2A0FF&speed=15
+https://api.colors-cc.top/fluid-placeholder?w=1200&h=600&text=Aurora&palette=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=15
 ```
 
 **As CSS Background:**
 ```css
 /* Hero section with animated gradient */
 .hero {
-  background-image: url('https://api.colors-cc.top/fluid-placeholder?w=1920&h=1080&stops=FFD6A5,FFADAD,E2A0FF&speed=20');
+  background-image: url('https://api.colors-cc.top/fluid-placeholder?w=1920&h=1080&palette=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=20');
   background-size: cover;
   background-position: center;
   min-height: 600px;
@@ -115,7 +114,7 @@ https://api.colors-cc.top/fluid-placeholder?w=1200&h=600&text=Aurora&stops=FFD6A
 **As Inline Style:**
 ```html
 <section style="
-  background: url('https://api.colors-cc.top/fluid-placeholder?w=1600&h=900&stops=FFD6A5,FFADAD,E2A0FF&speed=15') center/cover;
+  background: url('https://api.colors-cc.top/fluid-placeholder?w=1600&h=900&palette=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=15') center/cover;
   min-height: 400px;
 ">
   <h1>Your Content Here</h1>
@@ -204,10 +203,10 @@ Get a complete map of ~140 CSS color names to HEX values.
 
 ColorsCC also provides interactive web tools for designers and developers:
 
+- **[Placeholder Generator](https://colors-cc.top/)** - Interactive SVG placeholder generator with live preview
 - **[Color Converter](https://colors-cc.top/tools/converter)** - Universal color converter (HEX ↔ RGB ↔ HSL ↔ CMYK)
 - **[Random Palette Generator](https://colors-cc.top/tools/random-palette)** - Generate palettes by theme
 - **[CSS Color Names](https://colors-cc.top/tools/color-names)** - Searchable reference of all CSS color names
-- **[Fluid Placeholder Generator](https://colors-cc.top/tools/fluid-placeholder)** - Create animated gradient placeholders
 
 ---
 

@@ -34,11 +34,6 @@ app.get('/sitemap.xml', (c) => {
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>
-    <loc>https://colors-cc.top/tools/fluid-placeholder</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
 </urlset>`
   c.header('Content-Type', 'text/xml')
   c.header('Cache-Control', 'public, max-age=86400')
