@@ -2,8 +2,7 @@ import { Hono } from 'hono'
 
 const app = new Hono()
 
-app.get('/llms.txt', (c) => {
-  const content = `# colors-cc.top - Agent & LLM Documentation
+export const llmsContent = `# colors-cc.top - Agent & LLM Documentation
 > A free, stateless API designed for AI Agents to generate UI assets, palettes, and colors.
 
 ## Base URLs
@@ -160,9 +159,11 @@ None. All endpoints are free and unlimited.
 - Random Palette Generator: https://colors-cc.top/tools/random-palette
 - CSS Color Names: https://colors-cc.top/tools/color-names
 `
+
+app.get('/llms.txt', (c) => {
   c.header('Content-Type', 'text/plain; charset=utf-8')
   c.header('Cache-Control', 'public, max-age=86400')
-  return c.body(content)
+  return c.body(llmsContent)
 })
 
 export default app

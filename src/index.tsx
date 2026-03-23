@@ -30,9 +30,21 @@ app.route('/', sitemapRoute)
 // Mount tool pages
 app.route('/tools', toolsRoute)
 
+// Import documentation content
+import { llmsContent } from './routes/docs/llms'
+
 // Homepage
 app.get('/', (c) => {
   return c.html(homeTemplate)
+})
+
+// Global 404 handler: serve LLMs context but STRICTLY return 404 status
+app.notFound((c) => {
+  c.status(404)
+  c.header('Content-Type', 'text/plain; charset=utf-8')
+  // We don't cache 404s aggressively for general browsers, but the content is the llms.txt payload
+  c.header('Cache-Control', 'public, max-age=3600')
+  return c.body(llmsContent)
 })
 
 export default app

@@ -139,3 +139,16 @@ describe('colors-cc Frontend', () => {
     })
   })
 })
+
+  describe('Global 404 Handler', () => {
+    it('should return 404 status with llms.txt content', async () => {
+      const res = await app.request('/some/random/path')
+      expect(res.status).toBe(404)
+      expect(res.headers.get('Content-Type')).toContain('text/plain')
+      expect(res.headers.get('Cache-Control')).toContain('max-age=3600')
+      
+      const text = await res.text()
+      expect(text).toContain('colors-cc.top - Agent & LLM Documentation')
+    })
+  })
+}
