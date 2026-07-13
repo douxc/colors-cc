@@ -1,4 +1,10 @@
 import { Hono } from 'hono'
+import {
+  API_BASE_URL,
+  PALETTE_THEMES,
+  PLACEHOLDER_EFFECTS,
+  PLACEHOLDER_LIMITS
+} from '../../contracts/colors-api'
 
 const app = new Hono()
 
@@ -22,23 +28,23 @@ A native UI asset and color toolset for AI Agents (OpenClaw, Cursor, Cline, GPTs
 5. **Text is truncated** - Max 100 characters for placeholder text
 
 ## API Access
-- **API Endpoint**: https://api.colors-cc.top/*
+- **API Endpoint**: ${API_BASE_URL}/*
 
 ## Quick Reference
 
 ### Placeholder Images
 \`\`\`html
 <!-- Basic placeholder -->
-<img src="https://api.colors-cc.top/placeholder?w=800&h=400" alt="Placeholder">
+<img src="${API_BASE_URL}/placeholder?w=800&h=400" alt="Placeholder">
 
 <!-- With custom text -->
 <img src="https://api.colors-cc.top/placeholder?w=1200&h=630&text=Hero+Banner" alt="Hero">
 
 <!-- With custom gradient -->
-<img src="https://api.colors-cc.top/placeholder?w=400&h=300&start=%23FF003C&end=%2300B8FF" alt="Card">
+<img src="https://api.colors-cc.top/placeholder?w=400&h=300&palette=%23FF003C,%2300B8FF" alt="Card">
 
 <!-- Animated fluid placeholder with text -->
-<img src="https://api.colors-cc.top/fluid-placeholder?w=1200&h=600&stops=%2300FF41,%2300B8FF,%237000FF&text=Coming+Soon&speed=8" alt="Animated Hero">
+<img src="https://api.colors-cc.top/fluid-placeholder?w=1200&h=600&palette=%2300FF41,%2300B8FF,%237000FF&text=Coming+Soon&speed=8" alt="Animated Hero">
 \`\`\`
 
 ### Random Colors (JSON)
@@ -51,7 +57,7 @@ curl https://api.colors-cc.top/random
 \`\`\`bash
 curl "https://api.colors-cc.top/palette?theme=cyberpunk"
 # Returns: {"theme": "cyberpunk", "colors": ["#FCEE09", ...], "count": 5}
-# Themes: cyberpunk, vaporwave, retro, monochrome
+# Themes: ${PALETTE_THEMES.join(', ')}
 \`\`\`
 
 ### Color Conversion (JSON)
@@ -69,6 +75,8 @@ curl "https://api.colors-cc.top/all-names"
 \`\`\`
 
 ## Common Use Cases
+
+Supported placeholder effects: ${PLACEHOLDER_EFFECTS.join(', ')}. Dimensions must stay between ${PLACEHOLDER_LIMITS.width.min} and ${PLACEHOLDER_LIMITS.width.max}px.
 
 ### 1. Building a Landing Page
 \`\`\`html
@@ -106,8 +114,8 @@ async function getRandomColor() {
 
 ### ❌ Mistake 1: Unencoded Hash Symbol
 \`\`\`
-BAD:  start=#FF0000
-GOOD: start=%23FF0000
+BAD:  palette=#FF0000,%230000FF
+GOOD: palette=%23FF0000,%230000FF
 \`\`\`
 
 ### ❌ Mistake 2: Fetching SVG and Re-processing

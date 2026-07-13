@@ -16,7 +16,7 @@ A high-performance, stateless Color API and toolset optimized for AI Agents (Ope
 
 ## 🚀 Usage Rules for Agents
 - **Inline Images**: Always embed SVG placeholders directly using `<img>` or Markdown `![alt](url)`.
-- **URL Encoding**: The `#` character must be encoded as `%23` (e.g., `start=%23FF003C`).
+- **URL Encoding**: The `#` character must be encoded as `%23` (e.g., `palette=%23FF003C,%2300B8FF`).
 - **No Fetching**: Do not attempt to download binary image data; let the user's client render the URL.
 - **Valid Dimensions**: Width and height are clamped between 50-4000px automatically.
 - **Text Limit**: Placeholder text is truncated to 100 characters max.

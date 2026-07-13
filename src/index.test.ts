@@ -15,8 +15,15 @@ describe('colors-cc Frontend', () => {
       expect(spec.paths).toHaveProperty('/palette')
       expect(spec.paths).toHaveProperty('/convert')
       expect(spec.paths).toHaveProperty('/placeholder')
+      expect(spec.paths).toHaveProperty('/fluid-placeholder')
       expect(spec.servers).toHaveLength(1)
       expect(spec.servers[0].url).toBe('https://api.colors-cc.top')
+
+      const placeholder = spec.paths['/placeholder'] as {
+        get: { operationId: string; parameters: Array<{ name: string }> }
+      }
+      expect(placeholder.get.operationId).toBe('generatePlaceholder')
+      expect(placeholder.get.parameters.map(parameter => parameter.name)).toContain('palette')
     })
 
     it('should serve /llms.txt', async () => {
@@ -40,6 +47,9 @@ describe('colors-cc Frontend', () => {
       const text = await res.text()
       expect(text).toContain('SKILL: ColorsCC')
       expect(text).toContain('https://api.colors-cc.top')
+      expect(text).toContain('palette=%23FF003C,%2300B8FF')
+      expect(text).not.toContain('stops=')
+      expect(text).not.toContain('start=')
     })
   })
 
@@ -78,7 +88,8 @@ describe('colors-cc Frontend', () => {
       expect(res.headers.get('Content-Type')).toContain('text/html')
       
       const html = await res.text()
-      expect(html).toContain('Universal Color Converter')
+      expect(html).toContain('Universal color converter')
+      expect(html).toContain('Synchronized values')
       expect(html).toContain('<link rel="canonical"')
       expect(html).toContain('og:title')
     })
@@ -88,8 +99,9 @@ describe('colors-cc Frontend', () => {
       expect(res.status).toBe(200)
       
       const html = await res.text()
-      expect(html).toContain('Random Palette Generator')
+      expect(html).toContain('Curated palette generator')
       expect(html).toContain('palette-display')
+      expect(html).toContain('role="status"')
     })
 
     it('should render /tools/color-names', async () => {
@@ -97,7 +109,8 @@ describe('colors-cc Frontend', () => {
       expect(res.status).toBe(200)
       
       const html = await res.text()
-      expect(html).toContain('HTML Color Names')
+      expect(html).toContain('CSS color atlas')
+      expect(html).toContain('type="search"')
     })
 
     it('should render /tools/fluid-placeholder', async () => {
@@ -105,7 +118,9 @@ describe('colors-cc Frontend', () => {
       expect(res.status).toBe(200)
       
       const html = await res.text()
-      expect(html).toContain('Animated Fluid Gradient Placeholder')
+      expect(html).toContain('Fluid SVG studio')
+      expect(html).toContain('palette=')
+      expect(html).not.toContain('stops=')
     })
 
     it('should return 404 for invalid tool route', async () => {
@@ -118,7 +133,7 @@ describe('colors-cc Frontend', () => {
       expect(res.status).toBe(200)
       
       const html = await res.text()
-      expect(html).toContain('HEX to RGB Converter')
+      expect(html).toContain('HEX to RGB converter')
     })
 
     it('should return 404 for invalid conversion route', async () => {
@@ -136,9 +151,12 @@ describe('colors-cc Frontend', () => {
       const html = await res.text()
       expect(html).toContain('<!DOCTYPE html>')
       expect(html).toContain('colors-cc')
+      expect(html).toContain('Color workbench')
+      expect(html).toContain('Agent prompt')
+      expect(html).toContain('aria-label="Placeholder controls"')
+      expect(html).not.toContain('__COLOR_API_CONTRACT__')
     })
   })
-})
 
   describe('Global 404 Handler', () => {
     it('should return 404 status with llms.txt content', async () => {
@@ -151,4 +169,4 @@ describe('colors-cc Frontend', () => {
       expect(text).toContain('colors-cc.top - Agent & LLM Documentation')
     })
   })
-}
+})

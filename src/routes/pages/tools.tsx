@@ -1,431 +1,508 @@
 import { Hono } from 'hono'
+import {
+  API_BASE_URL,
+  COLOR_FORMATS,
+  PALETTE_THEMES,
+  PLACEHOLDER_LIMITS,
+  PLACEHOLDER_PRESETS
+} from '../../contracts/colors-api'
 import { Layout } from '../../templates/Layout'
 
 const app = new Hono()
 
-// Random Palette Generator
+const copyHelper = `
+  async function copyValue(value, button, message) {
+    try {
+      await navigator.clipboard.writeText(value)
+    } catch {
+      const area = document.createElement('textarea')
+      area.value = value
+      document.body.appendChild(area)
+      area.select()
+      document.execCommand('copy')
+      area.remove()
+    }
+    const original = button.textContent
+    button.textContent = message || 'Copied ✓'
+    setTimeout(() => { button.textContent = original }, 1400)
+  }
+`
+
 app.get('/random-palette', (c) => {
+  const themeOptions = PALETTE_THEMES
+    .map(theme => `<option value="${theme}">${theme[0].toUpperCase()}${theme.slice(1)}</option>`)
+    .join('')
+
   const content = `
-    <div class="box">
-        <h2>Random Palette Generator</h2>
-        <p class="desc" style="color: #666; margin-bottom: 20px;">Generate curated color palettes for UI/UX design. Choose a theme or get random palettes instantly.</p>
-        
-        <div style="margin: 20px 0;">
-            <label style="font-weight: bold; display: block; margin-bottom: 10px;">Theme:</label>
-            <select id="theme-select" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 200px; font-size: 1em;">
-                <option value="cyberpunk">Cyberpunk</option>
-                <option value="vaporwave">Vaporwave</option>
-                <option value="retro">Retro</option>
-                <option value="monochrome">Monochrome</option>
-            </select>
+    <div class="tool-layout">
+      <section class="panel tool-sticky" aria-labelledby="palette-controls-title">
+        <header class="panel-header">
+          <div>
+            <h2 id="palette-controls-title">Palette controls</h2>
+            <p>Choose a visual direction, then regenerate variations.</p>
+          </div>
+        </header>
+        <div class="panel-body">
+          <div class="field">
+            <label for="theme-select">Theme</label>
+            <select class="select" id="theme-select">${themeOptions}</select>
+          </div>
+          <button class="button button-primary button-block" id="refresh-btn" type="button" style="margin-top:18px">Generate palette</button>
+          <div class="status" id="palette-status" role="status" aria-live="polite">Preparing palette…</div>
+          <div class="inspector-section">
+            <span class="section-label">API request</span>
+            <pre class="code-surface" id="palette-endpoint"></pre>
+            <button class="button button-small button-block" id="copy-endpoint" type="button" style="margin-top:9px">Copy request URL</button>
+          </div>
         </div>
-        
-        <div id="palette-display" style="display: flex; gap: 10px; margin: 20px 0; min-height: 120px; flex-wrap: wrap;"></div>
-        <button id="refresh-btn" class="btn" style="border:none; cursor:pointer; background: #111; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 500;">&orarr; Generate New Palette</button>
-        
-        <div style="margin-top: 35px; border-top: 1px solid #eee; padding-top: 20px;">
-            <h3>API Access</h3>
-            <p class="desc">Endpoint: <code style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; color: #e83e8c;">GET https://api.colors-cc.top/palette?theme=cyberpunk</code></p>
-            <p class="desc" style="margin-top: 10px;">Available themes: <code>cyberpunk</code>, <code>vaporwave</code>, <code>retro</code>, <code>monochrome</code></p>
+      </section>
+
+      <section class="panel" aria-labelledby="palette-result-title">
+        <header class="panel-header">
+          <div>
+            <h2 id="palette-result-title">Generated system</h2>
+            <p>Click any swatch to copy its HEX value.</p>
+          </div>
+          <span class="signal-pill" id="palette-count">0 COLORS</span>
+        </header>
+        <div class="panel-body">
+          <div class="palette-grid" id="palette-display" aria-label="Generated colors"></div>
         </div>
+      </section>
     </div>
+
     <script>
-        const paletteDisplay = document.getElementById('palette-display');
-        const refreshBtn = document.getElementById('refresh-btn');
-        const themeSelect = document.getElementById('theme-select');
+      ${copyHelper}
+      const paletteDisplay = document.getElementById('palette-display')
+      const refreshButton = document.getElementById('refresh-btn')
+      const themeSelect = document.getElementById('theme-select')
+      const paletteStatus = document.getElementById('palette-status')
+      const paletteCount = document.getElementById('palette-count')
+      const paletteEndpoint = document.getElementById('palette-endpoint')
+      const copyEndpoint = document.getElementById('copy-endpoint')
 
-        async function loadPalette() {
-            const theme = themeSelect.value;
-            try {
-                const res = await fetch('https://api.colors-cc.top/palette?theme=' + theme);
-                const data = await res.json();
-                renderPalette(data.colors);
-            } catch(e) {
-                console.error('Failed to load palette:', e);
-            }
+      function requestUrl() {
+        return '${API_BASE_URL}/palette?theme=' + encodeURIComponent(themeSelect.value)
+      }
+
+      function renderPalette(colors) {
+        paletteDisplay.replaceChildren()
+        colors.forEach((hex, index) => {
+          const swatch = document.createElement('button')
+          swatch.type = 'button'
+          swatch.className = 'palette-swatch'
+          swatch.style.background = hex
+          swatch.setAttribute('aria-label', 'Copy ' + hex + ', color ' + (index + 1))
+          const code = document.createElement('span')
+          code.className = 'swatch-code'
+          code.textContent = hex
+          swatch.appendChild(code)
+          swatch.addEventListener('click', () => copyValue(hex, code, 'COPIED'))
+          paletteDisplay.appendChild(swatch)
+        })
+        paletteCount.textContent = colors.length + ' COLORS'
+      }
+
+      async function loadPalette() {
+        const url = requestUrl()
+        paletteEndpoint.textContent = url
+        refreshButton.disabled = true
+        paletteStatus.textContent = 'Generating ' + themeSelect.value + ' palette…'
+        paletteStatus.dataset.tone = ''
+        try {
+          const response = await fetch(url)
+          if (!response.ok) throw new Error('HTTP ' + response.status)
+          const data = await response.json()
+          if (!Array.isArray(data.colors)) throw new Error('Invalid response')
+          renderPalette(data.colors)
+          paletteStatus.textContent = 'Ready · ' + data.colors.length + ' colors from the edge'
+          paletteStatus.dataset.tone = 'success'
+        } catch (error) {
+          paletteDisplay.replaceChildren()
+          paletteCount.textContent = '0 COLORS'
+          paletteStatus.textContent = 'Palette could not load. Check your connection and try again.'
+          paletteStatus.dataset.tone = 'error'
+        } finally {
+          refreshButton.disabled = false
         }
+      }
 
-        function renderPalette(colors) {
-            paletteDisplay.innerHTML = '';
-            colors.forEach(hex => {
-                const card = document.createElement('div');
-                card.style.cssText = 'flex: 1; min-width: 80px; height: 120px; background: ' + hex + '; border-radius: 8px; display: flex; align-items: flex-end; justify-content: center; padding: 10px; cursor: pointer; transition: transform 0.2s; border: 1px solid rgba(0,0,0,0.1);';
-                card.title = 'Click to copy ' + hex;
-                
-                const label = document.createElement('div');
-                label.innerText = hex;
-                label.style.cssText = 'background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-family: monospace; font-weight: bold;';
-                
-                card.appendChild(label);
-                card.onclick = () => {
-                    navigator.clipboard.writeText(hex);
-                    const originalText = label.innerText;
-                    label.innerText = 'COPIED!';
-                    label.style.background = 'rgba(232, 62, 140, 0.9)';
-                    setTimeout(() => {
-                        label.innerText = originalText;
-                        label.style.background = 'rgba(0,0,0,0.7)';
-                    }, 800);
-                };
-                card.onmouseover = () => card.style.transform = 'scale(1.05)';
-                card.onmouseout = () => card.style.transform = 'scale(1)';
-                
-                paletteDisplay.appendChild(card);
-            });
-        }
-
-        themeSelect.onchange = loadPalette;
-        refreshBtn.onclick = loadPalette;
-
-        loadPalette();
+      themeSelect.addEventListener('change', loadPalette)
+      refreshButton.addEventListener('click', loadPalette)
+      copyEndpoint.addEventListener('click', () => copyValue(requestUrl(), copyEndpoint, 'Request copied ✓'))
+      loadPalette()
     </script>
   `
-  return c.html(<Layout title="Random Color Palette Generator" desc="Generate beautiful, random color palettes (Cyberpunk, Retro, Vaporwave) for UI/UX design and illustrations." path="/tools/random-palette"><div dangerouslySetInnerHTML={{ __html: content }} /></Layout>)
+
+  return c.html(
+    <Layout
+      title="Curated palette generator"
+      desc="Generate theme-driven color systems, inspect them visually, and copy the exact API request or individual HEX values."
+      path="/tools/random-palette"
+      eyebrow="Explore · Palette"
+    >
+      <div dangerouslySetInnerHTML={{ __html: content }} />
+    </Layout>
+  )
 })
 
-// Color Names Reference
 app.get('/color-names', (c) => {
   const content = `
-    <div class="box">
-        <h2>HTML Color Names Reference</h2>
-        <p class="desc">Quickly find standard CSS/HTML color names and their HEX values.</p>
-        
-        <div style="margin: 20px 0;">
-            <input type="text" id="colorSearch" placeholder="Search color names (e.g. Blue, Pink)..." style="padding: 12px; border-radius: 8px; border: 1px solid #ddd; width: 100%; font-size: 1em; box-sizing: border-box;">
+    <section class="panel" aria-labelledby="color-atlas-title" style="margin-bottom:72px">
+      <header class="panel-header">
+        <div>
+          <h2 id="color-atlas-title">CSS color atlas</h2>
+          <p>Search by name and copy a standards-based HEX value.</p>
         </div>
-
-        <div id="colorGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 20px;">
-            <!-- Colors will be injected here -->
+        <span class="signal-pill" id="color-count">LOADING</span>
+      </header>
+      <div class="panel-body">
+        <div class="field">
+          <label for="color-search">Search color names</label>
+          <input class="input" type="search" id="color-search" placeholder="Try Tomato, Slate, or Blue…" autocomplete="off">
         </div>
-
-        <div style="margin-top: 35px; border-top: 1px solid #eee; padding-top: 20px;">
-            <h3>API Access</h3>
-            <p class="desc">Get all color names as JSON: <code>GET https://api.colors-cc.top/all-names</code></p>
-        </div>
-    </div>
+        <div class="status" id="color-status" role="status" aria-live="polite">Loading CSS color names…</div>
+        <div class="color-grid" id="color-grid" aria-label="CSS color search results" style="margin-top:18px"></div>
+      </div>
+    </section>
 
     <script>
-        const colorGrid = document.getElementById('colorGrid');
-        const colorSearch = document.getElementById('colorSearch');
-        let allColors = {};
+      ${copyHelper}
+      const colorGrid = document.getElementById('color-grid')
+      const colorSearch = document.getElementById('color-search')
+      const colorStatus = document.getElementById('color-status')
+      const colorCount = document.getElementById('color-count')
+      let allColors = []
 
-        async function loadColors() {
-            const res = await fetch('https://api.colors-cc.top/all-names');
-            allColors = await res.json();
-            renderColors(allColors);
+      function renderColors(colors) {
+        colorGrid.replaceChildren()
+        colors.forEach(([name, hex]) => {
+          const card = document.createElement('button')
+          card.type = 'button'
+          card.className = 'color-card'
+          card.setAttribute('aria-label', 'Copy ' + name + ' ' + hex)
+          card.innerHTML = '<span class="color-card-swatch" style="display:block;background:' + hex + '"></span><span class="color-card-meta"><span class="color-card-name">' + name + '</span><span class="color-card-code">' + hex + '</span></span>'
+          card.addEventListener('click', () => {
+            copyValue(hex, card.querySelector('.color-card-code'), 'COPIED')
+            colorStatus.textContent = name + ' · ' + hex + ' copied'
+            colorStatus.dataset.tone = 'success'
+          })
+          colorGrid.appendChild(card)
+        })
+        colorCount.textContent = colors.length + ' COLORS'
+        colorStatus.textContent = colors.length ? 'Showing ' + colors.length + ' named colors' : 'No named colors match your search.'
+        colorStatus.dataset.tone = colors.length ? '' : 'error'
+      }
+
+      async function loadColors() {
+        try {
+          const response = await fetch('${API_BASE_URL}/all-names')
+          if (!response.ok) throw new Error('HTTP ' + response.status)
+          const data = await response.json()
+          allColors = Object.entries(data)
+          renderColors(allColors)
+        } catch (error) {
+          colorCount.textContent = 'UNAVAILABLE'
+          colorStatus.textContent = 'Color names could not load. Refresh the page to retry.'
+          colorStatus.dataset.tone = 'error'
         }
+      }
 
-        function renderColors(colors) {
-            colorGrid.innerHTML = '';
-            Object.entries(colors).forEach(([name, hex]) => {
-                const card = document.createElement('div');
-                card.style.padding = '10px';
-                card.style.background = '#fff';
-                card.style.border = '1px solid #eee';
-                card.style.borderRadius = '8px';
-                card.style.textAlign = 'center';
-                card.style.cursor = 'pointer';
-                card.title = 'Click to copy HEX';
-                
-                const swatch = document.createElement('div');
-                swatch.style.height = '60px';
-                swatch.style.background = hex;
-                swatch.style.borderRadius = '4px';
-                swatch.style.marginBottom = '8px';
-                swatch.style.border = '1px solid rgba(0,0,0,0.05)';
-                
-                const nameLabel = document.createElement('div');
-                nameLabel.innerText = name;
-                nameLabel.style.fontSize = '0.85em';
-                nameLabel.style.fontWeight = 'bold';
-                nameLabel.style.color = '#333';
-                
-                const hexLabel = document.createElement('div');
-                hexLabel.innerText = hex;
-                hexLabel.style.fontSize = '0.75em';
-                hexLabel.style.color = '#999';
-                hexLabel.style.fontFamily = 'monospace';
-
-                card.onclick = () => {
-                    navigator.clipboard.writeText(hex);
-                    const originalHex = hexLabel.innerText;
-                    hexLabel.innerText = 'COPIED!';
-                    hexLabel.style.color = '#e83e8c';
-                    setTimeout(() => {
-                        hexLabel.innerText = originalHex;
-                        hexLabel.style.color = '#999';
-                    }, 800);
-                };
-
-                card.appendChild(swatch);
-                card.appendChild(nameLabel);
-                card.appendChild(hexLabel);
-                colorGrid.appendChild(card);
-            });
-        }
-
-        colorSearch.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtered = Object.fromEntries(
-                Object.entries(allColors).filter(([name]) => name.toLowerCase().includes(term))
-            );
-            renderColors(filtered);
-        });
-
-        loadColors();
+      colorSearch.addEventListener('input', () => {
+        const term = colorSearch.value.trim().toLowerCase()
+        renderColors(allColors.filter(([name]) => name.toLowerCase().includes(term)))
+      })
+      loadColors()
     </script>
   `
-  return c.html(<Layout title="HTML Color Names & Hex Codes" desc="A comprehensive list of HTML color names, CSS variables, and their corresponding HEX codes for web design." path="/tools/color-names"><div dangerouslySetInnerHTML={{ __html: content }} /></Layout>)
+
+  return c.html(
+    <Layout
+      title="CSS color atlas"
+      desc="Search the complete CSS named-color directory and copy precise, machine-readable HEX values."
+      path="/tools/color-names"
+      eyebrow="Reference · Color names"
+    >
+      <div dangerouslySetInnerHTML={{ __html: content }} />
+    </Layout>
+  )
 })
 
-// Fluid Placeholder Generator
 app.get('/fluid-placeholder', (c) => {
+  const presetButtons = PLACEHOLDER_PRESETS.map((preset, index) => {
+    const colors = preset.colors.join(',')
+    return `<button class="preset" type="button" data-palette="${colors}" aria-pressed="${index === 0}" aria-label="Use ${preset.name} palette"><span class="preset-color" style="display:block;background:linear-gradient(135deg,${colors})"></span><span class="preset-name">${preset.name}</span></button>`
+  }).join('')
+
   const content = `
-    <div class="box">
-        <h2>Animated Fluid Gradient Placeholder</h2>
-        <p class="desc" style="color: #666; margin-bottom: 20px;">Generate dynamic SVG gradients with smooth color transitions and animations for web design mockups.</p>
-        
-        <div id="demo-box" style="width: 100%; height: 600px; max-height: 80vh; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); margin: 20px 0; border: 1px solid #ddd; background-size: cover;"></div>
-
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <label style="font-size: 0.85em; font-weight: bold; color: #555; display: block; margin-bottom: 12px;">Theme Preset</label>
-            <div id="theme-cards" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
-                <div class="theme-card" data-theme="aurora" style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid #FFD6A5; box-shadow: 0 2px 6px rgba(255,214,165,0.3);">
-                    <div style="height: 80px; background: linear-gradient(135deg, #FFD6A5, #FFADAD, #E2A0FF);"></div>
-                    <div style="padding: 8px; background: white; text-align: center; font-size: 0.85em; font-weight: 500;">Aurora</div>
-                </div>
-                <div class="theme-card" data-theme="cyberpunk" style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent;">
-                    <div style="height: 80px; background: linear-gradient(135deg, #FCEE09, #FF003C, #00B8FF);"></div>
-                    <div style="padding: 8px; background: white; text-align: center; font-size: 0.85em; font-weight: 500;">Cyberpunk</div>
-                </div>
-                <div class="theme-card" data-theme="ocean" style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent;">
-                    <div style="height: 80px; background: linear-gradient(135deg, #01CDFE, #05FFA1, #B967FF);"></div>
-                    <div style="padding: 8px; background: white; text-align: center; font-size: 0.85em; font-weight: 500;">Deep Ocean</div>
-                </div>
-                <div class="theme-card" data-theme="sunset" style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent;">
-                    <div style="height: 80px; background: linear-gradient(135deg, #FF71CE, #FFFB96, #E24E1B);"></div>
-                    <div style="padding: 8px; background: white; text-align: center; font-size: 0.85em; font-weight: 500;">Sunset</div>
-                </div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <label style="font-size: 0.85em; font-weight: bold; color: #555;">Animation Speed: <span id="speed-value">10</span>s</label>
-                    <input type="range" id="speed-range" min="1" max="30" value="10" style="padding: 10px;">
-                </div>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
-                <label style="font-size: 0.85em; font-weight: bold; color: #555;">Color Stops (HEX, comma separated)</label>
-                <input type="text" id="stops-input" value="#FFD6A5, #FFADAD, #E2A0FF" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-family: monospace; font-size: 0.95em;">
-            </div>
-            <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 5px;">
-                <label style="font-size: 0.85em; font-weight: bold; color: #555;">Center Text (Optional, max 100 chars)</label>
-                <input type="text" id="text-input" placeholder="e.g. Coming Soon" maxlength="100" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-size: 0.95em;">
-            </div>
+    <div class="tool-layout">
+      <section class="panel tool-sticky" aria-labelledby="fluid-controls-title">
+        <header class="panel-header">
+          <div>
+            <h2 id="fluid-controls-title">Animation controls</h2>
+            <p>Compose a fluid SVG with a deterministic URL.</p>
+          </div>
+        </header>
+        <div class="panel-body">
+          <div class="field">
+            <span class="field-label">Palette preset</span>
+            <div class="preset-grid" id="fluid-presets">${presetButtons}</div>
+          </div>
+          <div class="field">
+            <label for="fluid-palette">Custom HEX colors</label>
+            <input class="input input-mono" id="fluid-palette" value="${PLACEHOLDER_PRESETS[0].colors.join(', ')}" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="field">
+            <div class="range-head"><label for="fluid-speed">Animation duration</label><output id="fluid-speed-value">${PLACEHOLDER_LIMITS.speed.default}s</output></div>
+            <input id="fluid-speed" type="range" min="${PLACEHOLDER_LIMITS.speed.min}" max="${PLACEHOLDER_LIMITS.speed.max}" value="${PLACEHOLDER_LIMITS.speed.default}">
+          </div>
+          <div class="field">
+            <label for="fluid-text">Center label <span class="field-hint">optional</span></label>
+            <input class="input" id="fluid-text" maxlength="${PLACEHOLDER_LIMITS.textMaxLength}" placeholder="Flow state" autocomplete="off">
+          </div>
+          <div class="status" id="fluid-status" role="status" aria-live="polite">Rendering preview…</div>
         </div>
+      </section>
 
-        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-            <h3>API Endpoint URL:</h3>
-            <pre id="url-output" style="background: #000; padding: 15px; border-radius: 8px; font-size: 0.85em; overflow-x: auto; color: #00FF41; font-family: monospace;"></pre>
-            <button id="copy-btn" class="btn" style="border:none; cursor:pointer; background: #111; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 500; margin-top: 10px;">&orarr; Copy URL</button>
+      <section class="panel" aria-labelledby="fluid-preview-title">
+        <header class="panel-header">
+          <div>
+            <h2 id="fluid-preview-title">Live animated SVG</h2>
+            <p>Lightweight, infinitely looping, and ready to embed.</p>
+          </div>
+          <span class="signal-pill">SVG / EDGE</span>
+        </header>
+        <div class="panel-body">
+          <div class="preview-frame" id="fluid-preview-frame">
+            <img id="fluid-preview" src="" alt="Animated fluid gradient placeholder preview">
+          </div>
+          <div class="inspector-section">
+            <span class="section-label">API URL</span>
+            <pre class="code-surface" id="fluid-url"></pre>
+            <button class="button button-primary" id="copy-fluid-url" type="button" style="margin-top:10px">Copy API URL</button>
+          </div>
         </div>
-
-        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-            <h3>API Parameters</h3>
-            <p class="desc">Endpoint: <code style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; color: #e83e8c;">GET https://api.colors-cc.top/fluid-placeholder</code></p>
-            <ul style="color: #666; line-height: 1.8; margin-top: 10px;">
-                <li><code>w</code> - Width (50-4000px, default: 800)</li>
-                <li><code>h</code> - Height (50-4000px, default: 400)</li>
-                <li><code>stops</code> - Comma-separated HEX colors (2-10 colors, default: aurora)</li>
-                <li><code>speed</code> - Animation duration in seconds (1-30s, default: 10)</li>
-                <li><code>text</code> - Optional center text (max 100 chars)</li>
-            </ul>
-        </div>
+      </section>
     </div>
+
     <script>
-        const demoBox = document.getElementById('demo-box');
-        const themeCards = document.querySelectorAll('.theme-card');
-        const speedRange = document.getElementById('speed-range');
-        const speedValue = document.getElementById('speed-value');
-        const stopsInput = document.getElementById('stops-input');
-        const textInput = document.getElementById('text-input');
-        const urlOutput = document.getElementById('url-output');
-        const copyBtn = document.getElementById('copy-btn');
-        
-        let currentTheme = 'aurora';
+      ${copyHelper}
+      const paletteInput = document.getElementById('fluid-palette')
+      const speedInput = document.getElementById('fluid-speed')
+      const speedOutput = document.getElementById('fluid-speed-value')
+      const textInput = document.getElementById('fluid-text')
+      const preview = document.getElementById('fluid-preview')
+      const previewFrame = document.getElementById('fluid-preview-frame')
+      const urlOutput = document.getElementById('fluid-url')
+      const status = document.getElementById('fluid-status')
+      const copyButton = document.getElementById('copy-fluid-url')
+      const presetButtons = Array.from(document.querySelectorAll('#fluid-presets .preset'))
+      let timer = null
 
-        const themes = {
-            aurora: "#FFD6A5, #FFADAD, #E2A0FF",
-            cyberpunk: "#FCEE09, #FF003C, #00B8FF",
-            ocean: "#01CDFE, #05FFA1, #B967FF",
-            sunset: "#FF71CE, #FFFB96, #E24E1B"
-        };
-        
-        const themeColors = {
-            aurora: "#FFD6A5",
-            cyberpunk: "#FCEE09",
-            ocean: "#01CDFE",
-            sunset: "#FF71CE"
-        };
+      function parseColors(value) {
+        return value.split(',').map(value => value.trim()).filter(value => /^#[0-9a-f]{6}$/i.test(value))
+      }
 
-        function setActiveTheme(theme) {
-            currentTheme = theme;
-            themeCards.forEach(card => {
-                if (card.dataset.theme === theme) {
-                    card.style.border = \`2px solid \${themeColors[theme]}\`;
-                    card.style.boxShadow = \`0 2px 6px \${themeColors[theme]}40\`;
-                } else {
-                    card.style.border = '2px solid transparent';
-                    card.style.boxShadow = 'none';
-                }
-            });
+      function buildFluidUrl() {
+        const palette = parseColors(paletteInput.value).map(color => encodeURIComponent(color)).join(',')
+        const text = textInput.value.trim()
+        return '${API_BASE_URL}/fluid-placeholder?w=1200&h=600&palette=' + palette + '&speed=' + speedInput.value + (text ? '&text=' + encodeURIComponent(text) : '')
+      }
+
+      function render() {
+        const colors = parseColors(paletteInput.value)
+        speedOutput.textContent = speedInput.value + 's'
+        if (colors.length < ${PLACEHOLDER_LIMITS.palette.min} || colors.length > ${PLACEHOLDER_LIMITS.palette.max}) {
+          status.textContent = 'Enter between 2 and 10 valid six-digit HEX colors.'
+          status.dataset.tone = 'error'
+          return
         }
-
-        function generatePreview() {
-            const stops = stopsInput.value.split(',').map(s => s.trim()).filter(s => s);
-            const speed = speedRange.value;
-            const text = textInput.value.trim();
-            speedValue.innerText = speed;
-            
-            const stopsParam = stops.map(s => s.replace('#', '%23')).join(',');
-            const textParam = text ? '&text=' + encodeURIComponent(text) : '';
-            const apiURL = \`https://api.colors-cc.top/fluid-placeholder?w=800&h=400&stops=\${stopsParam}&speed=\${speed}\${textParam}\`;
-            
-            demoBox.style.backgroundImage = \`url(\${apiURL})\`;
-            
-            const fullURL = \`https://api.colors-cc.top/fluid-placeholder?w=800&h=400&stops=\${stopsParam}&speed=\${speed}\${textParam}\`;
-            urlOutput.innerText = fullURL;
+        const url = buildFluidUrl()
+        urlOutput.textContent = url
+        previewFrame.style.background = 'radial-gradient(circle, ' + colors.join(', ') + ', #080a10 72%)'
+        status.textContent = 'Rendering preview…'
+        status.dataset.tone = ''
+        const image = new Image()
+        image.onload = () => {
+          preview.src = url
+          status.textContent = 'Ready · animated SVG loaded'
+          status.dataset.tone = 'success'
         }
+        image.onerror = () => {
+          status.textContent = 'Preview could not load. The API URL remains available below.'
+          status.dataset.tone = 'error'
+        }
+        image.src = url
+      }
 
-        themeCards.forEach(card => {
-            card.onclick = () => {
-                const theme = card.dataset.theme;
-                setActiveTheme(theme);
-                stopsInput.value = themes[theme];
-                generatePreview();
-            };
-        });
-
-        speedRange.oninput = generatePreview;
-        stopsInput.oninput = generatePreview;
-        textInput.oninput = generatePreview;
-
-        copyBtn.onclick = () => {
-            navigator.clipboard.writeText(urlOutput.innerText);
-            const originalText = copyBtn.innerText;
-            copyBtn.innerText = '✓ COPIED!';
-            copyBtn.style.background = '#e83e8c';
-            setTimeout(() => {
-                copyBtn.innerText = originalText;
-                copyBtn.style.background = '#111';
-            }, 1500);
-        };
-
-        generatePreview();
+      function schedule() { clearTimeout(timer); timer = setTimeout(render, 180) }
+      presetButtons.forEach(button => button.addEventListener('click', () => {
+        presetButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)))
+        paletteInput.value = button.dataset.palette.replaceAll(',', ', ')
+        render()
+      }))
+      paletteInput.addEventListener('change', render)
+      speedInput.addEventListener('input', schedule)
+      textInput.addEventListener('input', schedule)
+      copyButton.addEventListener('click', () => copyValue(buildFluidUrl(), copyButton, 'API URL copied ✓'))
+      render()
     </script>
   `
-  return c.html(<Layout title="Animated Fluid Gradient Placeholder Generator" desc="Create dynamic SVG gradient placeholders with smooth color transitions and animations for web design mockups." path="/tools/fluid-placeholder"><div dangerouslySetInnerHTML={{ __html: content }} /></Layout>)
+
+  return c.html(
+    <Layout
+      title="Fluid SVG studio"
+      desc="Create smooth, animated gradient placeholders with exact palette, timing, text, and an embeddable API URL."
+      path="/tools/fluid-placeholder"
+      eyebrow="Create · Motion"
+    >
+      <div dangerouslySetInnerHTML={{ __html: content }} />
+    </Layout>
+  )
 })
 
-// Universal Converter and conversion pages
 app.get('/:conversion', (c) => {
   const conversion = c.req.param('conversion')
-  const validFormats = ['hex', 'rgb', 'hsl', 'cmyk']
-  
-  let from = 'Color'
-  let to = 'Color'
-  let title = 'Universal Color Converter'
-  let desc = 'Free online tool and API to convert between HEX, RGB, HSL, and CMYK formats instantly.'
-  
+  let title = 'Universal color converter'
+  let desc = 'Convert between HEX, RGB, HSL, and CMYK while keeping every representation synchronized.'
+
   if (conversion.includes('-to-')) {
     const parts = conversion.split('-to-')
-    if (parts.length === 2 && validFormats.includes(parts[0]) && validFormats.includes(parts[1])) {
-      from = parts[0].toUpperCase()
-      to = parts[1].toUpperCase()
-      title = `${from} to ${to} Converter`
-      desc = `Free online ${from} to ${to} color converter. Instantly translate ${from} codes to ${to} format for web design and frontend development.`
-    } else {
+    if (
+      parts.length !== 2 ||
+      !COLOR_FORMATS.includes(parts[0] as typeof COLOR_FORMATS[number]) ||
+      !COLOR_FORMATS.includes(parts[1] as typeof COLOR_FORMATS[number]) ||
+      parts[0] === parts[1]
+    ) {
       return c.notFound()
     }
+    const from = parts[0].toUpperCase()
+    const to = parts[1].toUpperCase()
+    title = `${from} to ${to} converter`
+    desc = `Translate ${from} into ${to} instantly, with every other color representation kept in sync.`
   } else if (conversion !== 'converter') {
     return c.notFound()
   }
 
-  const linksHtml = validFormats.flatMap(f1 => 
-    validFormats.filter(f2 => f1 !== f2).map(f2 => 
-      `<a href="/tools/${f1}-to-${f2}" class="btn" style="background: #f8f9fa; color: #333; border: 1px solid #ddd; margin: 5px; font-size: 0.85em; padding: 6px 12px;">${f1.toUpperCase()} to ${f2.toUpperCase()}</a>`
+  const conversionLinks = COLOR_FORMATS.flatMap(from =>
+    COLOR_FORMATS.filter(to => to !== from).map(to =>
+      `<a href="/tools/${from}-to-${to}" class="tool-link">${from.toUpperCase()} → ${to.toUpperCase()}</a>`
     )
   ).join('')
 
   const content = `
-    <div class="box">
-        <h2>${title}</h2>
-        <p class="desc">Enter a value in any format below. All others will update instantly.</p>
-        <div style="margin: 20px 0; display: flex; flex-direction: column; gap: 15px;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <label style="width: 50px; font-weight: bold;">HEX</label>
-                <input type="text" id="hexInput" placeholder="#FFFFFF" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 120px; font-family: monospace; font-size: 1.1em;">
-            </div>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <label style="width: 50px; font-weight: bold;">RGB</label>
-                <input type="text" id="rgbInput" placeholder="rgb(255, 255, 255)" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 200px; font-family: monospace; font-size: 1.1em;">
-            </div>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <label style="width: 50px; font-weight: bold;">HSL</label>
-                <input type="text" id="hslInput" placeholder="hsl(0, 0%, 100%)" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 200px; font-family: monospace; font-size: 1.1em;">
-            </div>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <label style="width: 50px; font-weight: bold;">CMYK</label>
-                <input type="text" id="cmykInput" placeholder="cmyk(0%, 0%, 0%, 0%)" style="padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 220px; font-family: monospace; font-size: 1.1em;">
-            </div>
+    <div class="tool-layout">
+      <section class="panel tool-sticky" aria-labelledby="converter-preview-title">
+        <header class="panel-header">
+          <div>
+            <h2 id="converter-preview-title">Visual result</h2>
+            <p>The swatch updates from any valid input format.</p>
+          </div>
+        </header>
+        <div class="panel-body">
+          <div class="preview-frame" id="converter-preview" style="min-height:310px;background:#7C3AED">
+            <span class="signal-pill" id="preview-hex" style="background:rgba(0,0,0,.52);color:#fff">#7C3AED</span>
+          </div>
+          <div class="status" id="converter-status" role="status" aria-live="polite">Ready · enter a color in any field</div>
+          <div class="inspector-section">
+            <span class="section-label">API pattern</span>
+            <pre class="code-surface">GET ${API_BASE_URL}/convert?hex=%237C3AED</pre>
+          </div>
         </div>
-        <div id="preview" style="width: 100%; height: 50px; border-radius: 8px; border: 1px solid #eee; background: #fff; margin-bottom: 20px;"></div>
-        <p class="desc">API Endpoint: <code>GET https://api.colors-cc.top/convert?hex=%23FF5733</code> or <code>?rgb=255,87,51</code> etc.</p>
-        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-            <h3 style="font-size: 1.1em; color: #555; margin-bottom: 15px;">More Conversions</h3>
-            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
-                ${linksHtml}
+      </section>
+
+      <section class="panel" aria-labelledby="converter-inputs-title">
+        <header class="panel-header">
+          <div>
+            <h2 id="converter-inputs-title">Synchronized values</h2>
+            <p>Edit any field. Copy the representation you need.</p>
+          </div>
+          <span class="signal-pill">4 FORMATS</span>
+        </header>
+        <div class="panel-body">
+          <div class="result-grid">
+            <div class="field result-field">
+              <label for="hex-input">HEX</label>
+              <input class="input input-mono" id="hex-input" value="#7C3AED" placeholder="#FFFFFF" autocomplete="off">
+              <button class="button button-small" type="button" data-copy="hex-input">Copy</button>
             </div>
+            <div class="field result-field">
+              <label for="rgb-input">RGB</label>
+              <input class="input input-mono" id="rgb-input" placeholder="rgb(255, 255, 255)" autocomplete="off">
+              <button class="button button-small" type="button" data-copy="rgb-input">Copy</button>
+            </div>
+            <div class="field result-field">
+              <label for="hsl-input">HSL</label>
+              <input class="input input-mono" id="hsl-input" placeholder="hsl(0, 0%, 100%)" autocomplete="off">
+              <button class="button button-small" type="button" data-copy="hsl-input">Copy</button>
+            </div>
+            <div class="field result-field">
+              <label for="cmyk-input">CMYK</label>
+              <input class="input input-mono" id="cmyk-input" placeholder="cmyk(0%, 0%, 0%, 0%)" autocomplete="off">
+              <button class="button button-small" type="button" data-copy="cmyk-input">Copy</button>
+            </div>
+          </div>
+          <div class="inspector-section">
+            <span class="section-label">More conversions</span>
+            <nav class="tool-links" aria-label="Color conversion pages">${conversionLinks}</nav>
+          </div>
         </div>
+      </section>
     </div>
+
     <script>
-        const inputs = {
-            hex: document.getElementById('hexInput'),
-            rgb: document.getElementById('rgbInput'),
-            hsl: document.getElementById('hslInput'),
-            cmyk: document.getElementById('cmykInput')
-        };
-        const preview = document.getElementById('preview');
+      ${copyHelper}
+      const inputs = {
+        hex: document.getElementById('hex-input'),
+        rgb: document.getElementById('rgb-input'),
+        hsl: document.getElementById('hsl-input'),
+        cmyk: document.getElementById('cmyk-input')
+      }
+      const preview = document.getElementById('converter-preview')
+      const previewHex = document.getElementById('preview-hex')
+      const status = document.getElementById('converter-status')
+      let timer = null
+      let requestId = 0
 
-        async function updateColors(source, value) {
-            if (!value) return;
-            let param = encodeURIComponent(value);
-            if (source === 'hex' && !value.startsWith('#')) param = '%23' + value;
-            
-            try {
-                const res = await fetch(\`https://api.colors-cc.top/convert?\${source}=\${param}\`);
-                const data = await res.json();
-                if (data.hex) {
-                    if (source !== 'hex') inputs.hex.value = data.hex;
-                    if (source !== 'rgb') inputs.rgb.value = data.rgb;
-                    if (source !== 'hsl') inputs.hsl.value = data.hsl;
-                    if (source !== 'cmyk') inputs.cmyk.value = data.cmyk;
-                    preview.style.backgroundColor = data.hex;
-                }
-            } catch(e) { console.error(e); }
+      async function updateColors(source, value) {
+        if (!value.trim()) return
+        const currentRequest = ++requestId
+        status.textContent = 'Converting ' + source.toUpperCase() + '…'
+        status.dataset.tone = ''
+        try {
+          const response = await fetch('${API_BASE_URL}/convert?' + source + '=' + encodeURIComponent(value.trim()))
+          const data = await response.json()
+          if (!response.ok || !data.hex) throw new Error(data.error || 'Invalid color')
+          if (currentRequest !== requestId) return
+          Object.keys(inputs).forEach(key => { if (key !== source) inputs[key].value = data[key] })
+          preview.style.background = data.hex
+          previewHex.textContent = data.hex
+          status.textContent = 'Ready · all formats synchronized'
+          status.dataset.tone = 'success'
+        } catch (error) {
+          if (currentRequest !== requestId) return
+          status.textContent = 'That value is not a valid ' + source.toUpperCase() + ' color.'
+          status.dataset.tone = 'error'
         }
+      }
 
-        let timeout;
-        Object.keys(inputs).forEach(key => {
-            inputs[key].addEventListener('input', (e) => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    updateColors(key, e.target.value);
-                }, 300);
-            });
-        });
+      Object.entries(inputs).forEach(([key, input]) => input.addEventListener('input', () => {
+        clearTimeout(timer)
+        timer = setTimeout(() => updateColors(key, input.value), 280)
+      }))
+      document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', () => {
+        const input = document.getElementById(button.dataset.copy)
+        if (input.value) copyValue(input.value, button, 'Copied ✓')
+      }))
+      updateColors('hex', inputs.hex.value)
     </script>
   `
-  return c.html(<Layout title={title} desc={desc} path={`/tools/${conversion}`}><div dangerouslySetInnerHTML={{ __html: content }} /></Layout>)
+
+  return c.html(
+    <Layout title={title} desc={desc} path={`/tools/${conversion}`} eyebrow="Translate · Color">
+      <div dangerouslySetInnerHTML={{ __html: content }} />
+    </Layout>
+  )
 })
 
 export default app

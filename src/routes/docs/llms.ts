@@ -1,4 +1,10 @@
 import { Hono } from 'hono'
+import {
+  API_BASE_URL,
+  PALETTE_THEMES,
+  PLACEHOLDER_EFFECTS,
+  PLACEHOLDER_LIMITS
+} from '../../contracts/colors-api'
 
 const app = new Hono()
 
@@ -6,7 +12,7 @@ export const llmsContent = `# colors-cc.top - Agent & LLM Documentation
 > A free, stateless API designed for AI Agents to generate UI assets, palettes, and colors.
 
 ## Base URLs
-- API Endpoint: https://api.colors-cc.top
+- API Endpoint: ${API_BASE_URL}
 
 ## Golden Rules for Agents
 1. DO NOT HALLUCINATE PARAMETERS. Only use the parameters documented below.
@@ -27,7 +33,7 @@ Generate dynamic, lightweight SVG gradient images with multiple visual effects.
 - w: Width in pixels (default: 800, range: 50-4000)
 - h: Height in pixels (default: 400, range: 50-4000)
 - text: Center text, URL-encoded (default: "{width} x {height}", max: 100 chars)
-- effect: Visual effect — static (default), fluid, breathe, holographic, mesh
+- effect: Visual effect — ${PLACEHOLDER_EFFECTS.join(', ')}
 - palette: Comma-separated colors — HEX, RGB, or HSL (default: 2 random colors, range: 2-10 colors)
 - speed: Animation duration in seconds for non-static effects (default: 10, range: 1-30)
 - attribution: Include branding watermark (default: true). Set to false or 0 to disable
@@ -90,7 +96,7 @@ Get curated color palettes by theme.
 - GET https://api.colors-cc.top/palette?theme={theme_name}
 
 **Parameters:**
-- theme: Theme name (options: cyberpunk, vaporwave, retro, monochrome; default: cyberpunk)
+- theme: Theme name (options: ${PALETTE_THEMES.join(', ')}; default: cyberpunk)
 
 **Returns:** {"theme": "cyberpunk", "colors": ["#FCEE09", "#00FF41", ...], "count": 5}
 
@@ -149,6 +155,12 @@ Get all standard CSS color names with their HEX values.
 
 ❌ WRONG: Only 1 color in palette (palette=%23FF0000)
 ✅ RIGHT: At least 2 colors required (palette=%23FF0000,%230000FF)
+
+## Contract Limits
+- Dimensions: ${PLACEHOLDER_LIMITS.width.min}-${PLACEHOLDER_LIMITS.width.max}px
+- Palette: ${PLACEHOLDER_LIMITS.palette.min}-${PLACEHOLDER_LIMITS.palette.max} colors
+- Animation duration: ${PLACEHOLDER_LIMITS.speed.min}-${PLACEHOLDER_LIMITS.speed.max}s
+- Text: ${PLACEHOLDER_LIMITS.textMaxLength} characters maximum
 
 ## Rate Limits
 None. All endpoints are free and unlimited.

@@ -3,6 +3,8 @@ import type { Env, Variables } from './types'
 
 // Import HTML templates
 import homeTemplate from './templates/home.html'
+import { sharedStyles } from './templates/styles'
+import { PUBLIC_COLOR_API_CONTRACT } from './contracts/colors-api'
 
 // Import documentation routes
 import llmsRoute from './routes/docs/llms'
@@ -17,6 +19,13 @@ import sitemapRoute from './routes/seo/sitemap'
 import toolsRoute from './routes/pages/tools'
 
 const app = new Hono<{ Bindings: Env; Variables: Variables }>()
+
+const homePage = homeTemplate
+  .replace('/*__SHARED_STYLES__*/', sharedStyles)
+  .replace(
+    '__COLOR_API_CONTRACT__',
+    JSON.stringify(PUBLIC_COLOR_API_CONTRACT).replace(/</g, '\\u003c')
+  )
 
 // Mount documentation routes
 app.route('/', llmsRoute)
@@ -35,7 +44,7 @@ import { llmsContent } from './routes/docs/llms'
 
 // Homepage
 app.get('/', (c) => {
-  return c.html(homeTemplate)
+  return c.html(homePage)
 })
 
 // Global 404 handler: serve LLMs context but STRICTLY return 404 status
