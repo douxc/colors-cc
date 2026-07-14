@@ -207,12 +207,16 @@ describe('colors-cc Frontend', () => {
       expect(english).toContain('<html lang="en">')
       expect(english).toContain('Build in color.')
       expect(english).toContain('href="/zh"')
+      expect(english).toContain('aria-label="Switch to Chinese"')
       expect(english).toContain('https://colors-cc.top/en')
 
       expect(chineseResponse.status).toBe(200)
       expect(chinese).toContain('<html lang="zh-CN">')
-      expect(chinese).toContain('用颜色构建。')
+      expect(chinese).toContain('用色彩构建。')
+      expect(chinese).toContain('--leading-hero: 1.18;')
+      expect(chinese).toContain('line-height: var(--leading-hero);')
       expect(chinese).toContain('href="/en"')
+      expect(chinese).toContain('aria-label="切换为英文"')
       expect(chinese).toContain('https://colors-cc.top/zh')
       expect(chinese).toContain('const animatedEffects')
       expect(chinese).toContain('id="customPalette"')
@@ -236,7 +240,11 @@ describe('colors-cc Frontend', () => {
       expect(english).toContain('href="/zh/tools/converter"')
       expect(chinese).toContain('通用颜色转换器')
       expect(chinese).toContain('href="/en/tools/converter"')
-      expect(chinese).toContain('就绪 · 所有格式已同步')
+      expect(chinese).toContain('转换完成 · 所有颜色格式已同步')
+      expect(chinese).toContain('正在转换 ')
+      expect(chinese).toContain('输入的内容不是有效的 ')
+      expect(chinese).not.toContain("'Converting '")
+      expect(chinese).not.toContain("'That value is not a valid '")
       expect(chineseImage).toContain('图片压缩、排列与水印')
     })
 
@@ -254,6 +262,30 @@ describe('colors-cc Frontend', () => {
       for (const path of paths) {
         const html = await (await app.request(path)).text()
         expectValidInlineScripts(html)
+      }
+    })
+
+    it('should apply language-aware readable typography to every localized page', async () => {
+      for (const locale of ['en', 'zh'] as const) {
+        for (const path of PAGE_PATHS) {
+          const requestPath = `/${locale}${path === '/' ? '' : path}`
+          const response = await app.request(requestPath)
+          const html = await response.text()
+
+          expect(response.status, requestPath).toBe(200)
+          expect(html, requestPath).toContain(`<html lang="${locale === 'zh' ? 'zh-CN' : 'en'}">`)
+          expect(html, requestPath).toContain('--leading-body: 1.62;')
+          expect(html, requestPath).toContain('--leading-copy: 1.68;')
+          expect(html, requestPath).toContain('html[lang="zh-CN"] {')
+          expect(html, requestPath).toContain('--leading-body: 1.75;')
+          expect(html, requestPath).toContain('--leading-copy: 1.8;')
+          expect(html, requestPath).toContain('--leading-display: 1.2;')
+          expect(html, requestPath).toContain('line-height: var(--leading-body);')
+          expect(html, requestPath).toContain('line-height: var(--leading-display);')
+          expect(html, requestPath).toContain('line-height: var(--leading-copy);')
+          expect(html, requestPath).not.toContain('line-height: .86;')
+          expect(html, requestPath).not.toContain('line-height: .98;')
+        }
       }
     })
   })
@@ -300,23 +332,38 @@ describe('colors-cc Frontend', () => {
 
   describe('Theme support', () => {
     it.each(['/', '/tools/converter', '/tools/image-compress'])(
-      'should render system, light, and dark theme controls on %s',
+      'should render the icon theme toggle on %s',
       async (path) => {
         const res = await app.request(path)
         const html = await res.text()
 
         expect(res.status).toBe(200)
-        expect(html).toContain('data-theme-select')
-        expect(html).toContain('<option value="system">System</option>')
-        expect(html).toContain('<option value="light">Light</option>')
-        expect(html).toContain('<option value="dark">Dark</option>')
+        expect(html).toContain('class="nav-icon-button language-switch"')
+        expect(html).toContain('class="nav-icon-button theme-toggle"')
+        expect(html).toContain('data-theme-toggle')
+        expect(html).toContain('aria-pressed="false"')
+        expect(html).toContain('theme-icon-sun')
+        expect(html).toContain('theme-icon-moon')
+        expect(html).toContain('class="language-badge"')
+        expect(html).not.toContain('data-theme-select')
+        expect(html).not.toContain('class="theme-select"')
         expect(html).toContain('colors-cc-theme')
         expect(html).toContain("prefers-color-scheme: dark")
         expect(html).toContain(":root[data-theme='dark']")
+        expect(html).toContain('outline: 3px solid var(--focus-ring)')
+        expect(html).not.toContain('outline: none')
         expect(html).not.toContain('__THEME_INIT_SCRIPT__')
         expect(html).not.toContain('__THEME_CONTROL_SCRIPT__')
       }
     )
+
+    it('should preserve an accessible navigation path on compact screens', async () => {
+      const html = await (await app.request('/tools/converter')).text()
+
+      expect(html).toContain('aria-current="page">Convert</a>')
+      expect(html).toContain('.nav-links {\n      order: 3;')
+      expect(html).not.toContain('.nav-links { display: none; }')
+    })
   })
 
   describe('Global 404 Handler', () => {

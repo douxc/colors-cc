@@ -1,14 +1,13 @@
 import type { Child, FC } from 'hono/jsx'
 import { commonMessages } from '../i18n'
 import {
-  alternateLocale,
   htmlLang,
   localePrefix,
-  localizedPath,
   localizedUrl,
   type Locale,
   type SiteConfig
 } from '../site'
+import { renderNavUtilityControlItems } from './nav-controls'
 import { sharedStyles } from './styles'
 import { themeControlScript, themeInitScript } from './theme'
 
@@ -26,9 +25,16 @@ export const Layout: FC<LayoutProps> = (props) => {
   const messages = commonMessages[props.locale]
   const prefix = localePrefix(props.locale)
   const path = props.path || ''
+  const currentSection = path === '/tools/random-palette'
+    ? 'palettes'
+    : path === '/tools/color-names'
+      ? 'names'
+      : path === '/tools/image-compress'
+        ? 'images'
+        : path.startsWith('/tools/')
+          ? 'convert'
+          : 'create'
   const canonicalUrl = localizedUrl(props.config.origin, props.locale, path)
-  const otherLocale = alternateLocale(props.locale)
-  const languageSwitchUrl = localizedPath(otherLocale, path)
   const ogImage = `${props.config.apiBaseUrl}/placeholder?w=1200&h=630&text=colors-cc+API&effect=mesh&palette=%235EE7F7,%23A78BFA,%23F472B6`
   const fullTitle = `${props.title} | colors-cc`
   const jsonLd = {
@@ -81,24 +87,37 @@ export const Layout: FC<LayoutProps> = (props) => {
               <span>colors-cc</span>
             </a>
             <nav class="nav-links" aria-label={messages.primaryNavigation}>
-              <a class="nav-link" href={prefix}>{messages.create}</a>
-              <a class="nav-link" href={`${prefix}/tools/converter`}>{messages.convert}</a>
-              <a class="nav-link" href={`${prefix}/tools/random-palette`}>{messages.palettes}</a>
-              <a class="nav-link" href={`${prefix}/tools/color-names`}>{messages.colorNames}</a>
-              <a class="nav-link" href={`${prefix}/tools/image-compress`}>{messages.imageTools}</a>
+              <a
+                class="nav-link"
+                href={prefix}
+                aria-current={currentSection === 'create' ? 'page' : undefined}
+              >{messages.create}</a>
+              <a
+                class="nav-link"
+                href={`${prefix}/tools/converter`}
+                aria-current={currentSection === 'convert' ? 'page' : undefined}
+              >{messages.convert}</a>
+              <a
+                class="nav-link"
+                href={`${prefix}/tools/random-palette`}
+                aria-current={currentSection === 'palettes' ? 'page' : undefined}
+              >{messages.palettes}</a>
+              <a
+                class="nav-link"
+                href={`${prefix}/tools/color-names`}
+                aria-current={currentSection === 'names' ? 'page' : undefined}
+              >{messages.colorNames}</a>
+              <a
+                class="nav-link"
+                href={`${prefix}/tools/image-compress`}
+                aria-current={currentSection === 'images' ? 'page' : undefined}
+              >{messages.imageTools}</a>
             </nav>
             <div class="nav-actions">
-              <a class="button button-quiet button-small language-switch" href={languageSwitchUrl} aria-label={messages.switchLanguage}>
-                {messages.switchLanguageText}
-              </a>
-              <label class="theme-picker">
-                <span class="sr-only">{messages.colorTheme}</span>
-                <select class="theme-select" data-theme-select aria-label={messages.colorTheme}>
-                  <option value="system">{messages.systemTheme}</option>
-                  <option value="light">{messages.lightTheme}</option>
-                  <option value="dark">{messages.darkTheme}</option>
-                </select>
-              </label>
+              <div
+                class="nav-utility-group"
+                dangerouslySetInnerHTML={{ __html: renderNavUtilityControlItems(props.locale, path) }}
+              />
               <a class="button button-quiet button-small" href="/llms.txt">llms.txt</a>
               <a class="button button-primary button-small" href={`${prefix}#for-ai`}>{messages.forAi}</a>
             </div>

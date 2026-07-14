@@ -1,9 +1,15 @@
 #!/bin/sh
 set -eu
 
+if [ -f .env ]; then
+  set -a
+  . ./.env
+  set +a
+fi
+
 : "${VPS_TARGET:?Set VPS_TARGET, for example deploy@your-vps}"
 
-VPS_ROOT="${VPS_ROOT:-/var/www/colors-cc/html}"
+VPS_ROOT="${VPS_ROOT:-/var/www/colors-cc.top}"
 
 pnpm validate
 pnpm build:vps

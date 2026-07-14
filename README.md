@@ -248,18 +248,18 @@ pnpm validate
 pnpm build:vps
 ```
 
-The static site is generated in `dist/vps`. Deploy it with a full replacement:
+The static site is generated in `dist/vps`. Configure the deployment target in
+the ignored `.env` file:
 
 ```bash
-VPS_TARGET=deploy@your-vps pnpm deploy:vps
+VPS_TARGET=deploy@your-vps
+# Optional; defaults to /home/ubuntu/colors-cc.top
+VPS_ROOT=/srv/www/colors-cc
 ```
 
-The default remote document root is `/var/www/colors-cc/html`. Override it when
-needed:
+Then deploy it with a full replacement:
 
 ```bash
-VPS_TARGET=deploy@your-vps \
-VPS_ROOT=/srv/www/colors-cc \
 pnpm deploy:vps
 ```
 

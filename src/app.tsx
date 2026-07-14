@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { PUBLIC_COLOR_API_CONTRACT } from './contracts/colors-api'
-import { commonMessages, localizeHomeHtml, localizeImageHtml } from './i18n'
+import { localizeHomeHtml, localizeImageHtml } from './i18n'
 import llmsRoute, { llmsContent } from './routes/docs/llms'
 import openapiRoute from './routes/docs/openapi'
 import skillsRoute from './routes/docs/skills'
@@ -8,16 +8,15 @@ import { createToolsRoute } from './routes/pages/tools'
 import { createRobotsRoute } from './routes/seo/robots'
 import { createSitemapRoute } from './routes/seo/sitemap'
 import {
-  alternateLocale,
   htmlLang,
   localePrefix,
-  localizedPath,
   localizedUrl,
   renderAlternateLinks,
   renderComplianceFooter,
   type Locale,
   type SiteConfig
 } from './site'
+import { renderNavUtilityControlItems } from './templates/nav-controls'
 import { sharedStyles } from './templates/styles'
 import { themeControlScript, themeInitScript } from './templates/theme'
 import type { Env, Variables } from './types'
@@ -37,11 +36,6 @@ const prefixInternalLinks = (html: string, locale: Locale): string => {
     .replaceAll('href="/"', `href="${prefix}"`)
 }
 
-const languageSwitch = (locale: Locale, path: string): string => {
-  const messages = commonMessages[locale]
-  return `<a class="button button-quiet button-small language-switch" href="${localizedPath(alternateLocale(locale), path)}" aria-label="${messages.switchLanguage}">${messages.switchLanguageText}</a>`
-}
-
 const decorateDocument = (
   html: string,
   config: SiteConfig,
@@ -55,7 +49,7 @@ const decorateDocument = (
     .replace(/<link rel="canonical" href="[^"]+"\s*\/?>/, canonical)
     .replace(/<meta property="og:url" content="[^"]+"\s*\/?>/, `<meta property="og:url" content="${canonicalUrl}">`)
     .replace('"url": "https://colors-cc.top/"', `"url": "${canonicalUrl}"`)
-    .replace('__LANGUAGE_SWITCH__', languageSwitch(locale, path))
+    .replace('__NAV_UTILITY_CONTROLS__', renderNavUtilityControlItems(locale, path))
     .replace('__COMPLIANCE_FOOTER__', renderComplianceFooter(config))
 }
 

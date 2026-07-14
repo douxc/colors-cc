@@ -399,7 +399,7 @@ app.get(
     const to = parts[1].toUpperCase()
     title = locale === 'zh' ? `${from} 转 ${to} 转换器` : `${from} to ${to} converter`
     desc = locale === 'zh'
-      ? `即时将 ${from} 转换为 ${to}，并保持其他颜色表示同步。`
+      ? `可立即将 ${from} 转换为 ${to}，并同步显示其他颜色格式。`
       : `Translate ${from} into ${to} instantly, with every other color representation kept in sync.`
   } else if (conversion !== 'converter') {
     return c.notFound()

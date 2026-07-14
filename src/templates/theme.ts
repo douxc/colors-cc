@@ -1,12 +1,25 @@
 export const themeInitScript = `
   (() => {
+    const root = document.documentElement
+    let theme = 'system'
     try {
-      const theme = localStorage.getItem('colors-cc-theme')
-      if (theme === 'light' || theme === 'dark') {
-        document.documentElement.dataset.theme = theme
-        document.documentElement.style.colorScheme = theme
+      const storedTheme = localStorage.getItem('colors-cc-theme')
+      if (storedTheme === 'light' || storedTheme === 'dark') {
+        theme = storedTheme
       }
     } catch {}
+
+    if (theme === 'system') {
+      delete root.dataset.theme
+      root.style.colorScheme = 'light dark'
+    } else {
+      root.dataset.theme = theme
+      root.style.colorScheme = theme
+    }
+
+    root.dataset.effectiveTheme = theme === 'system'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : theme
   })()
 `
 
@@ -26,8 +39,26 @@ export const themeControlScript = `
     }
 
     function updateThemeColor(theme) {
-      const effectiveTheme = theme === 'system' ? (systemTheme.matches ? 'dark' : 'light') : theme
+      const effectiveTheme = resolveTheme(theme)
       if (themeColor) themeColor.setAttribute('content', effectiveTheme === 'dark' ? '#07080c' : '#f7f9fc')
+    }
+
+    function resolveTheme(theme) {
+      return theme === 'system' ? (systemTheme.matches ? 'dark' : 'light') : theme
+    }
+
+    function updateThemeToggles(theme) {
+      const effectiveTheme = resolveTheme(theme)
+      document.documentElement.dataset.effectiveTheme = effectiveTheme
+
+      document.querySelectorAll('[data-theme-toggle]').forEach((toggle) => {
+        const label = effectiveTheme === 'dark' ? toggle.dataset.labelLight : toggle.dataset.labelDark
+        toggle.dataset.themeState = effectiveTheme
+        toggle.setAttribute('aria-pressed', String(effectiveTheme === 'dark'))
+        if (label) {
+          toggle.setAttribute('title', label)
+        }
+      })
     }
 
     function applyTheme(theme, persist) {
@@ -46,21 +77,22 @@ export const themeControlScript = `
         } catch {}
       }
 
-      document.querySelectorAll('[data-theme-select]').forEach((select) => {
-        select.value = theme
-      })
+      updateThemeToggles(theme)
       updateThemeColor(theme)
     }
 
     const initialTheme = storedTheme()
     applyTheme(initialTheme, false)
 
-    document.querySelectorAll('[data-theme-select]').forEach((select) => {
-      select.addEventListener('change', () => applyTheme(select.value, true))
+    document.querySelectorAll('[data-theme-toggle]').forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const nextTheme = resolveTheme(storedTheme()) === 'dark' ? 'light' : 'dark'
+        applyTheme(nextTheme, true)
+      })
     })
 
     systemTheme.addEventListener?.('change', () => {
-      if (storedTheme() === 'system') updateThemeColor('system')
+      if (storedTheme() === 'system') applyTheme('system', false)
     })
   })()
 `
