@@ -625,6 +625,9 @@ describe('colors-cc Frontend', () => {
         expect(html, path).not.toContain('href="/en')
         expect(html, path).toContain('class="nav-preference-control theme-control"')
         expect(html, path).toContain('data-theme-option="system"')
+        expect(html, path).not.toContain('<span class="nav-preference-label">主题</span>')
+        expect(html, path).not.toContain('>System</')
+        expect(html.match(/class="theme-option-icon"/g), path).toHaveLength(3)
       }
     })
 
@@ -650,7 +653,10 @@ describe('colors-cc Frontend', () => {
         expect(html).toContain('data-theme-option="system"')
         expect(html).toContain('aria-pressed="false"')
         expect(html).toContain('class="theme-option-icon"')
-        expect(html).toContain('class="theme-system-label">System</span>')
+        expect(html.match(/class="theme-option-icon"/g)).toHaveLength(3)
+        expect(html).not.toContain('class="theme-system-label"')
+        expect(html).not.toContain('>System</')
+        expect(html).not.toContain('<span class="nav-preference-label">Theme</span>')
         expect(html).toContain('>简</a>')
         expect(html).toContain('>EN</a>')
         expect(html).not.toContain('data-theme-toggle')

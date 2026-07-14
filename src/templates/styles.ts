@@ -316,7 +316,6 @@ export const sharedStyles = `
   .theme-option-icon { width: 17px; height: 17px; }
   .theme-option-light[aria-pressed='true'] { color: #9a6700; }
   .theme-option-dark[aria-pressed='true'] { color: var(--violet); }
-  .theme-system-label { font-size: .66rem; }
 
   .button {
     min-height: 42px;

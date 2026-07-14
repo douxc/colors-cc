@@ -42,6 +42,23 @@ const moonIcon = `
   </svg>
 `
 
+const systemIcon = `
+  <svg
+    class="theme-option-icon"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <rect x="3" y="4" width="18" height="13" rx="2.5"></rect>
+    <path d="M8 21h8M12 17v4"></path>
+  </svg>
+`
+
 const languageOption = (
   optionLocale: Locale,
   currentLocale: Locale,
@@ -92,11 +109,10 @@ export const renderNavUtilityControlItems = (
   return `
     ${languageControl}
     <div class="nav-preference-control theme-control">
-      <span class="nav-preference-label">${messages.themeControlLabel}</span>
       <div class="nav-segmented" role="group" aria-label="${escapeAttribute(messages.themeControlLabel)}">
         ${themeOption('light', messages.lightThemeLabel, sunIcon)}
         ${themeOption('dark', messages.darkThemeLabel, moonIcon)}
-        ${themeOption('system', messages.systemThemeLabel, '<span class="theme-system-label">System</span>')}
+        ${themeOption('system', messages.systemThemeLabel, systemIcon)}
       </div>
     </div>
   `
