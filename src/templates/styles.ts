@@ -197,9 +197,16 @@ export const sharedStyles = `
   .skip-link:focus { transform: translateY(0); }
 
   .app-shell {
-    width: min(1440px, 100%);
+    --shell-inline-padding: 28px;
+    width: 100%;
     margin: 0 auto;
     padding: 0 28px 56px;
+  }
+
+  .app-shell > main,
+  .app-shell > .site-footer {
+    width: min(1384px, 100%);
+    margin-inline: auto;
   }
 
   .site-nav {
@@ -210,6 +217,9 @@ export const sharedStyles = `
     display: flex;
     align-items: center;
     gap: 28px;
+    width: calc(100% + (2 * var(--shell-inline-padding)));
+    margin-left: calc(-1 * var(--shell-inline-padding));
+    padding-inline: var(--shell-inline-padding);
     border-bottom: 1px solid var(--line);
     background: var(--nav-bg);
     backdrop-filter: blur(22px);
@@ -583,12 +593,21 @@ export const sharedStyles = `
     border: 0;
   }
 
+  @media (min-width: 2048px) {
+    .app-shell { width: min(1440px, 100%); }
+    .site-nav {
+      width: auto;
+      margin-left: 0;
+      padding-inline: 0;
+    }
+  }
+
   @media (max-width: 1300px) {
     .nav-actions .button-quiet { display: none; }
   }
 
   @media (max-width: 1100px) {
-    .app-shell { padding-inline: 18px; }
+    .app-shell { --shell-inline-padding: 18px; padding-inline: 18px; }
     .site-nav { flex-wrap: wrap; gap: 0 16px; }
     .nav-links {
       order: 3;
@@ -608,7 +627,7 @@ export const sharedStyles = `
   }
 
   @media (max-width: 620px) {
-    .app-shell { padding-inline: 14px; padding-bottom: 38px; }
+    .app-shell { --shell-inline-padding: 14px; padding-inline: 14px; padding-bottom: 38px; }
     .site-nav { min-height: 66px; }
     .nav-actions { gap: 0; }
     .nav-actions > .button-primary { display: none; }

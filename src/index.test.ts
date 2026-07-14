@@ -677,6 +677,13 @@ describe('colors-cc Frontend', () => {
       const html = await (await app.request('/tools/converter')).text()
 
       expect(html).toContain('aria-current="page">Convert</a>')
+      expect(html).toContain('--shell-inline-padding: 28px;')
+      expect(html).toContain('width: min(1384px, 100%);')
+      expect(html).toContain('width: calc(100% + (2 * var(--shell-inline-padding)));')
+      expect(html).toContain('margin-left: calc(-1 * var(--shell-inline-padding));')
+      expect(html).toContain('@media (min-width: 2048px)')
+      expect(html).toContain('--shell-inline-padding: 18px;')
+      expect(html).toContain('--shell-inline-padding: 14px;')
       expect(html).toContain('.nav-links {\n      order: 3;')
       expect(html).not.toContain('.nav-links { display: none; }')
     })
