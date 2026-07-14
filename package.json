@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "verify:seo": "tsx scripts/verify-seo.ts",
     "validate": "pnpm typecheck && pnpm test"
   },
   "dependencies": {

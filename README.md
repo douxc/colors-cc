@@ -253,8 +253,9 @@ the ignored `.env` file:
 
 ```bash
 VPS_TARGET=deploy@your-vps
-# Optional; defaults to /home/ubuntu/colors-cc.top
-VPS_ROOT=/srv/www/colors-cc
+# Optional; defaults to the root used by deploy/nginx-vps.conf
+VPS_ROOT=/var/www/colors-cc/html
+VPS_SITE_ORIGIN=https://www.colors-cc.top
 ```
 
 Then deploy it with a full replacement:
@@ -265,7 +266,22 @@ pnpm deploy:vps
 
 The deployment uses `rsync --delete`; the target directory must contain only
 generated site files. A matching Nginx server configuration is available at
-`deploy/nginx-vps.conf`.
+`deploy/nginx-vps.conf`. Install or update that configuration before the first
+deployment, then validate and reload Nginx:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+The deploy command runs `pnpm verify:seo` against the public CN origin after
+syncing. It fails if clean localized URLs redirect, a crawler is blocked, an
+SEO asset has the wrong content type, or required sitemap/page metadata is
+missing. The global deployment can be checked independently with:
+
+```bash
+pnpm verify:seo -- https://colors-cc.top
+```
 
 ## Search engine onboarding
 
@@ -316,6 +332,13 @@ from the JSON object. Submit the matching sitemap after verification:
 
 The generic sitemap and robots protocols remain valid for other standards-based
 search engines. Never commit placeholder verification values.
+
+Cloudflare can prepend a managed `robots.txt` that contains a separate
+`Bytespider` `Disallow` rule. For the global domain, turn off the conflicting
+managed robots preference under **Security Settings → Bot traffic**, and set
+the Search/Bytespider crawler policy to **Allow** in AI Crawl Control. Verify
+the public response with `pnpm verify:seo -- https://colors-cc.top`; changing
+the Worker response alone cannot override an edge-prepended rule.
 
 ## 📄 License
 MIT
