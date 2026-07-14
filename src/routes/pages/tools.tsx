@@ -1,14 +1,14 @@
 import { Hono } from 'hono'
+import { ssgParams } from 'hono/ssg'
 import {
-  API_BASE_URL,
   COLOR_FORMATS,
   PALETTE_THEMES,
   PLACEHOLDER_LIMITS,
   PLACEHOLDER_PRESETS
 } from '../../contracts/colors-api'
+import { localizeToolHtml } from '../../i18n'
+import { localePrefix, type Locale, type SiteConfig } from '../../site'
 import { Layout } from '../../templates/Layout'
-
-const app = new Hono()
 
 const copyHelper = `
   async function copyValue(value, button, message) {
@@ -28,12 +28,17 @@ const copyHelper = `
   }
 `
 
+export const createToolsRoute = (config: SiteConfig, locale: Locale): Hono => {
+const app = new Hono()
+const apiBaseUrl = config.apiBaseUrl
+const prefix = localePrefix(locale)
+
 app.get('/random-palette', (c) => {
   const themeOptions = PALETTE_THEMES
     .map(theme => `<option value="${theme}">${theme[0].toUpperCase()}${theme.slice(1)}</option>`)
     .join('')
 
-  const content = `
+  const content = localizeToolHtml(`
     <div class="tool-layout">
       <section class="panel tool-sticky" aria-labelledby="palette-controls-title">
         <header class="panel-header">
@@ -82,7 +87,7 @@ app.get('/random-palette', (c) => {
       const copyEndpoint = document.getElementById('copy-endpoint')
 
       function requestUrl() {
-        return '${API_BASE_URL}/palette?theme=' + encodeURIComponent(themeSelect.value)
+        return '${apiBaseUrl}/palette?theme=' + encodeURIComponent(themeSelect.value)
       }
 
       function renderPalette(colors) {
@@ -132,14 +137,16 @@ app.get('/random-palette', (c) => {
       copyEndpoint.addEventListener('click', () => copyValue(requestUrl(), copyEndpoint, 'Request copied ✓'))
       loadPalette()
     </script>
-  `
+  `, locale)
 
   return c.html(
     <Layout
-      title="Curated palette generator"
-      desc="Generate theme-driven color systems, inspect them visually, and copy the exact API request or individual HEX values."
+      config={config}
+      locale={locale}
+      title={localizeToolHtml('Curated palette generator', locale)}
+      desc={localizeToolHtml('Generate theme-driven color systems, inspect them visually, and copy the exact API request or individual HEX values.', locale)}
       path="/tools/random-palette"
-      eyebrow="Explore · Palette"
+      eyebrow={localizeToolHtml('Explore · Palette', locale)}
     >
       <div dangerouslySetInnerHTML={{ __html: content }} />
     </Layout>
@@ -147,7 +154,7 @@ app.get('/random-palette', (c) => {
 })
 
 app.get('/color-names', (c) => {
-  const content = `
+  const content = localizeToolHtml(`
     <section class="panel" aria-labelledby="color-atlas-title" style="margin-bottom:72px">
       <header class="panel-header">
         <div>
@@ -196,7 +203,7 @@ app.get('/color-names', (c) => {
 
       async function loadColors() {
         try {
-          const response = await fetch('${API_BASE_URL}/all-names')
+          const response = await fetch('${apiBaseUrl}/all-names')
           if (!response.ok) throw new Error('HTTP ' + response.status)
           const data = await response.json()
           allColors = Object.entries(data)
@@ -214,14 +221,16 @@ app.get('/color-names', (c) => {
       })
       loadColors()
     </script>
-  `
+  `, locale)
 
   return c.html(
     <Layout
-      title="CSS color atlas"
-      desc="Search the complete CSS named-color directory and copy precise, machine-readable HEX values."
+      config={config}
+      locale={locale}
+      title={localizeToolHtml('CSS color atlas', locale)}
+      desc={localizeToolHtml('Search the complete CSS named-color directory and copy precise, machine-readable HEX values.', locale)}
       path="/tools/color-names"
-      eyebrow="Reference · Color names"
+      eyebrow={localizeToolHtml('Reference · Color names', locale)}
     >
       <div dangerouslySetInnerHTML={{ __html: content }} />
     </Layout>
@@ -234,7 +243,7 @@ app.get('/fluid-placeholder', (c) => {
     return `<button class="preset" type="button" data-palette="${colors}" aria-pressed="${index === 0}" aria-label="Use ${preset.name} palette"><span class="preset-color" style="display:block;background:linear-gradient(135deg,${colors})"></span><span class="preset-name">${preset.name}</span></button>`
   }).join('')
 
-  const content = `
+  const content = localizeToolHtml(`
     <div class="tool-layout">
       <section class="panel tool-sticky" aria-labelledby="fluid-controls-title">
         <header class="panel-header">
@@ -306,7 +315,7 @@ app.get('/fluid-placeholder', (c) => {
       function buildFluidUrl() {
         const palette = parseColors(paletteInput.value).map(color => encodeURIComponent(color)).join(',')
         const text = textInput.value.trim()
-        return '${API_BASE_URL}/fluid-placeholder?w=1200&h=600&palette=' + palette + '&speed=' + speedInput.value + (text ? '&text=' + encodeURIComponent(text) : '')
+        return '${apiBaseUrl}/fluid-placeholder?w=1200&h=600&palette=' + palette + '&speed=' + speedInput.value + (text ? '&text=' + encodeURIComponent(text) : '')
       }
 
       function render() {
@@ -347,24 +356,34 @@ app.get('/fluid-placeholder', (c) => {
       copyButton.addEventListener('click', () => copyValue(buildFluidUrl(), copyButton, 'API URL copied ✓'))
       render()
     </script>
-  `
+  `, locale)
 
   return c.html(
     <Layout
-      title="Fluid SVG studio"
-      desc="Create smooth, animated gradient placeholders with exact palette, timing, text, and an embeddable API URL."
+      config={config}
+      locale={locale}
+      title={localizeToolHtml('Fluid SVG studio', locale)}
+      desc={localizeToolHtml('Create smooth, animated gradient placeholders with exact palette, timing, text, and an embeddable API URL.', locale)}
       path="/tools/fluid-placeholder"
-      eyebrow="Create · Motion"
+      eyebrow={localizeToolHtml('Create · Motion', locale)}
     >
       <div dangerouslySetInnerHTML={{ __html: content }} />
     </Layout>
   )
 })
 
-app.get('/:conversion', (c) => {
+app.get(
+  '/:conversion',
+  ssgParams(() => [
+    { conversion: 'converter' },
+    ...COLOR_FORMATS.flatMap(from =>
+      COLOR_FORMATS.filter(to => to !== from).map(to => ({ conversion: `${from}-to-${to}` }))
+    )
+  ]),
+  (c) => {
   const conversion = c.req.param('conversion')
-  let title = 'Universal color converter'
-  let desc = 'Convert between HEX, RGB, HSL, and CMYK while keeping every representation synchronized.'
+  let title = localizeToolHtml('Universal color converter', locale)
+  let desc = localizeToolHtml('Convert between HEX, RGB, HSL, and CMYK while keeping every representation synchronized.', locale)
 
   if (conversion.includes('-to-')) {
     const parts = conversion.split('-to-')
@@ -378,19 +397,21 @@ app.get('/:conversion', (c) => {
     }
     const from = parts[0].toUpperCase()
     const to = parts[1].toUpperCase()
-    title = `${from} to ${to} converter`
-    desc = `Translate ${from} into ${to} instantly, with every other color representation kept in sync.`
+    title = locale === 'zh' ? `${from} 转 ${to} 转换器` : `${from} to ${to} converter`
+    desc = locale === 'zh'
+      ? `即时将 ${from} 转换为 ${to}，并保持其他颜色表示同步。`
+      : `Translate ${from} into ${to} instantly, with every other color representation kept in sync.`
   } else if (conversion !== 'converter') {
     return c.notFound()
   }
 
   const conversionLinks = COLOR_FORMATS.flatMap(from =>
     COLOR_FORMATS.filter(to => to !== from).map(to =>
-      `<a href="/tools/${from}-to-${to}" class="tool-link">${from.toUpperCase()} → ${to.toUpperCase()}</a>`
+      `<a href="${prefix}/tools/${from}-to-${to}" class="tool-link">${from.toUpperCase()} → ${to.toUpperCase()}</a>`
     )
   ).join('')
 
-  const content = `
+  const content = localizeToolHtml(`
     <div class="tool-layout">
       <section class="panel tool-sticky" aria-labelledby="converter-preview-title">
         <header class="panel-header">
@@ -406,7 +427,7 @@ app.get('/:conversion', (c) => {
           <div class="status" id="converter-status" role="status" aria-live="polite">Ready · enter a color in any field</div>
           <div class="inspector-section">
             <span class="section-label">API pattern</span>
-            <pre class="code-surface">GET ${API_BASE_URL}/convert?hex=%237C3AED</pre>
+            <pre class="code-surface">GET ${apiBaseUrl}/convert?hex=%237C3AED</pre>
           </div>
         </div>
       </section>
@@ -470,7 +491,7 @@ app.get('/:conversion', (c) => {
         status.textContent = 'Converting ' + source.toUpperCase() + '…'
         status.dataset.tone = ''
         try {
-          const response = await fetch('${API_BASE_URL}/convert?' + source + '=' + encodeURIComponent(value.trim()))
+          const response = await fetch('${apiBaseUrl}/convert?' + source + '=' + encodeURIComponent(value.trim()))
           const data = await response.json()
           if (!response.ok || !data.hex) throw new Error(data.error || 'Invalid color')
           if (currentRequest !== requestId) return
@@ -496,13 +517,22 @@ app.get('/:conversion', (c) => {
       }))
       updateColors('hex', inputs.hex.value)
     </script>
-  `
+  `, locale)
 
   return c.html(
-    <Layout title={title} desc={desc} path={`/tools/${conversion}`} eyebrow="Translate · Color">
+    <Layout
+      config={config}
+      locale={locale}
+      title={title}
+      desc={desc}
+      path={`/tools/${conversion}`}
+      eyebrow={localizeToolHtml('Translate · Color', locale)}
+    >
       <div dangerouslySetInnerHTML={{ __html: content }} />
     </Layout>
   )
-})
+  }
+)
 
-export default app
+return app
+}

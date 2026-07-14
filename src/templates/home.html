@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#07080c">
+  <meta name="theme-color" content="#f7f9fc">
   <title>AI-Ready Placeholder & Color Workbench | colors-cc</title>
   <meta name="description" content="Create animated SVG placeholders, palettes, and production-ready color snippets for humans and AI agents. Free, stateless, and edge-native.">
   <meta name="keywords" content="placeholder generator, SVG gradient, color API, AI agents, OpenAPI, llms.txt, palette generator">
@@ -32,6 +32,7 @@
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
   }
   </script>
+  <script>__THEME_INIT_SCRIPT__</script>
   <style>
     /*__SHARED_STYLES__*/
 
@@ -61,7 +62,7 @@
       overflow: hidden;
       border: 1px solid var(--line);
       border-radius: var(--radius-lg);
-      background: rgba(12, 15, 22, .86);
+      background: var(--surface);
       box-shadow: var(--shadow);
     }
     .agent-signal::before {
@@ -80,9 +81,9 @@
     .signal-code { display: grid; gap: 15px; padding: 22px; font: .72rem/1.7 var(--font-mono); }
     .signal-code p { margin: 0; color: var(--text-subtle); }
     .signal-code strong { color: var(--cyan); font-weight: 600; }
-    .signal-code .response { padding: 13px; border: 1px solid var(--line); border-radius: 11px; background: rgba(0,0,0,.25); color: #dce3ef; }
+    .signal-code .response { padding: 13px; border: 1px solid var(--line); border-radius: 11px; background: var(--code-bg); color: var(--code-text); }
 
-    .workbench { margin: 0 0 84px; overflow: hidden; border: 1px solid var(--line-strong); border-radius: var(--radius-xl); background: rgba(11, 14, 21, .9); box-shadow: 0 50px 140px rgba(0,0,0,.56); }
+    .workbench { margin: 0 0 84px; overflow: hidden; border: 1px solid var(--line-strong); border-radius: var(--radius-xl); background: var(--surface-strong); box-shadow: var(--shadow); }
     .workbench-bar { min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 20px; border-bottom: 1px solid var(--line); }
     .workbench-title { display: flex; align-items: center; gap: 10px; font-size: .82rem; font-weight: 720; }
     .window-dots { display: flex; gap: 5px; }
@@ -90,27 +91,27 @@
     .workbench-meta { color: var(--text-subtle); font: .68rem var(--font-mono); }
 
     .workspace-grid { display: grid; grid-template-columns: 92px minmax(0, 1fr) 350px; min-height: 680px; }
-    .task-rail { display: flex; flex-direction: column; gap: 7px; padding: 18px 12px; border-right: 1px solid var(--line); background: rgba(255,255,255,.015); }
+    .task-rail { display: flex; flex-direction: column; gap: 7px; padding: 18px 12px; border-right: 1px solid var(--line); background: var(--surface-soft); }
     .task-link { min-height: 65px; display: grid; place-items: center; gap: 4px; padding: 8px 4px; border: 1px solid transparent; border-radius: 13px; color: var(--text-subtle); font-size: .64rem; text-decoration: none; text-align: center; }
     .task-link strong { font: 700 .7rem var(--font-mono); }
     .task-link:hover, .task-link.active { border-color: var(--line); background: var(--surface-soft); color: var(--text); }
     .task-link.active strong { color: var(--cyan); }
 
-    .canvas-column { min-width: 0; padding: 18px; background: #080a0f; }
+    .canvas-column { min-width: 0; padding: 18px; background: var(--workspace-bg); }
     .canvas-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; color: var(--text-subtle); font: .68rem var(--font-mono); }
     .canvas-actions { display: flex; gap: 7px; }
-    .preview-stage { position: relative; min-height: 560px; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: #0b0e14; }
+    .preview-stage { position: relative; min-height: 560px; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: var(--preview-bg); }
     .preview-stage::before { position: absolute; inset: -20%; background: var(--preview-glow, radial-gradient(circle, rgba(167,139,250,.2), transparent 60%)); filter: blur(70px); opacity: .62; content: ''; transition: background 300ms ease; }
-    .preview-stage img { position: relative; z-index: 1; width: min(92%, 980px); max-height: 510px; aspect-ratio: var(--preview-ratio, 2 / 1); object-fit: cover; border: 1px solid rgba(255,255,255,.18); border-radius: 17px; box-shadow: 0 26px 70px rgba(0,0,0,.45); transition: opacity 180ms ease, transform 220ms ease; }
+    .preview-stage img { position: relative; z-index: 1; width: min(92%, 980px); max-height: 510px; aspect-ratio: var(--preview-ratio, 2 / 1); object-fit: cover; border: 1px solid var(--line-strong); border-radius: 17px; box-shadow: var(--shadow); transition: opacity 180ms ease, transform 220ms ease; }
     .preview-stage.is-loading img { opacity: .45; transform: scale(.995); }
-    .preview-loader { position: absolute; z-index: 3; width: 34px; height: 34px; border: 2px solid rgba(255,255,255,.2); border-top-color: var(--cyan); border-radius: 50%; opacity: 0; animation: spin .8s linear infinite; }
+    .preview-loader { position: absolute; z-index: 3; width: 34px; height: 34px; border: 2px solid var(--line-strong); border-top-color: var(--cyan); border-radius: 50%; opacity: 0; animation: spin .8s linear infinite; }
     .preview-stage.is-loading .preview-loader { opacity: 1; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .inspector { min-width: 0; padding: 20px; border-left: 1px solid var(--line); background: rgba(18,22,31,.72); }
+    .inspector { min-width: 0; padding: 20px; border-left: 1px solid var(--line); background: var(--surface); }
     .inspector-section + .inspector-section { margin-top: 22px; padding-top: 21px; border-top: 1px solid var(--line); }
     .segmented { display: flex; flex-wrap: wrap; gap: 6px; }
-    .segment { min-height: 36px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.025); color: var(--text-muted); cursor: pointer; font-size: .72rem; }
+    .segment { min-height: 36px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-soft); color: var(--text-muted); cursor: pointer; font-size: .72rem; }
     .segment:hover { color: var(--text); border-color: var(--line-strong); }
     .segment[aria-pressed="true"] { border-color: rgba(94,231,247,.46); background: rgba(94,231,247,.1); color: var(--cyan); box-shadow: inset 0 0 0 1px rgba(94,231,247,.1); }
     .preset-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
@@ -123,7 +124,7 @@
     .toggle-row { display: flex; align-items: flex-start; gap: 9px; color: var(--text-muted); font-size: .76rem; }
     .toggle-row input { margin-top: 4px; accent-color: var(--cyan); }
 
-    .output-dock { border-top: 1px solid var(--line); background: rgba(7,9,14,.95); }
+    .output-dock { border-top: 1px solid var(--line); background: var(--surface-strong); }
     .output-tabs { display: flex; gap: 2px; padding: 10px 14px 0; overflow-x: auto; }
     .output-tab { min-height: 38px; padding: 0 13px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--text-subtle); cursor: pointer; font: .7rem var(--font-mono); white-space: nowrap; }
     .output-tab[aria-selected="true"] { border-color: var(--cyan); color: var(--cyan); }
@@ -135,14 +136,14 @@
     .section-heading h2 { margin: 0; font-size: clamp(2rem, 5vw, 3.7rem); line-height: 1; letter-spacing: -.045em; }
     .section-heading p { margin: 15px 0 0; color: var(--text-muted); }
     .feature-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-    .feature-card { min-height: 210px; display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.025); text-decoration: none; transition: transform 160ms ease, border-color 160ms ease, background 160ms ease; }
-    .feature-card:hover { transform: translateY(-4px); border-color: var(--line-strong); background: rgba(255,255,255,.045); }
+    .feature-card { min-height: 210px; display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface-soft); text-decoration: none; transition: transform 160ms ease, border-color 160ms ease, background 160ms ease; }
+    .feature-card:hover { transform: translateY(-4px); border-color: var(--line-strong); background: var(--hover-bg); }
     .feature-index { color: var(--cyan); font: .7rem var(--font-mono); }
     .feature-card h3 { margin: auto 0 7px; font-size: 1.05rem; }
     .feature-card p { margin: 0; color: var(--text-muted); font-size: .79rem; }
 
     .ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .ai-card { padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: rgba(255,255,255,.025); }
+    .ai-card { padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface-soft); }
     .ai-card h3 { margin: 0 0 8px; }
     .ai-card > p { margin: 0 0 18px; color: var(--text-muted); font-size: .84rem; }
     .ai-card .code-surface { min-height: 92px; }
@@ -197,8 +198,18 @@
         <a class="nav-link" href="/tools/converter">Convert</a>
         <a class="nav-link" href="/tools/random-palette">Palettes</a>
         <a class="nav-link" href="/tools/color-names">Color names</a>
+        <a class="nav-link" href="/tools/image-compress">Image tools</a>
       </nav>
       <div class="nav-actions">
+        __LANGUAGE_SWITCH__
+        <label class="theme-picker">
+          <span class="sr-only">Color theme</span>
+          <select class="theme-select" data-theme-select aria-label="Color theme">
+            <option value="system">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
         <a class="button button-quiet button-small" href="/llms.txt">llms.txt</a>
         <a class="button button-primary button-small" href="#for-ai">For AI</a>
       </div>
@@ -336,6 +347,7 @@
           <a class="feature-card" href="/tools/random-palette"><span class="feature-index">02 / PALETTE</span><h3>Curated palettes</h3><p>Generate and copy theme-driven color systems.</p></a>
           <a class="feature-card" href="/tools/color-names"><span class="feature-index">03 / NAMES</span><h3>CSS color atlas</h3><p>Search the complete named-color directory.</p></a>
           <a class="feature-card" href="/tools/fluid-placeholder"><span class="feature-index">04 / MOTION</span><h3>Fluid SVG studio</h3><p>Focus on animated, production-ready hero assets.</p></a>
+          <a class="feature-card" href="/tools/image-compress"><span class="feature-index">05 / IMAGE</span><h3>Local image studio</h3><p>Compress, watermark, and arrange images without uploading them.</p></a>
         </div>
       </section>
 
@@ -366,16 +378,20 @@
     </main>
 
     <footer class="site-footer">
-      <span>Free color infrastructure for humans and AI agents.</span>
-      <nav class="footer-links" aria-label="Footer navigation">
-        <a href="https://github.com/douxc/colors-cc" target="_blank" rel="noopener">GitHub</a>
-        <a href="/llms.txt">llms.txt</a>
-        <a href="/openapi.json">OpenAPI</a>
-        <a href="/sitemap.xml">Sitemap</a>
-      </nav>
+      <div class="site-footer-main">
+        <span>Free color infrastructure for humans and AI agents.</span>
+        <nav class="footer-links" aria-label="Footer navigation">
+          <a href="https://github.com/douxc/colors-cc" target="_blank" rel="noopener">GitHub</a>
+          <a href="/llms.txt">llms.txt</a>
+          <a href="/openapi.json">OpenAPI</a>
+          <a href="/sitemap.xml">Sitemap</a>
+        </nav>
+      </div>
+      __COMPLIANCE_FOOTER__
     </footer>
   </div>
 
+  <script>__THEME_CONTROL_SCRIPT__</script>
   <script>
     const contract = __COLOR_API_CONTRACT__
     const animatedEffects = new Set(['fluid', 'breathe', 'holographic', 'mesh'])

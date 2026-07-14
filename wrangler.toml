@@ -3,6 +3,10 @@ compatibility_date = "2024-03-06"
 main = "src/index.tsx"
 account_id = "62e5b5853828b2689897f7ced17c4059"
 
+[[routes]]
+pattern = "colors-cc.top"
+custom_domain = true
+
 [[rules]]
 type = "Text"
 globs = ["**/*.html"]

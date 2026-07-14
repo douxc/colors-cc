@@ -1,0 +1,1352 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f9fc" />
+    <title>图片压缩、排列与水印 | colors-cc</title>
+    <meta
+      name="description"
+      content="在浏览器本地压缩、排列图片并添加水印。图片不会上传到服务器。"
+    />
+    <link rel="canonical" href="https://colors-cc.top/tools/image-compress" />
+    <script>__THEME_INIT_SCRIPT__</script>
+    <style>
+      /*__SHARED_STYLES__*/
+
+      :root {
+        --panel: var(--surface);
+        --panel-strong: var(--surface-strong);
+        --muted: var(--text-muted);
+        --accent: var(--cyan);
+        --accent-strong: #89effa;
+        --radius: var(--radius-md);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      .tool-heading {
+        max-width: none;
+      }
+
+      .tool-heading-copy {
+        max-width: 1040px;
+      }
+
+      .tool-heading h1 {
+        font-size: clamp(2.7rem, 5vw, 4.2rem);
+      }
+
+      .privacy-note {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 22px;
+        padding: 8px 11px;
+        border: 1px solid rgba(94, 230, 168, 0.22);
+        border-radius: 999px;
+        background: rgba(94, 230, 168, 0.07);
+        color: var(--green);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .privacy-note::before {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+        box-shadow: 0 0 14px currentColor;
+        content: "";
+      }
+
+      button {
+        min-height: 38px;
+        border: 1px solid var(--line-strong);
+        border-radius: 10px;
+        background: var(--surface-soft);
+        color: var(--text);
+        cursor: pointer;
+        font-weight: 650;
+        transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+      }
+
+      button:hover {
+        border-color: var(--hover-border);
+        background: var(--hover-bg);
+        transform: translateY(-1px);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .app {
+        display: grid;
+        grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+        padding-bottom: 72px;
+      }
+
+      .sidebar,
+      .stage {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 96px;
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100vh - 116px);
+        overflow: hidden;
+      }
+
+      .tool-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 20px 22px 18px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .tool-header h2 {
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+      }
+
+      .tool-title {
+        display: grid;
+        gap: 5px;
+      }
+
+      .tool-kicker {
+        color: var(--cyan);
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .image-count {
+        min-width: 72px;
+        padding: 5px 9px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface-soft);
+        color: var(--muted);
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        text-align: center;
+      }
+
+      .controls {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        overflow: auto;
+        padding: 20px 22px 22px;
+      }
+
+      .dropzone {
+        position: relative;
+        display: grid;
+        place-items: center;
+        min-height: 132px;
+        border: 1px dashed rgba(94, 231, 247, 0.38);
+        border-radius: var(--radius-md);
+        background:
+          radial-gradient(circle at 50% 0, rgba(94, 231, 247, 0.1), transparent 70%),
+          var(--input-bg);
+        text-align: center;
+        transition:
+          border-color 160ms ease,
+          background 160ms ease;
+      }
+
+      .dropzone.is-dragging {
+        border-color: var(--accent);
+        background: rgba(94, 231, 247, 0.12);
+      }
+
+      .dropzone input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .dropzone strong {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--text);
+        font-size: 0.9rem;
+      }
+
+      .dropzone span {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+
+      .section {
+        display: grid;
+        gap: 10px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        color: var(--muted);
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .field-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .field + .field {
+        margin-top: 0;
+      }
+
+      .field label,
+      .check {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .field input[type="number"],
+      .field input[type="text"] {
+        width: 100%;
+        height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        padding: 0 12px;
+        color: var(--text);
+        background: var(--input-bg);
+        transition: border-color 140ms ease, background 140ms ease;
+      }
+
+      .field input[type="number"]:focus,
+      .field input[type="text"]:focus {
+        border-color: rgba(94, 231, 247, 0.62);
+        outline: none;
+        background: var(--input-focus-bg);
+      }
+
+      .field input[type="range"] {
+        width: 100%;
+        accent-color: var(--accent);
+      }
+
+      .check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 32px;
+      }
+
+      .check input {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--accent);
+      }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .primary {
+        border-color: transparent;
+        background: var(--primary-gradient);
+        color: #071016;
+        box-shadow: 0 12px 34px rgba(94, 231, 247, 0.16);
+      }
+
+      .primary:hover {
+        border-color: transparent;
+        background: var(--primary-gradient-hover);
+      }
+
+      .danger {
+        color: var(--danger);
+      }
+
+      .mode-toggle {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+
+      .mode-btn {
+        min-height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--input-bg);
+        color: var(--muted);
+        font-size: 0.76rem;
+      }
+
+      .mode-btn:hover {
+        border-color: var(--line-strong);
+        background: var(--hover-bg);
+      }
+
+      .mode-btn.active {
+        border-color: rgba(94, 231, 247, 0.42);
+        background: rgba(94, 231, 247, 0.13);
+        color: var(--cyan);
+      }
+
+      .image-list {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .image-item.is-selected {
+        border-color: var(--accent);
+        background: rgba(94, 231, 247, 0.1);
+      }
+
+      .image-item {
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 9px;
+        min-height: 54px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 5px;
+        background: var(--input-bg);
+      }
+
+      .thumb {
+        width: 44px;
+        height: 44px;
+        border-radius: 6px;
+        object-fit: cover;
+        background: var(--panel-strong);
+      }
+
+      .meta {
+        min-width: 0;
+      }
+
+      .name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .size {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .item-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 30px);
+        gap: 4px;
+      }
+
+      .icon-button {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        min-height: 30px;
+        padding: 0;
+        line-height: 1;
+      }
+
+      .stage {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        min-height: min(720px, calc(100vh - 116px));
+        overflow: hidden;
+      }
+
+      .stage-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 68px;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .stage-header h2 {
+        margin: 0;
+        font-size: 15px;
+        letter-spacing: 0;
+      }
+
+      .canvas-meta {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .canvas-wrap {
+        display: grid;
+        place-items: center;
+        min-height: 0;
+        padding: 24px;
+        overflow: auto;
+        background-color: var(--canvas-bg);
+        background-image:
+          linear-gradient(45deg, var(--canvas-tile) 25%, transparent 25%),
+          linear-gradient(-45deg, var(--canvas-tile) 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, var(--canvas-tile) 75%),
+          linear-gradient(-45deg, transparent 75%, var(--canvas-tile) 75%);
+        background-position:
+          0 0,
+          0 10px,
+          10px -10px,
+          -10px 0;
+        background-size: 20px 20px;
+      }
+
+      canvas {
+        display: block;
+        max-width: min(100%, 1180px);
+        max-height: calc(100vh - 132px);
+        width: auto;
+        height: auto;
+        background: #fff;
+        border: 1px solid rgba(28, 36, 48, 0.18);
+        box-shadow: 0 16px 46px rgba(20, 31, 47, 0.2);
+      }
+
+      .empty {
+        display: grid;
+        place-items: center;
+        width: min(100%, 620px);
+        min-height: 340px;
+        border: 1px dashed var(--line-strong);
+        border-radius: var(--radius-md);
+        background: var(--surface-soft);
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .empty strong {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text);
+      }
+
+      @media (max-width: 980px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar,
+        .stage {
+          position: static;
+          max-height: none;
+          min-height: auto;
+        }
+
+        .stage {
+          min-height: 58vh;
+        }
+
+        .field-grid,
+        .toolbar {
+          grid-template-columns: 1fr;
+        }
+
+        .stage-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .tool-heading {
+          padding-bottom: 24px;
+        }
+
+        .tool-heading h1 {
+          font-size: clamp(2.35rem, 12vw, 3.3rem);
+        }
+
+        .tool-header,
+        .controls,
+        .stage-header {
+          padding-inline: 18px;
+        }
+
+        .mode-toggle {
+          grid-template-columns: 1fr;
+        }
+
+        .canvas-wrap {
+          padding: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="app-shell">
+      <header class="site-nav">
+        <a href="/" class="brand" aria-label="colors-cc home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>colors-cc</span>
+        </a>
+        <nav class="nav-links" aria-label="Primary navigation">
+          <a class="nav-link" href="/">Create</a>
+          <a class="nav-link" href="/tools/converter">Convert</a>
+          <a class="nav-link" href="/tools/random-palette">Palettes</a>
+          <a class="nav-link" href="/tools/color-names">Color names</a>
+          <a class="nav-link" href="/tools/image-compress" aria-current="page">Image tools</a>
+        </nav>
+        <div class="nav-actions">
+          __LANGUAGE_SWITCH__
+          <label class="theme-picker">
+            <span class="sr-only">Color theme</span>
+            <select class="theme-select" data-theme-select aria-label="Color theme">
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </label>
+          <a class="button button-quiet button-small" href="/llms.txt">llms.txt</a>
+          <a class="button button-primary button-small" href="/#for-ai">For AI</a>
+        </div>
+      </header>
+
+      <main id="main-content">
+        <header class="page-heading tool-heading">
+          <div class="tool-heading-copy">
+            <p class="eyebrow">Create · Local image studio</p>
+            <h1>图片压缩、排列与水印</h1>
+            <p>在一个工作台中整理图片、生成客户确认图，或批量导出压缩和水印版本。</p>
+            <span class="privacy-note">图片仅在当前浏览器中处理，不会上传</span>
+          </div>
+        </header>
+
+        <div class="app">
+          <aside class="sidebar" aria-label="图片处理设置">
+            <header class="tool-header">
+              <div class="tool-title">
+                <span class="tool-kicker">Controls</span>
+                <h2>图片工作台</h2>
+              </div>
+              <span class="image-count" id="imageCount">0 张</span>
+            </header>
+
+        <div class="controls">
+          <label class="dropzone" id="dropzone">
+            <input id="fileInput" type="file" accept="image/*" multiple />
+            <span>
+              <strong>选择图片</strong>
+              <span>支持多选和拖放</span>
+            </span>
+          </label>
+
+          <section class="section" aria-labelledby="modeTitle">
+            <div class="section-title" id="modeTitle">模式</div>
+            <div class="mode-toggle" role="tablist">
+              <button type="button" class="mode-btn active" data-mode="fan">一张图</button>
+              <button type="button" class="mode-btn" data-mode="watermark">逐张水印</button>
+              <button type="button" class="mode-btn" data-mode="compress">仅压缩</button>
+            </div>
+          </section>
+
+          <section class="section" aria-labelledby="sizeTitle" id="sizeSection">
+            <div class="section-title" id="sizeTitle">尺寸</div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="canvasWidth">宽度 px</label>
+                <input id="canvasWidth" type="number" min="1" max="12000" step="1" value="1024" />
+              </div>
+              <div class="field">
+                <label for="canvasHeight">高度 px</label>
+                <input id="canvasHeight" type="number" min="1" max="12000" step="1" value="768" />
+              </div>
+            </div>
+            <label class="check">
+              <input id="lockRatio" type="checkbox" checked />
+              保持画布比例
+            </label>
+          </section>
+
+          <section class="section" aria-labelledby="blendTitle" id="fanSection">
+            <div class="section-title" id="blendTitle">
+              <span>扇形排布</span>
+              <span id="opacityValue">45%</span>
+            </div>
+            <div class="field">
+              <label for="opacityRange">重叠比例</label>
+              <input id="opacityRange" type="range" min="0" max="80" value="45" />
+            </div>
+          </section>
+
+          <section class="section" aria-labelledby="watermarkTitle" id="watermarkSection">
+            <div class="section-title" id="watermarkTitle">
+              <span>水印</span>
+              <span id="watermarkOpacityValue">60%</span>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="watermarkText">文字</label>
+                <input id="watermarkText" type="text" value="样图" />
+              </div>
+              <div class="field">
+                <label for="watermarkSize">字号 px</label>
+                <input id="watermarkSize" type="number" min="12" max="600" step="1" value="96" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="watermarkOpacityRange">透明度</label>
+              <input id="watermarkOpacityRange" type="range" min="5" max="100" value="60" />
+            </div>
+          </section>
+
+          <section class="section" aria-labelledby="compressTitle" id="compressSection">
+            <div class="section-title" id="compressTitle">
+              <span>输出质量</span>
+              <span id="qualityValue">80%</span>
+            </div>
+            <div class="field">
+              <label for="qualityRange">JPEG 质量</label>
+              <input id="qualityRange" type="range" min="10" max="100" value="80" />
+            </div>
+          </section>
+
+          <section class="section" aria-labelledby="actionsTitle">
+            <div class="section-title" id="actionsTitle">操作</div>
+            <div class="toolbar">
+              <button class="primary" id="exportButton" type="button" disabled>导出 JPEG</button>
+              <button class="danger" id="clearButton" type="button" disabled>清空</button>
+            </div>
+          </section>
+
+          <section class="section" aria-labelledby="orderTitle">
+            <div class="section-title" id="orderTitle">图片顺序</div>
+            <ol class="image-list" id="imageList"></ol>
+          </section>
+        </div>
+      </aside>
+
+      <section class="stage" aria-label="画布预览">
+        <header class="stage-header">
+          <div>
+            <h2>Canvas 预览</h2>
+            <div class="canvas-meta" id="canvasMeta">1024 x 768 px</div>
+          </div>
+          <div class="canvas-meta" id="renderMeta">等待图片</div>
+        </header>
+        <div class="canvas-wrap">
+          <div class="empty" id="emptyState">
+            <span>
+              <strong id="emptyTitle">未选择图片</strong>
+              <span id="emptyDesc">图片会按列表顺序扇形排布到同一张大图</span>
+            </span>
+          </div>
+          <canvas id="canvas" width="1024" height="768" hidden></canvas>
+        </div>
+          </section>
+        </div>
+      </main>
+
+      <footer class="site-footer">
+        <div class="site-footer-main">
+          <span>Browser-only image processing · Your files stay on this device.</span>
+          <nav class="footer-links" aria-label="Footer navigation">
+            <a href="/">Home</a>
+            <a href="/llms.txt">llms.txt</a>
+            <a href="/openapi.json">OpenAPI</a>
+            <a href="/skills/colors-cc.md">Agent Skill</a>
+          </nav>
+        </div>
+        __COMPLIANCE_FOOTER__
+      </footer>
+    </div>
+
+    <script>__THEME_CONTROL_SCRIPT__</script>
+    <script>
+      const state = {
+        images: [],
+        aspectRatio: 1024 / 768,
+        objectUrls: [],
+        mode: "fan",
+        previewIndex: 0,
+      };
+
+      const els = {
+        fileInput: document.querySelector("#fileInput"),
+        dropzone: document.querySelector("#dropzone"),
+        imageCount: document.querySelector("#imageCount"),
+        imageList: document.querySelector("#imageList"),
+        canvas: document.querySelector("#canvas"),
+        emptyState: document.querySelector("#emptyState"),
+        canvasWidth: document.querySelector("#canvasWidth"),
+        canvasHeight: document.querySelector("#canvasHeight"),
+        lockRatio: document.querySelector("#lockRatio"),
+        opacityRange: document.querySelector("#opacityRange"),
+        opacityValue: document.querySelector("#opacityValue"),
+        watermarkText: document.querySelector("#watermarkText"),
+        watermarkSize: document.querySelector("#watermarkSize"),
+        exportButton: document.querySelector("#exportButton"),
+        clearButton: document.querySelector("#clearButton"),
+        canvasMeta: document.querySelector("#canvasMeta"),
+        renderMeta: document.querySelector("#renderMeta"),
+        modeButtons: document.querySelectorAll(".mode-btn"),
+        sizeSection: document.querySelector("#sizeSection"),
+        fanSection: document.querySelector("#fanSection"),
+        watermarkSection: document.querySelector("#watermarkSection"),
+        compressSection: document.querySelector("#compressSection"),
+        qualityRange: document.querySelector("#qualityRange"),
+        qualityValue: document.querySelector("#qualityValue"),
+        watermarkOpacityRange: document.querySelector("#watermarkOpacityRange"),
+        watermarkOpacityValue: document.querySelector("#watermarkOpacityValue"),
+        emptyTitle: document.querySelector("#emptyTitle"),
+        emptyDesc: document.querySelector("#emptyDesc"),
+      };
+
+      const ctx = els.canvas.getContext("2d");
+
+      function clampNumber(value, fallback, min, max) {
+        const parsed = Number(value);
+        if (!Number.isFinite(parsed)) return fallback;
+        return Math.min(max, Math.max(min, Math.round(parsed)));
+      }
+
+      function canvasSize() {
+        return {
+          width: clampNumber(els.canvasWidth.value, 1024, 1, 12000),
+          height: clampNumber(els.canvasHeight.value, 768, 1, 12000),
+        };
+      }
+
+      function syncDimension(changed) {
+        if (!els.lockRatio.checked) return;
+        const size = canvasSize();
+
+        if (changed === "height") {
+          els.canvasWidth.value = Math.max(1, Math.round(size.height * state.aspectRatio));
+        } else {
+          els.canvasHeight.value = Math.max(1, Math.round(size.width / state.aspectRatio));
+        }
+      }
+
+      function loadImage(file) {
+        return new Promise((resolve, reject) => {
+          const url = URL.createObjectURL(file);
+          const img = new Image();
+
+          img.onload = () => {
+            state.objectUrls.push(url);
+            resolve({
+              id: crypto.randomUUID(),
+              file,
+              url,
+              image: img,
+              width: img.naturalWidth,
+              height: img.naturalHeight,
+            });
+          };
+
+          img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error(`${file.name} 加载失败`));
+          };
+
+          img.src = url;
+        });
+      }
+
+      async function addFiles(fileList) {
+        const files = Array.from(fileList).filter((file) => file.type.startsWith("image/"));
+        if (files.length === 0) return;
+
+        els.renderMeta.textContent = "读取图片中";
+        const loaded = await Promise.all(files.map(loadImage));
+        state.images.push(...loaded);
+
+        if (state.images.length === loaded.length) {
+          const { width, height } = canvasSize();
+          state.aspectRatio = width / height;
+        }
+
+        els.fileInput.value = "";
+        update();
+      }
+
+      function drawImageCover(image, x, y, width, height) {
+        const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+        const drawWidth = image.naturalWidth * scale;
+        const drawHeight = image.naturalHeight * scale;
+        const dx = x + (width - drawWidth) / 2;
+        const dy = y + (height - drawHeight) / 2;
+        ctx.drawImage(image, dx, dy, drawWidth, drawHeight);
+      }
+
+      function roundedRect(x, y, width, height, radius) {
+        const r = Math.min(radius, width / 2, height / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + width, y, x + width, y + height, r);
+        ctx.arcTo(x + width, y + height, x, y + height, r);
+        ctx.arcTo(x, y + height, x, y, r);
+        ctx.arcTo(x, y, x + width, y, r);
+        ctx.closePath();
+      }
+
+      function transformedCorners(card) {
+        const cos = Math.cos(card.angle);
+        const sin = Math.sin(card.angle);
+        const halfWidth = card.width / 2;
+        const halfHeight = card.height / 2;
+        return [
+          [-halfWidth, -halfHeight],
+          [halfWidth, -halfHeight],
+          [halfWidth, halfHeight],
+          [-halfWidth, halfHeight],
+        ].map(([x, y]) => ({
+          x: card.x + x * cos - y * sin,
+          y: card.y + x * sin + y * cos,
+        }));
+      }
+
+      function boundsFor(cards) {
+        const points = cards.flatMap(transformedCorners);
+        return points.reduce(
+          (bounds, point) => ({
+            minX: Math.min(bounds.minX, point.x),
+            maxX: Math.max(bounds.maxX, point.x),
+            minY: Math.min(bounds.minY, point.y),
+            maxY: Math.max(bounds.maxY, point.y),
+          }),
+          { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity },
+        );
+      }
+
+      function medianImageAspect() {
+        const aspects = state.images
+          .map((item) => item.width / item.height)
+          .filter(Number.isFinite)
+          .sort((a, b) => a - b);
+        const middle = Math.floor(aspects.length / 2);
+        const aspect = aspects.length % 2 ? aspects[middle] : (aspects[middle - 1] + aspects[middle]) / 2;
+        return Math.min(1.9, Math.max(0.58, aspect || 1));
+      }
+
+      function createFanLayout(width, height) {
+        const count = state.images.length;
+        const overlap = clampNumber(els.opacityRange.value, 45, 0, 80) / 100;
+        const aspect = medianImageAspect();
+        const margin = Math.max(24, Math.min(width, height) * 0.045);
+
+        let cardHeight = height * 0.7;
+        let cardWidth = cardHeight * aspect;
+        if (cardWidth > width * 0.62) {
+          cardWidth = width * 0.62;
+          cardHeight = cardWidth / aspect;
+        }
+        if (cardHeight > height * 0.78) {
+          cardHeight = height * 0.78;
+          cardWidth = cardHeight * aspect;
+        }
+
+        const makeCards = (scale = 1) => {
+          const scaledWidth = cardWidth * scale;
+          const scaledHeight = cardHeight * scale;
+          const centerIndex = (count - 1) / 2;
+          const step = count > 1 ? scaledWidth * (1 - overlap) * 0.68 : 0;
+          const maxHalfAngle = count > 1 ? Math.min(34, Math.max(10, 7 + count * 4.2)) : 0;
+
+          return state.images.map((item, index) => {
+            const offset = index - centerIndex;
+            const normalized = centerIndex === 0 ? 0 : offset / centerIndex;
+            return {
+              item,
+              width: scaledWidth,
+              height: scaledHeight,
+              x: width / 2 + offset * step,
+              y: height * 0.56 + Math.abs(normalized) * scaledHeight * 0.045,
+              angle: (normalized * maxHalfAngle * Math.PI) / 180,
+            };
+          });
+        };
+
+        let cards = makeCards();
+        const bounds = boundsFor(cards);
+        const fanWidth = bounds.maxX - bounds.minX || 1;
+        const fanHeight = bounds.maxY - bounds.minY || 1;
+        const scale = Math.min((width - margin * 2) / fanWidth, (height - margin * 2) / fanHeight, 1);
+        cards = makeCards(scale);
+
+        const finalBounds = boundsFor(cards);
+        const dx = width / 2 - (finalBounds.minX + finalBounds.maxX) / 2;
+        const dy = height / 2 - (finalBounds.minY + finalBounds.maxY) / 2;
+        return cards.map((card) => ({ ...card, x: card.x + dx, y: card.y + dy }));
+      }
+
+      function drawFanCard(card) {
+        const border = Math.max(8, Math.min(card.width, card.height) * 0.035);
+        const radius = Math.max(10, border * 1.2);
+
+        ctx.save();
+        ctx.translate(card.x, card.y);
+        ctx.rotate(card.angle);
+
+        ctx.shadowColor = "rgba(17, 24, 39, 0.24)";
+        ctx.shadowBlur = Math.max(12, border * 2.5);
+        ctx.shadowOffsetY = Math.max(7, border * 0.9);
+        roundedRect(-card.width / 2, -card.height / 2, card.width, card.height, radius);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+
+        ctx.shadowColor = "transparent";
+        const imageX = -card.width / 2 + border;
+        const imageY = -card.height / 2 + border;
+        const imageWidth = card.width - border * 2;
+        const imageHeight = card.height - border * 2;
+        roundedRect(imageX, imageY, imageWidth, imageHeight, Math.max(6, radius - border));
+        ctx.clip();
+        drawImageCover(card.item.image, imageX, imageY, imageWidth, imageHeight);
+
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(card.x, card.y);
+        ctx.rotate(card.angle);
+        roundedRect(-card.width / 2, -card.height / 2, card.width, card.height, radius);
+        ctx.strokeStyle = "rgba(28, 36, 48, 0.18)";
+        ctx.lineWidth = Math.max(1, border * 0.12);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawWatermark(width, height, context) {
+        const c = context || ctx;
+        const text = els.watermarkText.value.trim() || "样图";
+        const baseSize = clampNumber(els.watermarkSize.value, 96, 12, 600);
+        const fontSize = Math.min(baseSize, Math.floor(Math.min(width, height) * 0.32));
+        const gap = Math.max(fontSize * 1.9, 180);
+        const wmOpacity = clampNumber(els.watermarkOpacityRange.value, 60, 5, 100) / 100;
+
+        c.save();
+        c.translate(width / 2, height / 2);
+        c.rotate((-28 * Math.PI) / 180);
+        c.font = `700 ${fontSize}px system-ui, "PingFang SC", "Microsoft YaHei", sans-serif`;
+        c.textAlign = "center";
+        c.textBaseline = "middle";
+        c.lineWidth = Math.max(2, fontSize * 0.035);
+        c.strokeStyle = `rgba(255,255,255,${(0.62 * wmOpacity).toFixed(3)})`;
+        c.fillStyle = `rgba(28,36,48,${(0.2 * wmOpacity).toFixed(3)})`;
+
+        for (let x = -width; x <= width; x += gap * 1.7) {
+          for (let y = -height; y <= height; y += gap) {
+            c.strokeText(text, x, y);
+            c.fillText(text, x, y);
+          }
+        }
+
+        c.restore();
+      }
+
+      function renderCanvas() {
+        if (state.mode === "compress") {
+          els.canvasMeta.textContent = "压缩模式";
+          const quality = clampNumber(els.qualityRange.value, 80, 10, 100);
+          els.renderMeta.textContent =
+            state.images.length > 0
+              ? `${state.images.length} 张，质量 ${quality}%`
+              : "等待图片";
+          return;
+        }
+
+        if (state.mode === "watermark") {
+          const item = state.images[state.previewIndex];
+          if (!item) { els.canvas.hidden = true; return; }
+
+          els.canvas.width = item.image.naturalWidth;
+          els.canvas.height = item.image.naturalHeight;
+
+          ctx.save();
+          ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, els.canvas.width, els.canvas.height);
+          ctx.drawImage(item.image, 0, 0);
+          drawWatermark(els.canvas.width, els.canvas.height);
+          ctx.restore();
+
+          els.canvasMeta.textContent = `${item.width} x ${item.height}`;
+          els.renderMeta.innerHTML =
+            `<span style="cursor:pointer" id="prevWm">&larr;</span> ` +
+            ` 第 ${state.previewIndex + 1} / ${state.images.length} 张  ` +
+            `<span style="cursor:pointer" id="nextWm">&rarr;</span>`;
+          // wire nav after DOM update
+          requestAnimationFrame(() => {
+            els.prevWm = els.prevWm || document.querySelector("#prevWm");
+            els.nextWm = els.nextWm || document.querySelector("#nextWm");
+            if (els.prevWm) els.prevWm.onclick = () => { state.previewIndex = Math.max(0, state.previewIndex - 1); renderCanvas(); };
+            if (els.nextWm) els.nextWm.onclick = () => { state.previewIndex = Math.min(state.images.length - 1, state.previewIndex + 1); renderCanvas(); };
+          });
+          return;
+        }
+
+        const { width, height } = canvasSize();
+        els.canvas.width = width;
+        els.canvas.height = height;
+
+        ctx.save();
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, height);
+
+        if (state.images.length > 0) {
+          const cards = createFanLayout(width, height);
+          for (const card of cards) {
+            drawFanCard(card);
+          }
+
+          ctx.globalAlpha = 1;
+          drawWatermark(width, height);
+        }
+        ctx.restore();
+
+        els.canvasMeta.textContent = `${width} x ${height} px`;
+        const overlap = clampNumber(els.opacityRange.value, 45, 0, 80);
+        els.renderMeta.textContent =
+          state.images.length > 0 ? `${state.images.length} 张，${overlap}% 重叠` : "等待图片";
+      }
+
+      function renderList() {
+        els.imageList.innerHTML = "";
+
+        state.images.forEach((item, index) => {
+          const li = document.createElement("li");
+          li.className = "image-item" + (state.mode === "watermark" && index === state.previewIndex ? " is-selected" : "");
+
+          const thumb = document.createElement("img");
+          thumb.className = "thumb";
+          thumb.alt = "";
+          thumb.src = item.url;
+
+          const meta = document.createElement("div");
+          meta.className = "meta";
+
+          const name = document.createElement("div");
+          name.className = "name";
+          name.title = item.file.name;
+          name.textContent = item.file.name;
+
+          const size = document.createElement("div");
+          size.className = "size";
+          size.textContent = `${item.width} x ${item.height} px`;
+
+          meta.append(name, size);
+
+          const actions = document.createElement("div");
+          actions.className = "item-actions";
+
+          const up = createItemButton("上移", "↑", index === 0);
+          const down = createItemButton("下移", "↓", index === state.images.length - 1);
+          const remove = createItemButton("删除", "×", false, true);
+
+          up.addEventListener("click", () => moveImage(index, index - 1));
+          down.addEventListener("click", () => moveImage(index, index + 1));
+          remove.addEventListener("click", () => removeImage(index));
+          li.addEventListener("click", (e) => {
+            if (state.mode === "watermark" && !e.target.closest(".item-actions")) {
+              state.previewIndex = index;
+              renderCanvas();
+              renderList();
+            }
+          });
+          actions.append(up, down, remove);
+          li.append(thumb, meta, actions);
+          els.imageList.append(li);
+        });
+      }
+
+      function createItemButton(label, text, disabled, isDanger = false) {
+        const button = document.createElement("button");
+        button.className = isDanger ? "icon-button danger" : "icon-button";
+        button.type = "button";
+        button.title = label;
+        button.setAttribute("aria-label", label);
+        button.textContent = text;
+        button.disabled = disabled;
+        return button;
+      }
+
+      function setMode(mode) {
+        state.mode = mode;
+        state.previewIndex = 0;
+        els.modeButtons.forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.mode === mode);
+        });
+        const isCompress = mode === "compress";
+        const isWatermark = mode === "watermark";
+        els.sizeSection.hidden = isCompress || isWatermark;
+        els.fanSection.hidden = isCompress || isWatermark;
+        els.watermarkSection.hidden = isCompress;
+        if (isWatermark) els.exportButton.textContent = "导出水印图片";
+        else els.exportButton.textContent = isCompress ? "导出仅压缩" : "导出 JPEG";
+        update();
+      }
+
+      function compressImageToBlob(image, quality) {
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        const c = canvas.getContext("2d");
+        c.fillStyle = "#ffffff";
+        c.fillRect(0, 0, canvas.width, canvas.height);
+        c.drawImage(image, 0, 0);
+        return new Promise((resolve) => {
+          canvas.toBlob((blob) => resolve(blob), "image/jpeg", quality);
+        });
+      }
+
+      async function exportCompressed() {
+        if (state.images.length === 0) return;
+        const quality = clampNumber(els.qualityRange.value, 80, 10, 100) / 100;
+        els.renderMeta.textContent = "压缩中…";
+
+        for (let i = 0; i < state.images.length; i++) {
+          const item = state.images[i];
+          const blob = await compressImageToBlob(item.image, quality);
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          const baseName = item.file.name.replace(/\.[^.]+$/, "");
+          link.download = `${baseName}.jpg`;
+          link.href = url;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 2000);
+          if (i < state.images.length - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 350));
+          }
+        }
+
+        const q = clampNumber(els.qualityRange.value, 80, 10, 100);
+        els.renderMeta.textContent = `${state.images.length} 张已压缩，质量 ${q}%`;
+      }
+
+      function update() {
+        const hasImages = state.images.length > 0;
+        const isCompress = state.mode === "compress";
+        const isWatermark = state.mode === "watermark";
+
+        if (isCompress) {
+          els.canvas.hidden = true;
+          els.emptyState.hidden = false;
+          els.emptyTitle.textContent = hasImages
+            ? `${state.images.length} 张图片待压缩`
+            : "未选择图片";
+          els.emptyDesc.textContent = hasImages
+            ? `质量 ${clampNumber(els.qualityRange.value, 80, 10, 100)}%，点击导出下载压缩图片`
+            : "图片会按原始尺寸压缩，不添加水印";
+        } else if (isWatermark) {
+          els.canvas.hidden = !hasImages;
+          els.emptyState.hidden = hasImages;
+          els.emptyTitle.textContent = "未选择图片";
+          els.emptyDesc.textContent = "每张图片单独添加水印后导出";
+        } else {
+          els.canvas.hidden = !hasImages;
+          els.emptyState.hidden = hasImages;
+          els.emptyTitle.textContent = "未选择图片";
+          els.emptyDesc.textContent = "图片会按列表顺序扇形排布到同一张大图";
+        }
+
+        els.exportButton.disabled = !hasImages;
+        els.clearButton.disabled = !hasImages;
+        els.imageCount.textContent = `${state.images.length} 张`;
+        els.opacityValue.textContent = `${clampNumber(els.opacityRange.value, 45, 0, 80)}%`;
+        els.qualityValue.textContent = `${clampNumber(els.qualityRange.value, 80, 10, 100)}%`;
+        if (els.watermarkOpacityValue) {
+          els.watermarkOpacityValue.textContent = `${clampNumber(els.watermarkOpacityRange.value, 60, 5, 100)}%`;
+        }
+
+        renderList();
+        renderCanvas();
+      }
+
+      function moveImage(from, to) {
+        if (to < 0 || to >= state.images.length) return;
+        const [item] = state.images.splice(from, 1);
+        state.images.splice(to, 0, item);
+        update();
+      }
+
+      function removeImage(index) {
+        const [item] = state.images.splice(index, 1);
+        if (item) {
+          URL.revokeObjectURL(item.url);
+          state.objectUrls = state.objectUrls.filter((url) => url !== item.url);
+        }
+        if (state.previewIndex >= state.images.length) {
+          state.previewIndex = Math.max(0, state.images.length - 1);
+        }
+        update();
+      }
+
+      function clearImages() {
+        state.objectUrls.forEach((url) => URL.revokeObjectURL(url));
+        state.objectUrls = [];
+        state.images = [];
+        state.previewIndex = 0;
+        update();
+      }
+
+      async function exportWatermarked() {
+        const quality = clampNumber(els.qualityRange.value, 80, 10, 100) / 100;
+        const text = els.watermarkText.value.trim() || "样图";
+        const baseSize = clampNumber(els.watermarkSize.value, 96, 12, 600);
+        els.renderMeta.textContent = "处理水印中…";
+
+        for (let i = 0; i < state.images.length; i++) {
+          const item = state.images[i];
+          const fontScale = Math.min(baseSize, Math.floor(Math.min(item.width, item.height) * 0.32));
+          const gap = Math.max(fontScale * 1.9, 180);
+          const c = document.createElement("canvas");
+          c.width = item.image.naturalWidth;
+          c.height = item.image.naturalHeight;
+          const cx = c.getContext("2d");
+          cx.fillStyle = "#ffffff";
+          cx.fillRect(0, 0, c.width, c.height);
+          cx.drawImage(item.image, 0, 0);
+
+          // manual watermark on temp canvas
+          const wmOpacity = clampNumber(els.watermarkOpacityRange.value, 60, 5, 100) / 100;
+          cx.save();
+          cx.translate(c.width / 2, c.height / 2);
+          cx.rotate((-28 * Math.PI) / 180);
+          const fs = Math.min(fontScale, Math.floor(Math.min(c.width, c.height) * 0.32));
+          cx.font = `700 ${fs}px system-ui, "PingFang SC", "Microsoft YaHei", sans-serif`;
+          cx.textAlign = "center";
+          cx.textBaseline = "middle";
+          cx.lineWidth = Math.max(2, fs * 0.035);
+          cx.strokeStyle = `rgba(255,255,255,${(0.62 * wmOpacity).toFixed(3)})`;
+          cx.fillStyle = `rgba(28,36,48,${(0.2 * wmOpacity).toFixed(3)})`;
+          for (let x = -c.width; x <= c.width; x += gap * 1.7) {
+            for (let y = -c.height; y <= c.height; y += gap) {
+              cx.strokeText(text, x, y);
+              cx.fillText(text, x, y);
+            }
+          }
+          cx.restore();
+
+          const blob = await new Promise((resolve) => c.toBlob((b) => resolve(b), "image/jpeg", quality));
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          const baseName = item.file.name.replace(/\.[^.]+$/, "");
+          link.download = `${baseName}_wm.jpg`;
+          link.href = url;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 2000);
+          if (i < state.images.length - 1) await new Promise((r) => setTimeout(r, 350));
+        }
+        els.renderMeta.textContent = `${state.images.length} 张已导出`;
+      }
+
+      function exportJpeg() {
+        if (state.mode === "compress") {
+          exportCompressed();
+          return;
+        }
+        if (state.mode === "watermark") {
+          exportWatermarked();
+          return;
+        }
+        if (state.images.length === 0) return;
+        renderCanvas();
+
+        const link = document.createElement("a");
+        const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+        link.download = `watermarked-${stamp}.jpg`;
+        const q = clampNumber(els.qualityRange.value, 80, 10, 100) / 100;
+        link.href = els.canvas.toDataURL("image/jpeg", q);
+        link.click();
+      }
+
+      els.fileInput.addEventListener("change", (event) => addFiles(event.target.files));
+      els.exportButton.addEventListener("click", exportJpeg);
+      els.clearButton.addEventListener("click", clearImages);
+
+      els.modeButtons.forEach((btn) => {
+        btn.addEventListener("click", () => setMode(btn.dataset.mode));
+      });
+
+      els.canvasWidth.addEventListener("input", () => {
+        syncDimension("width");
+        update();
+      });
+      els.canvasHeight.addEventListener("input", () => {
+        syncDimension("height");
+        update();
+      });
+
+      [els.opacityRange, els.watermarkText, els.watermarkSize, els.watermarkOpacityRange, els.lockRatio, els.qualityRange].forEach((input) => {
+        input.addEventListener("input", update);
+        input.addEventListener("change", update);
+      });
+
+      ["dragenter", "dragover"].forEach((name) => {
+        els.dropzone.addEventListener(name, (event) => {
+          event.preventDefault();
+          els.dropzone.classList.add("is-dragging");
+        });
+      });
+
+      ["dragleave", "drop"].forEach((name) => {
+        els.dropzone.addEventListener(name, (event) => {
+          event.preventDefault();
+          els.dropzone.classList.remove("is-dragging");
+        });
+      });
+
+      els.dropzone.addEventListener("drop", (event) => addFiles(event.dataTransfer.files));
+      window.addEventListener("beforeunload", () => {
+        state.objectUrls.forEach((url) => URL.revokeObjectURL(url));
+      });
+
+      update();
+    </script>
+  </body>
+</html>

@@ -1,59 +1,9 @@
-import { Hono } from 'hono'
-import type { Env, Variables } from './types'
-
-// Import HTML templates
+import { createApp } from './app'
+import imageCompressTemplate from './pages/image-compress.html'
+import { globalSiteConfig } from './site'
 import homeTemplate from './templates/home.html'
-import { sharedStyles } from './templates/styles'
-import { PUBLIC_COLOR_API_CONTRACT } from './contracts/colors-api'
 
-// Import documentation routes
-import llmsRoute from './routes/docs/llms'
-import openapiRoute from './routes/docs/openapi'
-import skillsRoute from './routes/docs/skills'
-
-// Import SEO routes
-import robotsRoute from './routes/seo/robots'
-import sitemapRoute from './routes/seo/sitemap'
-
-// Import tool pages
-import toolsRoute from './routes/pages/tools'
-
-const app = new Hono<{ Bindings: Env; Variables: Variables }>()
-
-const homePage = homeTemplate
-  .replace('/*__SHARED_STYLES__*/', sharedStyles)
-  .replace(
-    '__COLOR_API_CONTRACT__',
-    JSON.stringify(PUBLIC_COLOR_API_CONTRACT).replace(/</g, '\\u003c')
-  )
-
-// Mount documentation routes
-app.route('/', llmsRoute)
-app.route('/', openapiRoute)
-app.route('/', skillsRoute)
-
-// Mount SEO routes
-app.route('/', robotsRoute)
-app.route('/', sitemapRoute)
-
-// Mount tool pages
-app.route('/tools', toolsRoute)
-
-// Import documentation content
-import { llmsContent } from './routes/docs/llms'
-
-// Homepage
-app.get('/', (c) => {
-  return c.html(homePage)
+export default createApp(globalSiteConfig, {
+  home: homeTemplate,
+  imageCompress: imageCompressTemplate
 })
-
-// Global 404 handler: serve LLMs context but STRICTLY return 404 status
-app.notFound((c) => {
-  c.status(404)
-  c.header('Content-Type', 'text/plain; charset=utf-8')
-  // We don't cache 404s aggressively for general browsers, but the content is the llms.txt payload
-  c.header('Cache-Control', 'public, max-age=3600')
-  return c.body(llmsContent)
-})
-
-export default app

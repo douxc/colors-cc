@@ -1,48 +1,57 @@
 import { Hono } from 'hono'
+import { localizedUrl, type Locale, type SiteConfig } from '../../site'
 
-const app = new Hono()
+export const PAGE_PATHS = [
+  '/',
+  '/tools/converter',
+  '/tools/hex-to-rgb',
+  '/tools/hex-to-hsl',
+  '/tools/hex-to-cmyk',
+  '/tools/rgb-to-hex',
+  '/tools/rgb-to-hsl',
+  '/tools/rgb-to-cmyk',
+  '/tools/hsl-to-hex',
+  '/tools/hsl-to-rgb',
+  '/tools/hsl-to-cmyk',
+  '/tools/cmyk-to-hex',
+  '/tools/cmyk-to-rgb',
+  '/tools/cmyk-to-hsl',
+  '/tools/random-palette',
+  '/tools/color-names',
+  '/tools/fluid-placeholder',
+  '/tools/image-compress'
+] as const
 
-app.get('/sitemap.xml', (c) => {
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://colors-cc.top/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://colors-cc.top/tools/converter</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url><loc>https://colors-cc.top/tools/hex-to-rgb</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://colors-cc.top/tools/hex-to-hsl</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://colors-cc.top/tools/hex-to-cmyk</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://colors-cc.top/tools/rgb-to-hex</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://colors-cc.top/tools/rgb-to-hsl</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://colors-cc.top/tools/hsl-to-hex</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://colors-cc.top/tools/hsl-to-rgb</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://colors-cc.top/tools/cmyk-to-hex</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://colors-cc.top/tools/cmyk-to-rgb</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url>
-    <loc>https://colors-cc.top/tools/random-palette</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://colors-cc.top/tools/color-names</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://colors-cc.top/tools/fluid-placeholder</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
+const escapeXml = (value: string): string => value.replaceAll('&', '&amp;').replaceAll('"', '&quot;')
+
+const renderUrl = (config: SiteConfig, locale: Locale, path: string): string => {
+  const loc = localizedUrl(config.origin, locale, path)
+  const priority = path === '/' ? '1.0' : '0.8'
+  const frequency = path === '/' ? 'daily' : 'weekly'
+  return `  <url>
+    <loc>${loc}</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="${escapeXml(localizedUrl(config.origin, 'en', path))}" />
+    <xhtml:link rel="alternate" hreflang="zh" href="${escapeXml(localizedUrl(config.origin, 'zh', path))}" />
+    <changefreq>${frequency}</changefreq>
+    <priority>${priority}</priority>
+  </url>`
+}
+
+export const createSitemapRoute = (config: SiteConfig): Hono => {
+  const app = new Hono()
+
+  app.get('/sitemap.xml', (c) => {
+    const urls = (['en', 'zh'] as const)
+      .flatMap(locale => PAGE_PATHS.map(path => renderUrl(config, locale, path)))
+      .join('\n')
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${urls}
 </urlset>`
-  c.header('Content-Type', 'text/xml')
-  c.header('Cache-Control', 'public, max-age=86400')
-  return c.body(xml)
-})
+    c.header('Content-Type', 'text/xml')
+    c.header('Cache-Control', 'public, max-age=86400')
+    return c.body(xml)
+  })
 
-export default app
+  return app
+}

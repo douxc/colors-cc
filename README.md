@@ -9,6 +9,7 @@
 A blazing fast, free, and stateless API designed to help **AI Agents (Cursor, Cline, OpenClaw)** and developers instantly generate UI assets like SVG gradient placeholder images and random colors.
 
 **🌐 Frontend Site:** [https://colors-cc.top/](https://colors-cc.top/)  
+**🇨🇳 Mainland Site:** [https://www.colors-cc.top/](https://www.colors-cc.top/)
 **🚀 External API:** [https://api.colors-cc.top/](https://api.colors-cc.top/)
 
 ![Animated Fluid Gradient](https://api.colors-cc.top/fluid-placeholder?w=1200&h=300&palette=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=12&text=Animated+Hero)
@@ -215,6 +216,56 @@ ColorsCC also provides interactive web tools for designers and developers:
 - [Cloudflare Workers](https://workers.cloudflare.com/) - Deployment
 - [TypeScript](https://www.typescriptlang.org/) - Language
 - [pnpm](https://pnpm.io/) - Package manager (v10.32.0)
+
+## Deployment
+
+The same application source produces two independent deployments. Both editions
+serve English under `/en` and Simplified Chinese under `/zh` while preserving
+the legacy unprefixed routes in the deployment's default language.
+
+### Cloudflare Worker (`colors-cc.top`)
+
+The global edition defaults to English and does not render ICP information.
+
+```bash
+pnpm validate
+pnpm build:worker
+pnpm deploy:worker
+```
+
+`build:worker` writes an inspectable dry-run bundle to `dist/worker`.
+`deploy:worker` publishes the Worker using the Custom Domain declared in
+`wrangler.toml`.
+
+### Mainland VPS (`www.colors-cc.top`)
+
+The VPS edition defaults to Chinese and renders `苏ICP备2024075067号-4` in the
+footer of every HTML page. It is exported to static files and does not require a
+Node.js process on the server.
+
+```bash
+pnpm validate
+pnpm build:vps
+```
+
+The static site is generated in `dist/vps`. Deploy it with a full replacement:
+
+```bash
+VPS_TARGET=deploy@your-vps pnpm deploy:vps
+```
+
+The default remote document root is `/var/www/colors-cc/html`. Override it when
+needed:
+
+```bash
+VPS_TARGET=deploy@your-vps \
+VPS_ROOT=/srv/www/colors-cc \
+pnpm deploy:vps
+```
+
+The deployment uses `rsync --delete`; the target directory must contain only
+generated site files. A matching Nginx server configuration is available at
+`deploy/nginx-vps.conf`.
 
 ## 📄 License
 MIT

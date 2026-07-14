@@ -1,0 +1,399 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "c4597f13e2875fc5039d4f3c22582ba83fc786b2",
+  "generatedAt": "2026-07-13T16:16:25.839Z",
+  "files": {
+    ".nvmrc": {
+      "filePath": ".nvmrc",
+      "contentHash": "55ce66383dffcaf804e6d3b03993b0d332cb5d7c38e26e9f92fb78ab040dc70c",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 2,
+      "hasStructuralAnalysis": false
+    },
+    ".understand-anything/.understandignore": {
+      "filePath": ".understand-anything/.understandignore",
+      "contentHash": "afb5881eee2fe62e977b3abbe8ce2d5663b3c9fd8af7cdb1cab0dc8f190979fc",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 23,
+      "hasStructuralAnalysis": false
+    },
+    "AGENTS.md": {
+      "filePath": "AGENTS.md",
+      "contentHash": "5e1d3ef61fda6b77a63a4b26118d3772f40ac7fb5c59cbedb71b9b8475a4cbff",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 223,
+      "hasStructuralAnalysis": true
+    },
+    "package.json": {
+      "filePath": "package.json",
+      "contentHash": "a279f0e0b3eea2759c8633b29d97414fd3945cfe04df4070318a3ed593a316c8",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 26,
+      "hasStructuralAnalysis": true
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "7b77f63f9273151a61b309f62c1f8936237d42527fc0928fa7efab1671f74391",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 221,
+      "hasStructuralAnalysis": true
+    },
+    "SKILL.md": {
+      "filePath": "SKILL.md",
+      "contentHash": "cdbc8cc1ed95b5642ee48779a54d0ad4941b8a52e2738d90faa95f5ec9c9329e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 185,
+      "hasStructuralAnalysis": true
+    },
+    "skills-lock.json": {
+      "filePath": "skills-lock.json",
+      "contentHash": "52652b01380287bb04b9a31e8a97530521df09d80f889ac0866e5b613e361cb6",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 96,
+      "hasStructuralAnalysis": true
+    },
+    "src/global.d.ts": {
+      "filePath": "src/global.d.ts",
+      "contentHash": "039ac1db4bb7dde1be19825d5c20253f68763b8785cecf06886143f5f842e036",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 5,
+      "hasStructuralAnalysis": true
+    },
+    "src/index.test.ts": {
+      "filePath": "src/index.test.ts",
+      "contentHash": "c86f3da2ade40272600ed4d40f862f59834922e07b1dcd40b1f1ffaabca73a2e",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": [
+            "describe",
+            "it",
+            "expect"
+          ]
+        },
+        {
+          "source": "./index",
+          "specifiers": [
+            "app"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 155,
+      "hasStructuralAnalysis": true
+    },
+    "src/index.tsx": {
+      "filePath": "src/index.tsx",
+      "contentHash": "cda4e5fb50d32f86e45952f8ec304b90cf9343b19189af7ce6ea4701ae08307a",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "hono",
+          "specifiers": [
+            "Hono"
+          ]
+        },
+        {
+          "source": "./types",
+          "specifiers": [
+            "Env",
+            "Variables"
+          ]
+        },
+        {
+          "source": "./templates/home.html",
+          "specifiers": [
+            "homeTemplate"
+          ]
+        },
+        {
+          "source": "./routes/docs/llms",
+          "specifiers": [
+            "llmsRoute"
+          ]
+        },
+        {
+          "source": "./routes/docs/openapi",
+          "specifiers": [
+            "openapiRoute"
+          ]
+        },
+        {
+          "source": "./routes/docs/skills",
+          "specifiers": [
+            "skillsRoute"
+          ]
+        },
+        {
+          "source": "./routes/seo/robots",
+          "specifiers": [
+            "robotsRoute"
+          ]
+        },
+        {
+          "source": "./routes/seo/sitemap",
+          "specifiers": [
+            "sitemapRoute"
+          ]
+        },
+        {
+          "source": "./routes/pages/tools",
+          "specifiers": [
+            "toolsRoute"
+          ]
+        },
+        {
+          "source": "./routes/docs/llms",
+          "specifiers": [
+            "llmsContent"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 51,
+      "hasStructuralAnalysis": true
+    },
+    "src/routes/docs/llms.ts": {
+      "filePath": "src/routes/docs/llms.ts",
+      "contentHash": "835d946e3e6cd0c0522008a1f7981ca617214461ea6fb8de44ce5187367700ed",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "hono",
+          "specifiers": [
+            "Hono"
+          ]
+        }
+      ],
+      "exports": [
+        "llmsContent"
+      ],
+      "totalLines": 170,
+      "hasStructuralAnalysis": true
+    },
+    "src/routes/docs/openapi.ts": {
+      "filePath": "src/routes/docs/openapi.ts",
+      "contentHash": "8ff473186c309cb1fd6cde279819b042f85b3f3610ca77218d4de35a8593f78c",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "hono",
+          "specifiers": [
+            "Hono"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 199,
+      "hasStructuralAnalysis": true
+    },
+    "src/routes/docs/skills.ts": {
+      "filePath": "src/routes/docs/skills.ts",
+      "contentHash": "71119117234e7ecbcf7258652f2677ae85c1d31cab647a367c03c3210c29bb0a",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "hono",
+          "specifiers": [
+            "Hono"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 153,
+      "hasStructuralAnalysis": true
+    },
+    "src/routes/pages/tools.tsx": {
+      "filePath": "src/routes/pages/tools.tsx",
+      "contentHash": "566cb25fa476d5928a3687df725c5b29ff0483d4bc05ebe1165e749a0dcffce1",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "hono",
+          "specifiers": [
+            "Hono"
+          ]
+        },
+        {
+          "source": "../../templates/Layout",
+          "specifiers": [
+            "Layout"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 432,
+      "hasStructuralAnalysis": true
+    },
+    "src/routes/seo/robots.ts": {
+      "filePath": "src/routes/seo/robots.ts",
+      "contentHash": "11869f30d2bd07e6fe3c7e5fb0c2b19006c0b68c66771d1c9fc89d1a0c74b5fb",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "hono",
+          "specifiers": [
+            "Hono"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 32,
+      "hasStructuralAnalysis": true
+    },
+    "src/routes/seo/sitemap.ts": {
+      "filePath": "src/routes/seo/sitemap.ts",
+      "contentHash": "98892bd866315c925c51ba3d5dd38e7d060037ec9ce7852b46a684e054de08b0",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "hono",
+          "specifiers": [
+            "Hono"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 44,
+      "hasStructuralAnalysis": true
+    },
+    "src/templates/base.html": {
+      "filePath": "src/templates/base.html",
+      "contentHash": "3715d349b0def476352def542100c73b5e69e95336c5fa3a945a06899e3f7c56",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 28,
+      "hasStructuralAnalysis": false
+    },
+    "src/templates/home.html": {
+      "filePath": "src/templates/home.html",
+      "contentHash": "9898446ba0dece014070ecba0b7b13be32dd0ec5f0abe239654c0acbef8a7636",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 833,
+      "hasStructuralAnalysis": false
+    },
+    "src/templates/home.html.bak": {
+      "filePath": "src/templates/home.html.bak",
+      "contentHash": "f2005268e97e85415c177b2ba54181f81ab462e4e7754d00a1c86b34fac2f682",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 588,
+      "hasStructuralAnalysis": false
+    },
+    "src/templates/Layout.tsx": {
+      "filePath": "src/templates/Layout.tsx",
+      "contentHash": "bcb9267bf6a94f7a7be685453a820c8d5d5029c7b226d915ad287cf1e8fb7898",
+      "functions": [
+        {
+          "name": "Layout",
+          "params": [
+            "props"
+          ],
+          "exported": true,
+          "lineCount": 110
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "hono/jsx",
+          "specifiers": [
+            "FC"
+          ]
+        }
+      ],
+      "exports": [
+        "Layout"
+      ],
+      "totalLines": 113,
+      "hasStructuralAnalysis": true
+    },
+    "src/types.ts": {
+      "filePath": "src/types.ts",
+      "contentHash": "c5af2ffe53665fad99006b7937d3cc6e420942060c6164c45cabcf0f3c1f8c76",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 15,
+      "hasStructuralAnalysis": true
+    },
+    "tsconfig.json": {
+      "filePath": "tsconfig.json",
+      "contentHash": "7c0fa9a08332d4f211aeb17aa07daf5429de3536426257293c78ee696cee6fea",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 14,
+      "hasStructuralAnalysis": true
+    },
+    "vitest.config.ts": {
+      "filePath": "vitest.config.ts",
+      "contentHash": "3a5ce70b9b0a5f47a1bcd42e09acfdacb6868f8fbfc2990429a4887fa9507f4a",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest/config",
+          "specifiers": [
+            "defineConfig"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 23,
+      "hasStructuralAnalysis": true
+    },
+    "wrangler.toml": {
+      "filePath": "wrangler.toml",
+      "contentHash": "cc3fb75768cf05baf56c4a9bd064a81a6a8cb329a32a6a19b4f0c35c31782738",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    }
+  }
+}
