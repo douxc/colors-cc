@@ -593,15 +593,6 @@ export const sharedStyles = `
     border: 0;
   }
 
-  @media (min-width: 2048px) {
-    .app-shell { width: min(1440px, 100%); }
-    .site-nav {
-      width: auto;
-      margin-left: 0;
-      padding-inline: 0;
-    }
-  }
-
   @media (max-width: 1300px) {
     .nav-actions .button-quiet { display: none; }
   }
