@@ -255,9 +255,10 @@ the ignored `.env` file:
 
 ```bash
 VPS_TARGET=deploy@your-vps
-# Optional; defaults to the root used by deploy/nginx-vps.conf
-VPS_ROOT=/var/www/colors-cc/html
+# Optional; defaults match the current VPS layout
+VPS_ROOT=/var/www/colors-cc.top
 VPS_SITE_ORIGIN=https://www.colors-cc.top
+VPS_NGINX_CONFIG=/etc/nginx/sites-available/colors-cc.top
 ```
 
 Then deploy it with a full replacement:
@@ -267,14 +268,10 @@ pnpm deploy:vps
 ```
 
 The deployment uses `rsync --delete`; the target directory must contain only
-generated site files. A matching Nginx server configuration is available at
-`deploy/nginx-vps.conf`. Install or update that configuration before the first
-deployment, then validate and reload Nginx:
-
-```bash
-sudo nginx -t
-sudo systemctl reload nginx
-```
+generated site files. It also installs `deploy/nginx-vps.conf` through the
+configured SSH account using passwordless `sudo`. The remote installer runs
+`nginx -t` before reloading and restores the previous configuration if
+validation fails.
 
 The deploy command runs `pnpm verify:seo` against the public CN origin after
 syncing. It fails if clean localized URLs redirect, a crawler is blocked, an
