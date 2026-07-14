@@ -58,7 +58,7 @@ const decorateDocument = (
   return prefixInternalLinks(html, locale)
     .replace(/<html lang="[^"]+">/, `<html lang="${htmlLang(locale)}">`)
     .replace(/<!--__SEO_HEAD_START__-->[\s\S]*?<!--__SEO_HEAD_END__-->/, seoHead)
-    .replace('__NAV_UTILITY_CONTROLS__', renderNavUtilityControlItems(locale, path))
+    .replace('__NAV_UTILITY_CONTROLS__', renderNavUtilityControlItems(config, locale, path))
     .replace('__COMPLIANCE_FOOTER__', renderComplianceFooter(config))
 }
 
@@ -91,19 +91,22 @@ const renderImageCompress = (
 const createLocalizedPages = (
   config: SiteConfig,
   locale: Locale,
-  templates: HtmlTemplates
+  templates: HtmlTemplates,
+  includeTools = true
 ): App => {
   const app = new Hono<{ Bindings: Env; Variables: Variables }>()
-  const imageCompressPage = renderImageCompress(templates.imageCompress, config, locale)
 
   app.get('/', (c) => {
     const runtimeConfig = withSearchVerification(config, c.env)
     return c.html(renderHome(templates.home, runtimeConfig, locale))
   })
 
-  // Register the exact image tool before the dynamic conversion route.
-  app.get('/tools/image-compress', (c) => c.html(imageCompressPage))
-  app.route('/tools', createToolsRoute(config, locale))
+  if (includeTools) {
+    const imageCompressPage = renderImageCompress(templates.imageCompress, config, locale)
+    // Register the exact image tool before the dynamic conversion route.
+    app.get('/tools/image-compress', (c) => c.html(imageCompressPage))
+    app.route('/tools', createToolsRoute(config, locale))
+  }
 
   return app
 }
@@ -118,11 +121,18 @@ export const createApp = (config: SiteConfig, templates: HtmlTemplates): App => 
   app.route('/', createSitemapRoute(config))
   app.route('/', createSeoAssetsRoute(config))
 
-  app.route('/en', createLocalizedPages(config, 'en', templates))
-  app.route('/zh', createLocalizedPages(config, 'zh', templates))
+  for (const locale of config.enabledLocales) {
+    app.route(localePrefix(locale), createLocalizedPages(config, locale, templates))
+  }
 
-  // Preserve existing unprefixed URLs using the deployment's default language.
-  app.route('/', createLocalizedPages(config, config.defaultLocale, templates))
+  // The global edition preserves legacy unprefixed tools. The CN edition emits
+  // only its root homepage plus explicit /zh routes to avoid duplicate pages.
+  app.route('/', createLocalizedPages(
+    config,
+    config.defaultLocale,
+    templates,
+    config.edition === 'global'
+  ))
 
   app.notFound((c) => {
     c.status(404)

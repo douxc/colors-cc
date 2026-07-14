@@ -1,5 +1,5 @@
 import { commonMessages } from '../i18n'
-import { localizedPath, type Locale } from '../site'
+import { localizedPath, type Locale, type SiteConfig } from '../site'
 
 const escapeAttribute = (value: string): string => value
   .replaceAll('&', '&amp;')
@@ -73,17 +73,24 @@ const themeOption = (
   >${content}</button>
 `
 
-export const renderNavUtilityControlItems = (locale: Locale, path: string): string => {
+export const renderNavUtilityControlItems = (
+  config: SiteConfig,
+  locale: Locale,
+  path: string
+): string => {
   const messages = commonMessages[locale]
-
-  return `
-    <div class="nav-preference-control language-control">
+  const languageControl = config.enabledLocales.length > 1
+    ? `<div class="nav-preference-control language-control">
       <span class="nav-preference-label">${messages.languageControlLabel}</span>
       <div class="nav-segmented" role="group" aria-label="${escapeAttribute(messages.languageControlLabel)}">
         ${languageOption('zh', locale, path, messages.simplifiedChineseLabel, '简')}
         ${languageOption('en', locale, path, messages.englishLabel, 'EN')}
       </div>
-    </div>
+    </div>`
+    : ''
+
+  return `
+    ${languageControl}
     <div class="nav-preference-control theme-control">
       <span class="nav-preference-label">${messages.themeControlLabel}</span>
       <div class="nav-segmented" role="group" aria-label="${escapeAttribute(messages.themeControlLabel)}">

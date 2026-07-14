@@ -3,6 +3,7 @@ export type Locale = 'en' | 'zh'
 type BaseSiteConfig = {
   origin: string
   defaultLocale: Locale
+  enabledLocales: readonly Locale[]
   apiBaseUrl: string
   verificationMeta?: Readonly<Record<string, string>>
 }
@@ -23,6 +24,7 @@ export const globalSiteConfig = {
   edition: 'global',
   origin: 'https://colors-cc.top',
   defaultLocale: 'en',
+  enabledLocales: ['en', 'zh'],
   apiBaseUrl: 'https://api.colors-cc.top'
 } satisfies SiteConfig
 
@@ -30,6 +32,7 @@ export const cnSiteConfig = {
   edition: 'cn',
   origin: 'https://www.colors-cc.top',
   defaultLocale: 'zh',
+  enabledLocales: ['zh'],
   apiBaseUrl: 'https://api.colors-cc.top',
   icp: {
     number: '苏ICP备2024075067号-4',
@@ -47,6 +50,9 @@ export const localizedPath = (locale: Locale, path = ''): string => {
 export const localizedUrl = (origin: string, locale: Locale, path = ''): string =>
   `${origin}${localizedPath(locale, path)}`
 
+export const supportsLocale = (config: SiteConfig, locale: Locale): boolean =>
+  config.enabledLocales.includes(locale)
+
 export const htmlLang = (locale: Locale): string => locale === 'zh' ? 'zh-CN' : 'en'
 
 export type HreflangAlternate = {
@@ -57,7 +63,6 @@ export type HreflangAlternate = {
 export const hreflangAlternates = (path: string): readonly HreflangAlternate[] => [
   { hreflang: 'en', href: localizedUrl(globalSiteConfig.origin, 'en', path) },
   { hreflang: 'zh-Hans', href: localizedUrl(globalSiteConfig.origin, 'zh', path) },
-  { hreflang: 'en-CN', href: localizedUrl(cnSiteConfig.origin, 'en', path) },
   { hreflang: 'zh-CN', href: localizedUrl(cnSiteConfig.origin, 'zh', path) },
   { hreflang: 'x-default', href: localizedUrl(globalSiteConfig.origin, 'en', path) }
 ]

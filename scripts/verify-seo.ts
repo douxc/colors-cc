@@ -12,6 +12,7 @@ if (!originArgument) throw new Error('Usage: pnpm verify:seo -- <request-origin>
 const siteOrigin = new URL(originArgument).origin
 const canonicalOrigin = new URL(urlArguments[1] ?? siteOrigin).origin
 const isCnDeployment = new URL(canonicalOrigin).hostname.startsWith('www.')
+const enabledLocales = isCnDeployment ? ['zh'] as const : ['en', 'zh'] as const
 
 function requireCondition (condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message)
@@ -69,14 +70,25 @@ const verifySitemaps = async (): Promise<void> => {
   const xmlLocations = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1])
   const textLocations = text.split(/\r?\n/).filter(Boolean)
 
-  requireCondition(xmlLocations.length === 36, `XML sitemap has ${xmlLocations.length} URLs; expected 36`)
-  requireCondition(textLocations.length === 36, `Text sitemap has ${textLocations.length} URLs; expected 36`)
+  const expectedUrlCount = enabledLocales.length * 18
+  requireCondition(
+    xmlLocations.length === expectedUrlCount,
+    `XML sitemap has ${xmlLocations.length} URLs; expected ${expectedUrlCount}`
+  )
+  requireCondition(
+    textLocations.length === expectedUrlCount,
+    `Text sitemap has ${textLocations.length} URLs; expected ${expectedUrlCount}`
+  )
   requireIncludes(xml, '<lastmod>', `${siteOrigin}/sitemap.xml`)
   requireIncludes(xml, 'hreflang="x-default"', `${siteOrigin}/sitemap.xml`)
   requireIncludes(xml, 'hreflang="zh-CN"', `${siteOrigin}/sitemap.xml`)
+  requireCondition(
+    !xml.includes('hreflang="en-CN"'),
+    `${siteOrigin}/sitemap.xml references the disabled CN English locale`
+  )
   requireIncludes(xml, '<mobile:mobile type="pc,mobile" />', `${siteOrigin}/sitemap.xml`)
 
-  for (const locale of ['en', 'zh']) {
+  for (const locale of enabledLocales) {
     requireIncludes(xml, `<loc>${canonicalOrigin}/${locale}</loc>`, `${siteOrigin}/sitemap.xml`)
     requireCondition(
       textLocations.includes(`${canonicalOrigin}/${locale}`),
@@ -95,7 +107,17 @@ const verifyPage = async (path: string, userAgent?: string): Promise<void> => {
   requireIncludes(html, 'name="applicable-device" content="pc,mobile"', url)
   requireIncludes(html, 'hreflang="x-default" href="https://colors-cc.top/en', url)
   requireIncludes(html, 'hreflang="zh-CN" href="https://www.colors-cc.top/zh', url)
+  requireCondition(!html.includes('hreflang="en-CN"'), `${url} references the disabled CN English locale`)
   requireIncludes(html, '<script type="application/ld+json">', url)
+}
+
+const verifyDisabledCnRoutes = async (): Promise<void> => {
+  if (!isCnDeployment) return
+
+  for (const path of ['/en', '/en/tools/converter', '/tools/converter']) {
+    const response = await fetch(`${siteOrigin}${path}`, { redirect: 'manual' })
+    requireCondition(response.status === 404, `${siteOrigin}${path} returned ${response.status}; expected 404`)
+  }
 }
 
 const verifyCrawlerAccess = async (): Promise<void> => {
@@ -112,14 +134,16 @@ const verifyAssets = async (): Promise<void> => {
 }
 
 const main = async (): Promise<void> => {
+  const pageChecks = enabledLocales.flatMap(locale => [
+    verifyPage(`/${locale}`),
+    verifyPage(`/${locale}/tools/${locale === 'zh' ? 'image-compress' : 'converter'}`)
+  ])
   const results = await Promise.allSettled([
     verifyRobots(),
     verifySitemaps(),
-    verifyPage('/en'),
-    verifyPage('/zh'),
-    verifyPage('/en/tools/converter'),
-    verifyPage('/zh/tools/image-compress'),
+    ...pageChecks,
     verifyCrawlerAccess(),
+    verifyDisabledCnRoutes(),
     verifyAssets()
   ])
   const failures = results

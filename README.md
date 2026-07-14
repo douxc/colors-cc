@@ -219,9 +219,11 @@ ColorsCC also provides interactive web tools for designers and developers:
 
 ## Deployment
 
-The same application source produces two independent deployments. Both editions
-serve English under `/en` and Simplified Chinese under `/zh` while preserving
-the legacy unprefixed routes in the deployment's default language.
+The same application source produces two independent deployments. The global
+edition serves English under `/en` and Simplified Chinese under `/zh`, while
+preserving legacy unprefixed routes in English. The mainland edition is a
+Chinese-only build: it serves the root homepage and `/zh` pages, does not emit
+`/en`, and does not render a language switch.
 
 ### Cloudflare Worker (`colors-cc.top`)
 

@@ -50,13 +50,14 @@ ${alternates}
 }
 
 const sitemapUrls = (config: SiteConfig): string[] => (['en', 'zh'] as const)
+  .filter(locale => config.enabledLocales.includes(locale))
   .flatMap(locale => PAGE_PATHS.map(path => localizedUrl(config.origin, locale, path)))
 
 export const createSitemapRoute = (config: SiteConfig): Hono => {
   const app = new Hono()
 
   app.get('/sitemap.xml', (c) => {
-    const urls = (['en', 'zh'] as const)
+    const urls = config.enabledLocales
       .flatMap(locale => PAGE_PATHS.map(path => renderUrl(config, locale, path)))
       .join('\n')
     const xml = `<?xml version="1.0" encoding="UTF-8"?>

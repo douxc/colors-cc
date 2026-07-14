@@ -121,7 +121,9 @@ export const Layout: FC<LayoutProps> = (props) => {
             <div class="nav-actions">
               <div
                 class="nav-utility-group"
-                dangerouslySetInnerHTML={{ __html: renderNavUtilityControlItems(props.locale, path) }}
+                dangerouslySetInnerHTML={{
+                  __html: renderNavUtilityControlItems(props.config, props.locale, path)
+                }}
               />
               <a class="button button-quiet button-small" href="/llms.txt">llms.txt</a>
               <a class="button button-primary button-small" href={`${prefix}#for-ai`}>{messages.forAi}</a>

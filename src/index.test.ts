@@ -115,7 +115,7 @@ describe('colors-cc Frontend', () => {
       expect(xml).toContain('https://colors-cc.top/zh/tools/random-palette')
       expect(xml).toContain('hreflang="en"')
       expect(xml).toContain('hreflang="zh-Hans"')
-      expect(xml).toContain('hreflang="en-CN"')
+      expect(xml).not.toContain('hreflang="en-CN"')
       expect(xml).toContain('hreflang="zh-CN"')
       expect(xml).toContain('hreflang="x-default"')
       expect(xml).toContain('https://www.colors-cc.top/zh/tools/converter')
@@ -332,6 +332,7 @@ describe('colors-cc Frontend', () => {
 
       expect(html).toContain('hreflang="en" href="https://colors-cc.top/en/tools/converter"')
       expect(html).toContain('hreflang="zh-CN" href="https://www.colors-cc.top/zh/tools/converter"')
+      expect(html).not.toContain('hreflang="en-CN"')
       expect(html).toContain('hreflang="x-default"')
     })
 
@@ -372,12 +373,12 @@ describe('colors-cc Frontend', () => {
   describe('Search engine metadata', () => {
     it('should render complete, unique SEO metadata on every localized page and deployment', async () => {
       const deployments = [
-        { app, origin: globalSiteConfig.origin },
-        { app: cnApp, origin: cnSiteConfig.origin }
+        { app, config: globalSiteConfig },
+        { app: cnApp, config: cnSiteConfig }
       ]
 
       for (const deployment of deployments) {
-        for (const locale of ['en', 'zh'] as const) {
+        for (const locale of deployment.config.enabledLocales) {
           const titles = new Set<string>()
           const descriptions = new Set<string>()
 
@@ -403,11 +404,11 @@ describe('colors-cc Frontend', () => {
             descriptions.add(description as string)
             expect(html.match(/rel="canonical"/g), requestPath).toHaveLength(1)
             expect(html, requestPath).toContain(
-              `<link rel="canonical" href="${localizedUrl(deployment.origin, locale, path)}"`
+              `<link rel="canonical" href="${localizedUrl(deployment.config.origin, locale, path)}"`
             )
             expect(html, requestPath).toContain('hreflang="en"')
             expect(html, requestPath).toContain('hreflang="zh-Hans"')
-            expect(html, requestPath).toContain('hreflang="en-CN"')
+            expect(html, requestPath).not.toContain('hreflang="en-CN"')
             expect(html, requestPath).toContain('hreflang="zh-CN"')
             expect(html, requestPath).toContain('hreflang="x-default"')
             expect(html, requestPath).toContain('name="applicable-device" content="pc,mobile"')
@@ -438,28 +439,21 @@ describe('colors-cc Frontend', () => {
             }
           }
 
-          expect(titles.size, `${deployment.origin}/${locale}`).toBe(PAGE_PATHS.length)
-          expect(descriptions.size, `${deployment.origin}/${locale}`).toBe(PAGE_PATHS.length)
+          expect(titles.size, `${deployment.config.origin}/${locale}`).toBe(PAGE_PATHS.length)
+          expect(descriptions.size, `${deployment.config.origin}/${locale}`).toBe(PAGE_PATHS.length)
         }
       }
     })
 
-    it('should canonicalize every legacy route to the deployment default locale', async () => {
-      const deployments = [
-        { app, config: globalSiteConfig },
-        { app: cnApp, config: cnSiteConfig }
-      ]
+    it('should canonicalize global legacy routes to English', async () => {
+      for (const path of PAGE_PATHS) {
+        const response = await app.request(path)
+        const html = await response.text()
 
-      for (const { app: deploymentApp, config } of deployments) {
-        for (const path of PAGE_PATHS) {
-          const response = await deploymentApp.request(path)
-          const html = await response.text()
-
-          expect(response.status, `${config.origin}${path}`).toBe(200)
-          expect(html, `${config.origin}${path}`).toContain(
-            `<link rel="canonical" href="${localizedUrl(config.origin, config.defaultLocale, path)}"`
-          )
-        }
+        expect(response.status, `${globalSiteConfig.origin}${path}`).toBe(200)
+        expect(html, `${globalSiteConfig.origin}${path}`).toContain(
+          `<link rel="canonical" href="${localizedUrl(globalSiteConfig.origin, 'en', path)}"`
+        )
       }
     })
 
@@ -567,36 +561,70 @@ describe('colors-cc Frontend', () => {
   })
 
   describe('CN VPS edition', () => {
-    it('should use Chinese for legacy routes and the www origin', async () => {
-      const [homeResponse, robotsResponse, sitemapResponse] = await Promise.all([
+    it('should build only Chinese localized routes and the www origin', async () => {
+      const [homeResponse, chineseResponse, englishResponse, legacyToolResponse,
+        robotsResponse, sitemapResponse, textSitemapResponse, manifestResponse] = await Promise.all([
         cnApp.request('/'),
+        cnApp.request('/zh'),
+        cnApp.request('/en'),
+        cnApp.request('/tools/converter'),
         cnApp.request('/robots.txt'),
-        cnApp.request('/sitemap.xml')
+        cnApp.request('/sitemap.xml'),
+        cnApp.request('/sitemap.txt'),
+        cnApp.request('/site.webmanifest')
       ])
-      const [home, robots, sitemap] = await Promise.all([
+      const [home, chinese, robots, sitemap, textSitemap, manifest] = await Promise.all([
         homeResponse.text(),
+        chineseResponse.text(),
         robotsResponse.text(),
-        sitemapResponse.text()
+        sitemapResponse.text(),
+        textSitemapResponse.text(),
+        manifestResponse.json() as Promise<{ start_url: string; lang: string }>
       ])
 
+      expect(homeResponse.status).toBe(200)
       expect(home).toContain('<html lang="zh-CN">')
       expect(home).toContain('https://www.colors-cc.top/zh')
+      expect(chineseResponse.status).toBe(200)
+      expect(chinese).toContain('<html lang="zh-CN">')
+      expect(englishResponse.status).toBe(404)
+      expect(legacyToolResponse.status).toBe(404)
       expect(robots).toContain('Sitemap: https://www.colors-cc.top/sitemap.xml')
-      expect(sitemap).toContain('https://www.colors-cc.top/en/tools/converter')
+      expect(sitemap.match(/<url>/g)).toHaveLength(PAGE_PATHS.length)
+      expect(sitemap).not.toContain('<loc>https://www.colors-cc.top/en')
       expect(sitemap).toContain('https://www.colors-cc.top/zh/tools/converter')
+      expect(textSitemap.trim().split('\n')).toHaveLength(PAGE_PATHS.length)
+      expect(textSitemap).not.toContain('https://www.colors-cc.top/en')
+      expect(manifest.start_url).toBe('/zh')
+      expect(manifest.lang).toBe('zh-CN')
     })
 
     it('should include the ICP filing on every CN HTML page', async () => {
-      for (const locale of ['en', 'zh'] as const) {
-        for (const path of PAGE_PATHS) {
-          const requestPath = `/${locale}${path === '/' ? '' : path}`
-          const response = await cnApp.request(requestPath)
-          const html = await response.text()
+      for (const path of PAGE_PATHS) {
+        const requestPath = `/zh${path === '/' ? '' : path}`
+        const response = await cnApp.request(requestPath)
+        const html = await response.text()
 
-          expect(response.status, requestPath).toBe(200)
-          expect(html, requestPath).toContain('苏ICP备2024075067号-4')
-          expect(html, requestPath).toContain('https://beian.miit.gov.cn/')
-        }
+        expect(response.status, requestPath).toBe(200)
+        expect(html, requestPath).toContain('苏ICP备2024075067号-4')
+        expect(html, requestPath).toContain('https://beian.miit.gov.cn/')
+      }
+
+      const rootHtml = await (await cnApp.request('/')).text()
+      expect(rootHtml).toContain('苏ICP备2024075067号-4')
+    })
+
+    it('should hide language switching while keeping theme controls', async () => {
+      for (const path of ['/zh', '/zh/tools/converter', '/zh/tools/image-compress']) {
+        const response = await cnApp.request(path)
+        const html = await response.text()
+
+        expect(response.status, path).toBe(200)
+        expect(html, path).not.toContain('class="nav-preference-control language-control"')
+        expect(html, path).not.toContain('class="nav-switch-option language-option"')
+        expect(html, path).not.toContain('href="/en')
+        expect(html, path).toContain('class="nav-preference-control theme-control"')
+        expect(html, path).toContain('data-theme-option="system"')
       }
     })
 
