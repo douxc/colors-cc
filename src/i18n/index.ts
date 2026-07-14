@@ -10,10 +10,13 @@ export type CommonMessages = {
   colorNames: string
   imageTools: string
   forAi: string
-  switchLanguage: string
-  themeToggleLabel: string
-  switchToLightTheme: string
-  switchToDarkTheme: string
+  languageControlLabel: string
+  simplifiedChineseLabel: string
+  englishLabel: string
+  themeControlLabel: string
+  lightThemeLabel: string
+  darkThemeLabel: string
+  systemThemeLabel: string
   footerNavigation: string
   footerTagline: string
   colorTool: string
@@ -31,10 +34,13 @@ export const commonMessages: Record<Locale, CommonMessages> = {
     colorNames: 'Color names',
     imageTools: 'Image tools',
     forAi: 'For AI',
-    switchLanguage: 'Switch to Chinese',
-    themeToggleLabel: 'Dark theme',
-    switchToLightTheme: 'Switch to light theme',
-    switchToDarkTheme: 'Switch to dark theme',
+    languageControlLabel: 'Language',
+    simplifiedChineseLabel: 'Simplified Chinese',
+    englishLabel: 'English',
+    themeControlLabel: 'Theme',
+    lightThemeLabel: 'Light theme',
+    darkThemeLabel: 'Dark theme',
+    systemThemeLabel: 'Follow system theme',
     footerNavigation: 'Footer navigation',
     footerTagline: 'Edge-native color infrastructure for humans and AI agents.',
     colorTool: 'Color tool',
@@ -50,10 +56,13 @@ export const commonMessages: Record<Locale, CommonMessages> = {
     colorNames: '颜色名称',
     imageTools: '图片工具',
     forAi: 'AI 集成',
-    switchLanguage: '切换为英文',
-    themeToggleLabel: '暗色主题',
-    switchToLightTheme: '切换为亮色主题',
-    switchToDarkTheme: '切换为暗色主题',
+    languageControlLabel: '语言',
+    simplifiedChineseLabel: '简体中文',
+    englishLabel: '英文',
+    themeControlLabel: '主题',
+    lightThemeLabel: '亮色主题',
+    darkThemeLabel: '暗色主题',
+    systemThemeLabel: '跟随系统主题',
     footerNavigation: '页脚导航',
     footerTagline: '为用户和 AI 智能体提供运行于边缘节点的色彩基础服务。',
     colorTool: '色彩工具',
@@ -289,6 +298,8 @@ const toolScriptEnglishToChinese: readonly Replacement[] = [
 ]
 
 const imageChineseToEnglish: readonly Replacement[] = [
+  ['面包屑导航', 'Breadcrumb'],
+  ['>首页</a>', '>Home</a>'],
   ['在浏览器本地压缩、排列图片并添加水印。图片不会上传到服务器。', 'Compress, arrange, and watermark images locally in your browser. Images are never uploaded to a server.'],
   ['图片压缩、排列与水印', 'Image compression, layout, and watermarking'],
   ['在一个工作台中整理图片、生成客户确认图，或批量导出压缩和水印版本。', 'Organize images, create client proofs, or batch-export compressed and watermarked versions in one workspace.'],

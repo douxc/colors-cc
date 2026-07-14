@@ -3,10 +3,23 @@ import { createApp } from './app'
 import app from './index'
 import imageCompressTemplate from './pages/image-compress.html'
 import { PAGE_PATHS } from './routes/seo/sitemap'
-import { cnSiteConfig } from './site'
+import { cnSiteConfig, globalSiteConfig, localizedUrl } from './site'
 import homeTemplate from './templates/home.html'
 
 const cnApp = createApp(cnSiteConfig, {
+  home: homeTemplate,
+  imageCompress: imageCompressTemplate
+})
+
+const verificationApp = createApp({
+  ...globalSiteConfig,
+  verificationMeta: {
+    'google-site-verification': 'google-code',
+    'baidu-site-verification': 'baidu-code',
+    '360-site-verification': '360-code',
+    'bytedance-verification-code': 'bytedance-code'
+  }
+}, {
   home: homeTemplate,
   imageCompress: imageCompressTemplate
 })
@@ -78,24 +91,67 @@ describe('colors-cc Frontend', () => {
       
       const text = await res.text()
       expect(text).toContain('User-agent: *')
+      expect(text).toContain('User-agent: Googlebot')
+      expect(text).toContain('User-agent: Baiduspider')
+      expect(text).toContain('User-agent: 360Spider')
+      expect(text).toContain('User-agent: Bytespider')
       expect(text).toContain('Allow: /')
       expect(text).toContain('Sitemap: https://colors-cc.top/sitemap.xml')
+      expect(text).toContain('Sitemap: https://colors-cc.top/sitemap.txt')
     })
 
     it('should serve /sitemap.xml', async () => {
       const res = await app.request('/sitemap.xml')
       expect(res.status).toBe(200)
-      expect(res.headers.get('Content-Type')).toBe('text/xml')
+      expect(res.headers.get('Content-Type')).toContain('application/xml')
       
       const xml = await res.text()
       expect(xml).toContain('<?xml version="1.0"')
       expect(xml).toContain('<urlset')
+      expect(xml.match(/<url>/g)).toHaveLength(PAGE_PATHS.length * 2)
       expect(xml).toContain('https://colors-cc.top/en')
       expect(xml).toContain('https://colors-cc.top/zh')
       expect(xml).toContain('https://colors-cc.top/en/tools/converter')
       expect(xml).toContain('https://colors-cc.top/zh/tools/random-palette')
       expect(xml).toContain('hreflang="en"')
-      expect(xml).toContain('hreflang="zh"')
+      expect(xml).toContain('hreflang="zh-Hans"')
+      expect(xml).toContain('hreflang="en-CN"')
+      expect(xml).toContain('hreflang="zh-CN"')
+      expect(xml).toContain('hreflang="x-default"')
+      expect(xml).toContain('https://www.colors-cc.top/zh/tools/converter')
+      expect(xml.match(/<mobile:mobile type="pc,mobile" \/>/g)).toHaveLength(PAGE_PATHS.length * 2)
+      expect(xml.match(/<lastmod>2026-07-14<\/lastmod>/g)).toHaveLength(PAGE_PATHS.length * 2)
+    })
+
+    it('should serve a plain-text sitemap fallback', async () => {
+      const res = await app.request('/sitemap.txt')
+      const urls = (await res.text()).trim().split('\n')
+
+      expect(res.status).toBe(200)
+      expect(res.headers.get('Content-Type')).toContain('text/plain')
+      expect(urls).toHaveLength(PAGE_PATHS.length * 2)
+      expect(urls).toContain('https://colors-cc.top/en/tools/converter')
+      expect(urls).toContain('https://colors-cc.top/zh/tools/image-compress')
+    })
+
+    it('should serve stable favicon and web manifest assets', async () => {
+      const [iconResponse, manifestResponse] = await Promise.all([
+        app.request('/favicon.svg'),
+        app.request('/site.webmanifest')
+      ])
+      const [icon, manifest] = await Promise.all([
+        iconResponse.text(),
+        manifestResponse.json() as Promise<{ name: string; start_url: string; icons: unknown[] }>
+      ])
+
+      expect(iconResponse.status).toBe(200)
+      expect(iconResponse.headers.get('Content-Type')).toContain('image/svg+xml')
+      expect(icon).toContain('<svg')
+      expect(manifestResponse.status).toBe(200)
+      expect(manifestResponse.headers.get('Content-Type')).toContain('application/manifest+json')
+      expect(manifest.name).toBe('colors-cc')
+      expect(manifest.start_url).toBe('/en')
+      expect(manifest.icons).toHaveLength(1)
     })
   })
 
@@ -207,7 +263,7 @@ describe('colors-cc Frontend', () => {
       expect(english).toContain('<html lang="en">')
       expect(english).toContain('Build in color.')
       expect(english).toContain('href="/zh"')
-      expect(english).toContain('aria-label="Switch to Chinese"')
+      expect(english).toContain('aria-label="Simplified Chinese"')
       expect(english).toContain('https://colors-cc.top/en')
 
       expect(chineseResponse.status).toBe(200)
@@ -216,7 +272,7 @@ describe('colors-cc Frontend', () => {
       expect(chinese).toContain('--leading-hero: 1.18;')
       expect(chinese).toContain('line-height: var(--leading-hero);')
       expect(chinese).toContain('href="/en"')
-      expect(chinese).toContain('aria-label="切换为英文"')
+      expect(chinese).toContain('aria-label="英文"')
       expect(chinese).toContain('https://colors-cc.top/zh')
       expect(chinese).toContain('const animatedEffects')
       expect(chinese).toContain('id="customPalette"')
@@ -246,6 +302,29 @@ describe('colors-cc Frontend', () => {
       expect(chinese).not.toContain("'Converting '")
       expect(chinese).not.toContain("'That value is not a valid '")
       expect(chineseImage).toContain('图片压缩、排列与水印')
+    })
+
+    it('should switch languages on the same valid path across every page', async () => {
+      for (const path of PAGE_PATHS) {
+        const suffix = path === '/' ? '' : path
+        const englishPath = `/en${suffix}`
+        const chinesePath = `/zh${suffix}`
+        const [englishResponse, chineseResponse] = await Promise.all([
+          app.request(englishPath),
+          app.request(chinesePath)
+        ])
+        const [english, chinese] = await Promise.all([
+          englishResponse.text(),
+          chineseResponse.text()
+        ])
+
+        expect(englishResponse.status, englishPath).toBe(200)
+        expect(chineseResponse.status, chinesePath).toBe(200)
+        expect(english, englishPath).toContain(`href="${chinesePath}"`)
+        expect(english, englishPath).toContain('aria-label="Simplified Chinese"')
+        expect(chinese, chinesePath).toContain(`href="${englishPath}"`)
+        expect(chinese, chinesePath).toContain('aria-label="英文"')
+      }
     })
 
     it('should publish reciprocal cross-domain hreflang links', async () => {
@@ -286,6 +365,203 @@ describe('colors-cc Frontend', () => {
           expect(html, requestPath).not.toContain('line-height: .86;')
           expect(html, requestPath).not.toContain('line-height: .98;')
         }
+      }
+    })
+  })
+
+  describe('Search engine metadata', () => {
+    it('should render complete, unique SEO metadata on every localized page and deployment', async () => {
+      const deployments = [
+        { app, origin: globalSiteConfig.origin },
+        { app: cnApp, origin: cnSiteConfig.origin }
+      ]
+
+      for (const deployment of deployments) {
+        for (const locale of ['en', 'zh'] as const) {
+          const titles = new Set<string>()
+          const descriptions = new Set<string>()
+
+          for (const path of PAGE_PATHS) {
+            const suffix = path === '/' ? '' : path
+            const requestPath = `/${locale}${suffix}`
+            const response = await deployment.app.request(requestPath)
+            const html = await response.text()
+            const title = html.match(/<title>([^<]+)<\/title>/)?.[1]
+            const description = html.match(
+              /<meta name="description" content="([^"]+)"/
+            )?.[1]
+            const structuredDataMatch = html.match(
+              /<script type="application\/ld\+json">([\s\S]*?)<\/script>/
+            )
+
+            expect(response.status, requestPath).toBe(200)
+            expect(title, requestPath).toBeTruthy()
+            expect(title?.length, requestPath).toBeLessThanOrEqual(60)
+            expect(description, requestPath).toBeTruthy()
+            expect(description?.length, requestPath).toBeLessThanOrEqual(180)
+            titles.add(title as string)
+            descriptions.add(description as string)
+            expect(html.match(/rel="canonical"/g), requestPath).toHaveLength(1)
+            expect(html, requestPath).toContain(
+              `<link rel="canonical" href="${localizedUrl(deployment.origin, locale, path)}"`
+            )
+            expect(html, requestPath).toContain('hreflang="en"')
+            expect(html, requestPath).toContain('hreflang="zh-Hans"')
+            expect(html, requestPath).toContain('hreflang="en-CN"')
+            expect(html, requestPath).toContain('hreflang="zh-CN"')
+            expect(html, requestPath).toContain('hreflang="x-default"')
+            expect(html, requestPath).toContain('name="applicable-device" content="pc,mobile"')
+            expect(html, requestPath).toContain('name="Baiduspider" content="index, follow"')
+            expect(html, requestPath).toContain('max-image-preview:large')
+            expect(html, requestPath).toContain(`property="og:locale" content="${locale === 'zh' ? 'zh_CN' : 'en_US'}"`)
+            expect(html, requestPath).toContain('property="og:image:width" content="1200"')
+            expect(html, requestPath).toContain('property="og:image:height" content="630"')
+            expect(html, requestPath).toContain('property="og:image:alt"')
+            expect(html, requestPath).toContain('name="twitter:image:alt"')
+            expect(html, requestPath).toContain('rel="sitemap" type="application/xml"')
+            expect(html, requestPath).toContain('rel="icon" type="image/svg+xml"')
+            expect(html, requestPath).toContain('rel="manifest"')
+            expect(structuredDataMatch, requestPath).toBeTruthy()
+
+            const structuredData = JSON.parse(structuredDataMatch?.[1] ?? '{}') as {
+              '@graph'?: Array<{ '@type'?: string }>
+            }
+            const types = structuredData['@graph']?.map(item => item['@type']) ?? []
+
+            expect(types, requestPath).toContain('WebApplication')
+            if (path === '/') {
+              expect(types, requestPath).toContain('WebSite')
+              expect(types, requestPath).toContain('Organization')
+            } else {
+              expect(types, requestPath).toContain('BreadcrumbList')
+              expect(html, requestPath).toContain('class="breadcrumb"')
+            }
+          }
+
+          expect(titles.size, `${deployment.origin}/${locale}`).toBe(PAGE_PATHS.length)
+          expect(descriptions.size, `${deployment.origin}/${locale}`).toBe(PAGE_PATHS.length)
+        }
+      }
+    })
+
+    it('should canonicalize every legacy route to the deployment default locale', async () => {
+      const deployments = [
+        { app, config: globalSiteConfig },
+        { app: cnApp, config: cnSiteConfig }
+      ]
+
+      for (const { app: deploymentApp, config } of deployments) {
+        for (const path of PAGE_PATHS) {
+          const response = await deploymentApp.request(path)
+          const html = await response.text()
+
+          expect(response.status, `${config.origin}${path}`).toBe(200)
+          expect(html, `${config.origin}${path}`).toContain(
+            `<link rel="canonical" href="${localizedUrl(config.origin, config.defaultLocale, path)}"`
+          )
+        }
+      }
+    })
+
+    it('should expose webmaster verification tags only when configured', async () => {
+      const [homeResponse, toolResponse] = await Promise.all([
+        Promise.resolve(verificationApp.request('/en')),
+        Promise.resolve(verificationApp.request('/en/tools/converter'))
+      ])
+      const [home, tool] = await Promise.all([
+        homeResponse.text(),
+        toolResponse.text()
+      ])
+
+      expect(home).toContain('name="google-site-verification" content="google-code"')
+      expect(home).toContain('name="baidu-site-verification" content="baidu-code"')
+      expect(home).toContain('name="360-site-verification" content="360-code"')
+      expect(home).toContain('name="bytedance-verification-code" content="bytedance-code"')
+      expect(tool).not.toContain('google-code')
+      expect(tool).not.toContain('baidu-code')
+    })
+
+    it('should inject deployment verification values into home pages at runtime', async () => {
+      const bindings = {
+        SEO_GOOGLE_SITE_VERIFICATION: ' runtime-google ',
+        SEO_BAIDU_SITE_VERIFICATION: 'runtime-baidu',
+        SEO_360_SITE_VERIFICATION: 'runtime-360',
+        SEO_BYTEDANCE_VERIFICATION_CODE: 'runtime-bytedance',
+        SEO_EXTRA_VERIFICATION_META: JSON.stringify({
+          sogou_site_verification: 'runtime-sogou'
+        })
+      }
+      const [homeResponse, toolResponse] = await Promise.all([
+        Promise.resolve(app.request('/en', undefined, bindings)),
+        Promise.resolve(app.request('/en/tools/converter', undefined, bindings))
+      ])
+      const [home, tool] = await Promise.all([
+        homeResponse.text(),
+        toolResponse.text()
+      ])
+
+      expect(home).toContain('name="google-site-verification" content="runtime-google"')
+      expect(home).toContain('name="baidu-site-verification" content="runtime-baidu"')
+      expect(home).toContain('name="360-site-verification" content="runtime-360"')
+      expect(home).toContain('name="bytedance-verification-code" content="runtime-bytedance"')
+      expect(home).toContain('name="sogou_site_verification" content="runtime-sogou"')
+      expect(tool).not.toContain('runtime-google')
+      expect(tool).not.toContain('runtime-sogou')
+    })
+
+    it('should ignore malformed or unsafe extra verification metadata', async () => {
+      const malformedResponse = await app.request('/en', undefined, {
+        SEO_EXTRA_VERIFICATION_META: '{not-json'
+      })
+      const unsafeResponse = await app.request('/en', undefined, {
+        SEO_EXTRA_VERIFICATION_META: JSON.stringify({
+          'safe-verification': ' safe-code ',
+          'unsafe\" onload="alert(1)': 'unsafe-code',
+          empty: '   ',
+          nonString: 42
+        })
+      })
+      const [malformed, unsafe] = await Promise.all([
+        malformedResponse.text(),
+        unsafeResponse.text()
+      ])
+
+      expect(malformed).not.toContain('not-json')
+      expect(unsafe).toContain('name="safe-verification" content="safe-code"')
+      expect(unsafe).not.toContain('unsafe-code')
+      expect(unsafe).not.toContain('name="empty"')
+      expect(unsafe).not.toContain('name="nonString"')
+    })
+
+    it('should serve rendered Chinese pages to major domestic crawlers', async () => {
+      const crawlers = ['Baiduspider/2.0', '360Spider', 'Bytespider']
+
+      for (const crawler of crawlers) {
+        for (const path of PAGE_PATHS) {
+          const suffix = path === '/' ? '' : path
+          const response = await cnApp.request(`/zh${suffix}`, {
+            headers: { 'User-Agent': crawler }
+          })
+          const html = await response.text()
+
+          expect(response.status, `${crawler} ${path}`).toBe(200)
+          expect(html, `${crawler} ${path}`).toContain('<html lang="zh-CN">')
+          expect(html, `${crawler} ${path}`).toContain('name="robots" content="index, follow')
+        }
+      }
+    })
+
+    it('should serve rendered English pages to Googlebot', async () => {
+      for (const path of PAGE_PATHS) {
+        const suffix = path === '/' ? '' : path
+        const response = await app.request(`/en${suffix}`, {
+          headers: { 'User-Agent': 'Googlebot/2.1' }
+        })
+        const html = await response.text()
+
+        expect(response.status, path).toBe(200)
+        expect(html, path).toContain('<html lang="en">')
+        expect(html, path).toContain('name="googlebot" content="index, follow')
       }
     })
   })
@@ -332,22 +608,28 @@ describe('colors-cc Frontend', () => {
 
   describe('Theme support', () => {
     it.each(['/', '/tools/converter', '/tools/image-compress'])(
-      'should render the icon theme toggle on %s',
+      'should render language and theme switches on %s',
       async (path) => {
         const res = await app.request(path)
         const html = await res.text()
 
         expect(res.status).toBe(200)
-        expect(html).toContain('class="nav-icon-button language-switch"')
-        expect(html).toContain('class="nav-icon-button theme-toggle"')
-        expect(html).toContain('data-theme-toggle')
+        expect(html).toContain('class="nav-preference-control language-control"')
+        expect(html).toContain('class="nav-preference-control theme-control"')
+        expect(html).toContain('class="nav-switch-option language-option"')
+        expect(html).toContain('data-theme-option="light"')
+        expect(html).toContain('data-theme-option="dark"')
+        expect(html).toContain('data-theme-option="system"')
         expect(html).toContain('aria-pressed="false"')
-        expect(html).toContain('theme-icon-sun')
-        expect(html).toContain('theme-icon-moon')
-        expect(html).toContain('class="language-badge"')
+        expect(html).toContain('class="theme-option-icon"')
+        expect(html).toContain('class="theme-system-label">System</span>')
+        expect(html).toContain('>简</a>')
+        expect(html).toContain('>EN</a>')
+        expect(html).not.toContain('data-theme-toggle')
         expect(html).not.toContain('data-theme-select')
         expect(html).not.toContain('class="theme-select"')
         expect(html).toContain('colors-cc-theme')
+        expect(html).toContain('root.dataset.themePreference = theme')
         expect(html).toContain("prefers-color-scheme: dark")
         expect(html).toContain(":root[data-theme='dark']")
         expect(html).toContain('outline: 3px solid var(--focus-ring)')

@@ -267,5 +267,55 @@ The deployment uses `rsync --delete`; the target directory must contain only
 generated site files. A matching Nginx server configuration is available at
 `deploy/nginx-vps.conf`.
 
+## Search engine onboarding
+
+Both deployments render complete server-side HTML and publish the same SEO
+contract on every localized page:
+
+- self-referencing canonical URLs and reciprocal cross-domain `hreflang` links;
+- Open Graph, Twitter Card, favicon, manifest, and large-preview directives;
+- `WebSite`, `Organization`, `WebApplication`, and breadcrumb JSON-LD;
+- responsive-page metadata for Baidu (`applicable-device=pc,mobile`);
+- XML and plain-text sitemaps at `/sitemap.xml` and `/sitemap.txt`;
+- explicit crawl access for Googlebot, Baiduspider, 360Spider, and Bytespider.
+
+After each release that changes indexable page content, update
+`SITEMAP_LAST_MODIFIED` in `src/routes/seo/sitemap.ts` to the real release date.
+Do not replace it with the request time: search engines expect `lastmod` to be
+truthful.
+
+Webmaster platforms require proof that you control each domain. Copy
+`.env.example` to the ignored `.env` file for the VPS deployment, then fill in
+only the `content` value issued by each platform:
+
+```bash
+SEO_GOOGLE_SITE_VERIFICATION=
+SEO_BAIDU_SITE_VERIFICATION=
+SEO_360_SITE_VERIFICATION=
+SEO_BYTEDANCE_VERIFICATION_CODE=
+```
+
+Configure the same variables in the Cloudflare Worker's environment before
+deploying the global site. If another platform issues a different meta name,
+pass an exact name-to-value JSON object through
+`SEO_EXTRA_VERIFICATION_META`, for example:
+
+```bash
+SEO_EXTRA_VERIFICATION_META={"sogou_site_verification":"issued-value"}
+```
+
+Verification tags are rendered only on home pages and are omitted when no
+values are configured. Platform-specific variables override duplicate names
+from the JSON object. Submit the matching sitemap after verification:
+
+- Google Search Console: `https://colors-cc.top/sitemap.xml`
+- Baidu Search Resource Platform: `https://www.colors-cc.top/sitemap.xml`
+- 360 Webmaster Platform: `https://www.colors-cc.top/sitemap.xml`
+- Toutiao/ByteDance: Bytespider is allowed; use the current platform-provided
+  verification and submission method if one is available for the account.
+
+The generic sitemap and robots protocols remain valid for other standards-based
+search engines. Never commit placeholder verification values.
+
 ## 📄 License
 MIT

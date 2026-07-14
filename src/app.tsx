@@ -6,12 +6,13 @@ import openapiRoute from './routes/docs/openapi'
 import skillsRoute from './routes/docs/skills'
 import { createToolsRoute } from './routes/pages/tools'
 import { createRobotsRoute } from './routes/seo/robots'
+import { createSeoAssetsRoute } from './routes/seo/assets'
 import { createSitemapRoute } from './routes/seo/sitemap'
+import { withSearchVerification } from './search-verification'
+import { createSeoMetadata, renderSeoHead } from './seo'
 import {
   htmlLang,
   localePrefix,
-  localizedUrl,
-  renderAlternateLinks,
   renderComplianceFooter,
   type Locale,
   type SiteConfig
@@ -42,13 +43,21 @@ const decorateDocument = (
   locale: Locale,
   path: string
 ): string => {
-  const canonicalUrl = localizedUrl(config.origin, locale, path)
-  const canonical = `<link rel="canonical" href="${canonicalUrl}">\n  ${renderAlternateLinks(path)}`
+  const title = html.match(/<title>([^<]+)<\/title>/i)?.[1]
+  const description = html.match(/<meta\s+name=["']description["'][^>]*content=["']([^"']+)["'][^>]*>/i)?.[1]
+
+  if (!title || !description) {
+    throw new Error(`Missing SEO title or description for ${locale}${path}`)
+  }
+
+  const seoHead = renderSeoHead(
+    createSeoMetadata(config, locale, path, title, description),
+    config
+  )
+
   return prefixInternalLinks(html, locale)
     .replace(/<html lang="[^"]+">/, `<html lang="${htmlLang(locale)}">`)
-    .replace(/<link rel="canonical" href="[^"]+"\s*\/?>/, canonical)
-    .replace(/<meta property="og:url" content="[^"]+"\s*\/?>/, `<meta property="og:url" content="${canonicalUrl}">`)
-    .replace('"url": "https://colors-cc.top/"', `"url": "${canonicalUrl}"`)
+    .replace(/<!--__SEO_HEAD_START__-->[\s\S]*?<!--__SEO_HEAD_END__-->/, seoHead)
     .replace('__NAV_UTILITY_CONTROLS__', renderNavUtilityControlItems(locale, path))
     .replace('__COMPLIANCE_FOOTER__', renderComplianceFooter(config))
 }
@@ -85,10 +94,12 @@ const createLocalizedPages = (
   templates: HtmlTemplates
 ): App => {
   const app = new Hono<{ Bindings: Env; Variables: Variables }>()
-  const homePage = renderHome(templates.home, config, locale)
   const imageCompressPage = renderImageCompress(templates.imageCompress, config, locale)
 
-  app.get('/', (c) => c.html(homePage))
+  app.get('/', (c) => {
+    const runtimeConfig = withSearchVerification(config, c.env)
+    return c.html(renderHome(templates.home, runtimeConfig, locale))
+  })
 
   // Register the exact image tool before the dynamic conversion route.
   app.get('/tools/image-compress', (c) => c.html(imageCompressPage))
@@ -105,6 +116,7 @@ export const createApp = (config: SiteConfig, templates: HtmlTemplates): App => 
   app.route('/', skillsRoute)
   app.route('/', createRobotsRoute(config))
   app.route('/', createSitemapRoute(config))
+  app.route('/', createSeoAssetsRoute(config))
 
   app.route('/en', createLocalizedPages(config, 'en', templates))
   app.route('/zh', createLocalizedPages(config, 'zh', templates))

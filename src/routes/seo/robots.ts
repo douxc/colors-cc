@@ -5,10 +5,24 @@ export const createRobotsRoute = (config: SiteConfig): Hono => {
   const app = new Hono()
 
   app.get('/robots.txt', (c) => {
-    const content = `User-agent: *
+    const content = `# Search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: 360Spider
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: *
 Allow: /
 
 Sitemap: ${config.origin}/sitemap.xml
+Sitemap: ${config.origin}/sitemap.txt
 
 # AI Agents & LLMs
 User-agent: GPTBot

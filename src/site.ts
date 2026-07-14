@@ -4,6 +4,7 @@ type BaseSiteConfig = {
   origin: string
   defaultLocale: Locale
   apiBaseUrl: string
+  verificationMeta?: Readonly<Record<string, string>>
 }
 
 export type SiteConfig =
@@ -46,21 +47,20 @@ export const localizedPath = (locale: Locale, path = ''): string => {
 export const localizedUrl = (origin: string, locale: Locale, path = ''): string =>
   `${origin}${localizedPath(locale, path)}`
 
-export const alternateLocale = (locale: Locale): Locale => locale === 'en' ? 'zh' : 'en'
-
 export const htmlLang = (locale: Locale): string => locale === 'zh' ? 'zh-CN' : 'en'
 
-export const renderAlternateLinks = (path: string): string => {
-  const globalOrigin = globalSiteConfig.origin
-  const cnOrigin = cnSiteConfig.origin
-  return [
-    `<link rel="alternate" hreflang="en" href="${localizedUrl(globalOrigin, 'en', path)}">`,
-    `<link rel="alternate" hreflang="zh" href="${localizedUrl(globalOrigin, 'zh', path)}">`,
-    `<link rel="alternate" hreflang="en-CN" href="${localizedUrl(cnOrigin, 'en', path)}">`,
-    `<link rel="alternate" hreflang="zh-CN" href="${localizedUrl(cnOrigin, 'zh', path)}">`,
-    `<link rel="alternate" hreflang="x-default" href="${localizedUrl(globalOrigin, 'en', path)}">`
-  ].join('\n  ')
+export type HreflangAlternate = {
+  hreflang: string
+  href: string
 }
+
+export const hreflangAlternates = (path: string): readonly HreflangAlternate[] => [
+  { hreflang: 'en', href: localizedUrl(globalSiteConfig.origin, 'en', path) },
+  { hreflang: 'zh-Hans', href: localizedUrl(globalSiteConfig.origin, 'zh', path) },
+  { hreflang: 'en-CN', href: localizedUrl(cnSiteConfig.origin, 'en', path) },
+  { hreflang: 'zh-CN', href: localizedUrl(cnSiteConfig.origin, 'zh', path) },
+  { hreflang: 'x-default', href: localizedUrl(globalSiteConfig.origin, 'en', path) }
+]
 
 export const renderComplianceFooter = (config: SiteConfig): string => {
   if (config.edition !== 'cn') return ''

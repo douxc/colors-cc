@@ -17,6 +17,7 @@ export const themeInitScript = `
       root.style.colorScheme = theme
     }
 
+    root.dataset.themePreference = theme
     root.dataset.effectiveTheme = theme === 'system'
       ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
       : theme
@@ -47,17 +48,13 @@ export const themeControlScript = `
       return theme === 'system' ? (systemTheme.matches ? 'dark' : 'light') : theme
     }
 
-    function updateThemeToggles(theme) {
+    function updateThemeOptions(theme) {
       const effectiveTheme = resolveTheme(theme)
+      document.documentElement.dataset.themePreference = theme
       document.documentElement.dataset.effectiveTheme = effectiveTheme
 
-      document.querySelectorAll('[data-theme-toggle]').forEach((toggle) => {
-        const label = effectiveTheme === 'dark' ? toggle.dataset.labelLight : toggle.dataset.labelDark
-        toggle.dataset.themeState = effectiveTheme
-        toggle.setAttribute('aria-pressed', String(effectiveTheme === 'dark'))
-        if (label) {
-          toggle.setAttribute('title', label)
-        }
+      document.querySelectorAll('[data-theme-option]').forEach((option) => {
+        option.setAttribute('aria-pressed', String(option.dataset.themeOption === theme))
       })
     }
 
@@ -77,17 +74,19 @@ export const themeControlScript = `
         } catch {}
       }
 
-      updateThemeToggles(theme)
+      updateThemeOptions(theme)
       updateThemeColor(theme)
     }
 
     const initialTheme = storedTheme()
     applyTheme(initialTheme, false)
 
-    document.querySelectorAll('[data-theme-toggle]').forEach((toggle) => {
-      toggle.addEventListener('click', () => {
-        const nextTheme = resolveTheme(storedTheme()) === 'dark' ? 'light' : 'dark'
-        applyTheme(nextTheme, true)
+    document.querySelectorAll('[data-theme-option]').forEach((option) => {
+      option.addEventListener('click', () => {
+        const theme = option.dataset.themeOption
+        if (theme === 'light' || theme === 'dark' || theme === 'system') {
+          applyTheme(theme, true)
+        }
       })
     })
 
