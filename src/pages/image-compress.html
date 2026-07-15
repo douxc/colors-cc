@@ -277,6 +277,13 @@
         accent-color: var(--accent);
       }
 
+      .compression-note {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.74rem;
+        line-height: 1.65;
+      }
+
       .check {
         display: flex;
         align-items: center;
@@ -664,9 +671,13 @@
               <span id="qualityValue">80%</span>
             </div>
             <div class="field">
-              <label for="qualityRange">JPEG 质量</label>
+              <label for="qualityRange">压缩质量</label>
               <input id="qualityRange" type="range" min="10" max="100" value="80" />
             </div>
+            <p class="compression-note">
+              自动策略：图标、截图和透明素材使用 PNG-8 量化并由 OxiPNG 优化；连续色调 PNG
+              仅做无损优化。只保留比原图更小的结果。
+            </p>
           </section>
 
           <section class="section" aria-labelledby="actionsTitle">
@@ -707,12 +718,18 @@
 
       <footer class="site-footer">
         <div class="site-footer-main">
-          <span>Browser-only image processing · Your files stay on this device.</span>
+          <span>
+            Browser-only image processing · Your files stay on this device.<br />
+            © 2026 colors-cc contributors · GPL-3.0-or-later · Redistribution permitted · No warranty.
+          </span>
           <nav class="footer-links" aria-label="Footer navigation">
             <a href="/">Home</a>
             <a href="/llms.txt">llms.txt</a>
             <a href="/openapi.json">OpenAPI</a>
             <a href="/skills/colors-cc.md">Agent Skill</a>
+            <a href="https://github.com/douxc/colors-cc">Source</a>
+            <a href="https://github.com/douxc/colors-cc/blob/main/LICENSE">GPL-3.0-or-later · No warranty</a>
+            <a href="https://github.com/douxc/colors-cc/blob/main/THIRD_PARTY_NOTICES.md">Third-party notices</a>
           </nav>
         </div>
         __COMPLIANCE_FOOTER__
@@ -727,6 +744,9 @@
         objectUrls: [],
         mode: "fan",
         previewIndex: 0,
+        pngCodecWorker: null,
+        pngCodecRequestId: 0,
+        pngCodecRequests: new Map(),
       };
 
       const els = {
@@ -1092,7 +1112,8 @@
 
           const size = document.createElement("div");
           size.className = "size";
-          size.textContent = `${item.width} x ${item.height} px`;
+          size.textContent = `${item.width} x ${item.height} px` +
+            (item.compressionStatus ? ` · ${item.compressionStatus}` : "");
 
           meta.append(name, size);
 
@@ -1142,7 +1163,7 @@
         els.fanSection.hidden = isCompress || isWatermark;
         els.watermarkSection.hidden = isCompress;
         if (isWatermark) els.exportButton.textContent = "导出水印图片";
-        else els.exportButton.textContent = isCompress ? "导出仅压缩" : "导出 JPEG";
+        else els.exportButton.textContent = isCompress ? "自动压缩并导出" : "导出 JPEG";
         update();
       }
 
@@ -1159,28 +1180,107 @@
         });
       }
 
+      function pngStrategyLabel(strategy) {
+        if (strategy === "libimagequant-oxipng") return "PNG-8 + OxiPNG";
+        if (strategy === "oxipng") return "OxiPNG 无损";
+        return "原图已最优";
+      }
+
+      function getPngCodecWorker() {
+        if (state.pngCodecWorker) return state.pngCodecWorker;
+
+        const worker = new Worker("/assets/image-compress-worker.js");
+        worker.onmessage = (event) => {
+          const pending = state.pngCodecRequests.get(event.data.id);
+          if (!pending) return;
+          state.pngCodecRequests.delete(event.data.id);
+          clearTimeout(pending.timer);
+          if (event.data.success) pending.resolve(event.data);
+          else pending.reject(new Error(event.data.error));
+        };
+        worker.onerror = () => {
+          state.pngCodecRequests.forEach((pending) => {
+            clearTimeout(pending.timer);
+            pending.reject(new Error("PNG 压缩组件加载失败"));
+          });
+          state.pngCodecRequests.clear();
+          worker.terminate();
+          state.pngCodecWorker = null;
+        };
+        state.pngCodecWorker = worker;
+        return worker;
+      }
+
+      function compressPng(file, quality) {
+        return file.arrayBuffer().then((png) => new Promise((resolve, reject) => {
+          const id = ++state.pngCodecRequestId;
+          const timer = setTimeout(() => {
+            state.pngCodecRequests.delete(id);
+            reject(new Error("PNG 压缩超时"));
+          }, 120000);
+          state.pngCodecRequests.set(id, { resolve, reject, timer });
+          getPngCodecWorker().postMessage({ id, action: "compress-png", png, quality }, [png]);
+        }));
+      }
+
+      function downloadBlob(blob, fileName) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = fileName;
+        link.href = url;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
+
       async function exportCompressed() {
         if (state.images.length === 0) return;
-        const quality = clampNumber(els.qualityRange.value, 80, 10, 100) / 100;
+        const quality = clampNumber(els.qualityRange.value, 80, 10, 100);
+        let savedBytes = 0;
+        let failedCount = 0;
         els.renderMeta.textContent = "压缩中…";
+        els.exportButton.disabled = true;
 
-        for (let i = 0; i < state.images.length; i++) {
-          const item = state.images[i];
-          const blob = await compressImageToBlob(item.image, quality);
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          const baseName = item.file.name.replace(/\.[^.]+$/, "");
-          link.download = `${baseName}.jpg`;
-          link.href = url;
-          link.click();
-          setTimeout(() => URL.revokeObjectURL(url), 2000);
-          if (i < state.images.length - 1) {
-            await new Promise((resolve) => setTimeout(resolve, 350));
+        try {
+          for (let i = 0; i < state.images.length; i++) {
+            const item = state.images[i];
+            const baseName = item.file.name.replace(/\.[^.]+$/, "");
+            const isPng = item.file.type === "image/png" || /\.png$/i.test(item.file.name);
+            els.renderMeta.textContent = `压缩中… ${i + 1} / ${state.images.length}`;
+
+            try {
+              if (isPng) {
+                const result = await compressPng(item.file, quality);
+                const blob = new Blob([result.png], { type: "image/png" });
+                savedBytes += Math.max(0, result.originalSize - result.outputSize);
+                item.compressionStatus = pngStrategyLabel(result.strategy);
+                downloadBlob(blob, `${baseName}.png`);
+              } else {
+                const blob = await compressImageToBlob(item.image, quality / 100);
+                if (!blob) throw new Error("JPEG 编码失败");
+                savedBytes += Math.max(0, item.file.size - blob.size);
+                item.compressionStatus = "JPEG 自适应质量";
+                downloadBlob(blob, `${baseName}.jpg`);
+              }
+            } catch (error) {
+              failedCount += 1;
+              item.compressionStatus = "压缩失败";
+            }
+
+            renderList();
+            if (i < state.images.length - 1) {
+              await new Promise((resolve) => setTimeout(resolve, 350));
+            }
           }
+        } finally {
+          els.exportButton.disabled = false;
         }
 
-        const q = clampNumber(els.qualityRange.value, 80, 10, 100);
-        els.renderMeta.textContent = `${state.images.length} 张已压缩，质量 ${q}%`;
+        const saved = savedBytes >= 1024 * 1024
+          ? `${(savedBytes / 1024 / 1024).toFixed(2)} MB`
+          : `${Math.round(savedBytes / 1024)} KB`;
+        els.renderMeta.textContent = failedCount > 0
+          ? `${state.images.length - failedCount} 张已压缩，${failedCount} 张失败`
+          : `${state.images.length} 张已压缩，共节省 ${saved}`;
       }
 
       function update() {
@@ -1195,8 +1295,8 @@
             ? `${state.images.length} 张图片待压缩`
             : "未选择图片";
           els.emptyDesc.textContent = hasImages
-            ? `质量 ${clampNumber(els.qualityRange.value, 80, 10, 100)}%，点击导出下载压缩图片`
-            : "图片会按原始尺寸压缩，不添加水印";
+            ? `质量 ${clampNumber(els.qualityRange.value, 80, 10, 100)}%，PNG 将自动选择量化或无损方案`
+            : "PNG 自动选择 PNG-8 或无损优化，其他图片按自适应质量导出";
         } else if (isWatermark) {
           els.canvas.hidden = !hasImages;
           els.emptyState.hidden = hasImages;
@@ -1359,6 +1459,7 @@
       els.dropzone.addEventListener("drop", (event) => addFiles(event.dataTransfer.files));
       window.addEventListener("beforeunload", () => {
         state.objectUrls.forEach((url) => URL.revokeObjectURL(url));
+        if (state.pngCodecWorker) state.pngCodecWorker.terminate();
       });
 
       update();

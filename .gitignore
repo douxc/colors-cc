@@ -2,6 +2,7 @@
 .env
 .dev.vars
 dist
+src/generated
 .DS_Store
 node_modules
 scripts/gsc-key.json

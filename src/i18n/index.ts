@@ -325,6 +325,7 @@ const imageChineseToEnglish: readonly Replacement[] = [
   ['字号 px', 'Font size px'],
   ['透明度', 'Opacity'],
   ['输出质量', 'Output quality'],
+  ['压缩质量', 'Compression quality'],
   ['JPEG 质量', 'JPEG quality'],
   ['操作', 'Actions'],
   ['导出 JPEG', 'Export JPEG'],
@@ -338,7 +339,22 @@ const imageChineseToEnglish: readonly Replacement[] = [
   ['读取图片中', 'Reading images'],
   ['每张图片单独添加水印后导出', 'Each image will be exported with its own watermark'],
   ['图片会按原始尺寸压缩，不添加水印', 'Images will be compressed at their original size without a watermark'],
+  ['PNG 自动选择 PNG-8 或无损优化，其他图片按自适应质量导出', 'PNG images automatically use PNG-8 or lossless optimization; other images use adaptive-quality export'],
+  ['PNG 将自动选择量化或无损方案', 'PNG will automatically use quantization or lossless optimization'],
+  ['自动策略：图标、截图和透明素材使用 PNG-8 量化并由 OxiPNG 优化；', 'Automatic strategy: icons, screenshots, and transparent artwork use PNG-8 quantization followed by OxiPNG; '],
+  ['连续色调 PNG', 'continuous-tone PNG images'],
+  ['仅做无损优化。只保留比原图更小的结果。', 'receive lossless optimization only. A result is used only when it is smaller than the original.'],
   ['点击导出下载压缩图片', 'click export to download compressed images'],
+  ['自动压缩并导出', 'Compress and export automatically'],
+  ['PNG 压缩组件加载失败', 'The PNG compression component failed to load'],
+  ['PNG 压缩超时', 'PNG compression timed out'],
+  ['JPEG 编码失败', 'JPEG encoding failed'],
+  ['JPEG 自适应质量', 'JPEG adaptive quality'],
+  ['OxiPNG 无损', 'OxiPNG lossless'],
+  ['原图已最优', 'Original already optimal'],
+  ['张已压缩，共节省', ' images compressed, saved '],
+  ['张失败', ' failed'],
+  ['压缩失败', 'Compression failed'],
   ['张图片待压缩', ' images ready to compress'],
   ['张已压缩，质量', ' images compressed, quality '],
   ['张，质量', ' images, quality '],
@@ -365,10 +381,13 @@ const imageChineseToEnglish: readonly Replacement[] = [
 const imageEnglishToChinese: readonly Replacement[] = [
   ['Create · Local image studio', '创作 · 本地图片处理'],
   ['Browser-only image processing · Your files stay on this device.', '所有图片仅在浏览器本地处理，不会离开当前设备。'],
+  ['Redistribution permitted · No warranty.', '允许再分发 · 不提供任何担保。'],
   ['Canvas 预览', '画布预览'],
   ['Controls', '处理设置'],
   ['>Home</a>', '>首页</a>'],
-  ['Agent Skill', '智能体技能']
+  ['Agent Skill', '智能体技能'],
+  ['>Source</a>', '>源代码</a>'],
+  ['>Third-party notices</a>', '>第三方声明</a>']
 ]
 
 export const localizeHomeHtml = (html: string, locale: Locale): string =>

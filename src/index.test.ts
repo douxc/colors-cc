@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { createApp } from './app'
 import app from './index'
+import imageCompressWorker from './generated/image-compress-worker.html'
 import imageCompressTemplate from './pages/image-compress.html'
 import { PAGE_PATHS } from './routes/seo/sitemap'
 import { cnSiteConfig, globalSiteConfig, localizedUrl } from './site'
@@ -8,7 +9,8 @@ import homeTemplate from './templates/home.html'
 
 const cnApp = createApp(cnSiteConfig, {
   home: homeTemplate,
-  imageCompress: imageCompressTemplate
+  imageCompress: imageCompressTemplate,
+  imageCompressWorker
 })
 
 const verificationApp = createApp({
@@ -21,7 +23,8 @@ const verificationApp = createApp({
   }
 }, {
   home: homeTemplate,
-  imageCompress: imageCompressTemplate
+  imageCompress: imageCompressTemplate,
+  imageCompressWorker
 })
 
 const expectValidInlineScripts = (html: string): void => {
@@ -207,9 +210,28 @@ describe('colors-cc Frontend', () => {
       expect(html).toContain('data-mode="fan"')
       expect(html).toContain('data-mode="watermark"')
       expect(html).toContain('data-mode="compress"')
+      expect(html).toContain('/assets/image-compress-worker.js')
+      expect(html).toContain('libimagequant-oxipng')
+      expect(html).toContain('GPL-3.0-or-later')
+      expect(html).toContain('github.com/douxc/colors-cc')
       expect(html).toContain('aria-current="page">Image tools</a>')
       expect(html).not.toContain('fetch(')
       expect(html).not.toContain('__SHARED_STYLES__')
+    })
+
+    it('should serve the self-hosted PNG codec worker', async () => {
+      const res = await app.request('/assets/image-compress-worker.js')
+      expect(res.status).toBe(200)
+      expect(res.headers.get('Content-Type')).toContain('text/javascript')
+      expect(res.headers.get('Cache-Control')).toContain('must-revalidate')
+
+      const worker = await res.text()
+      expect(worker.length).toBeGreaterThan(600_000)
+      expect(worker).toContain('GPL-3.0-or-later')
+      expect(worker).toContain('github.com/douxc/colors-cc')
+      expect(worker).toContain('THIRD_PARTY_NOTICES.md')
+      expect(worker).toContain('compress-png')
+      expect(worker).toContain('libimagequant-oxipng')
     })
 
     it('should return 404 for invalid tool route', async () => {

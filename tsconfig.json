@@ -3,7 +3,7 @@
     "target": "es2022",
     "module": "es2022",
     "moduleResolution": "node",
-    "types": ["@cloudflare/workers-types"],
+    "types": ["@cloudflare/workers-types", "node"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "strict": true,

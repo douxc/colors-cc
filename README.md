@@ -340,4 +340,12 @@ the public response with `pnpm verify:seo -- https://colors-cc.top`; changing
 the Worker response alone cannot override an edge-prepended rule.
 
 ## 📄 License
-MIT
+
+This repository and its combined browser distribution are licensed under
+**GPL-3.0-or-later**. See [`LICENSE`](LICENSE).
+
+The PNG compression worker includes libimagequant and OxiPNG WebAssembly.
+Copyright notices, exact upstream versions, and component licenses are listed
+in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Reproducible build and
+corresponding-source instructions are in
+[`CORRESPONDING_SOURCE.md`](CORRESPONDING_SOURCE.md).

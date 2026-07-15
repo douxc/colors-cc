@@ -25,6 +25,7 @@ import type { Env, Variables } from './types'
 export type HtmlTemplates = {
   home: string
   imageCompress: string
+  imageCompressWorker: string
 }
 
 type App = Hono<{ Bindings: Env; Variables: Variables }>
@@ -113,6 +114,12 @@ const createLocalizedPages = (
 
 export const createApp = (config: SiteConfig, templates: HtmlTemplates): App => {
   const app = new Hono<{ Bindings: Env; Variables: Variables }>()
+
+  app.get('/assets/image-compress-worker.js', (c) => {
+    c.header('Content-Type', 'text/javascript; charset=utf-8')
+    c.header('Cache-Control', 'public, max-age=3600, must-revalidate')
+    return c.body(templates.imageCompressWorker)
+  })
 
   app.route('/', llmsRoute)
   app.route('/', openapiRoute)

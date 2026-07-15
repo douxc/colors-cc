@@ -13,13 +13,14 @@ const nodeEnvironment = (globalThis as typeof globalThis & {
 const main = async (): Promise<void> => {
   await fs.rm(outputDir, { recursive: true, force: true })
 
-  const [home, imageCompress] = await Promise.all([
+  const [home, imageCompress, imageCompressWorker] = await Promise.all([
     fs.readFile(new URL('../src/templates/home.html', import.meta.url), 'utf8'),
-    fs.readFile(new URL('../src/pages/image-compress.html', import.meta.url), 'utf8')
+    fs.readFile(new URL('../src/pages/image-compress.html', import.meta.url), 'utf8'),
+    fs.readFile(new URL('../src/generated/image-compress-worker.html', import.meta.url), 'utf8')
   ])
 
   const config = withSearchVerification(cnSiteConfig, nodeEnvironment)
-  const app = createApp(config, { home, imageCompress })
+  const app = createApp(config, { home, imageCompress, imageCompressWorker })
   const result = await toSSG(app, fs, {
     dir: outputDir,
     concurrency: 4,
