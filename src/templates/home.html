@@ -39,25 +39,25 @@
     /*__SHARED_STYLES__*/
 
     .hero {
-      min-height: 610px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr);
-      align-items: center;
-      gap: clamp(42px, 8vw, 110px);
-      padding: 88px 0 72px;
+      padding: 38px 0 24px;
     }
     .hero h1 {
-      max-width: 880px;
+      max-width: 760px;
       margin: 0;
-      font-size: clamp(3.7rem, 8vw, 7.4rem);
+      font-size: clamp(2.7rem, 5vw, 4.8rem);
       line-height: var(--leading-hero);
       letter-spacing: var(--tracking-display);
     }
-    .hero h1 span { display: block; }
-    .hero-copy > p:not(.eyebrow) { max-width: 660px; margin: 30px 0 0; color: var(--text-muted); font-size: clamp(1rem, 2vw, 1.2rem); line-height: var(--leading-copy); }
-    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
-    .signal-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 28px; }
-    .signal-pill { padding: 6px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--text-muted); font: .68rem/var(--leading-control) var(--font-mono); }
+    .hero-copy > p:not(.eyebrow) { max-width: 820px; margin: 16px 0 0; color: var(--text-muted); font-size: clamp(.96rem, 1.5vw, 1.08rem); line-height: var(--leading-copy); }
+
+    .tool-launchpad-nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .launch-tool { min-width: 0; min-height: 72px; display: flex; flex-direction: column; justify-content: center; gap: 5px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface-soft); text-decoration: none; transition: transform 160ms ease, border-color 160ms ease, background 160ms ease; }
+    .launch-tool:hover { transform: translateY(-2px); border-color: var(--line-strong); background: var(--hover-bg); }
+    .launch-tool:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    .launch-tool-primary { grid-column: span 2; border-color: rgba(94,231,247,.42); background: linear-gradient(135deg, rgba(94,231,247,.11), rgba(167,139,250,.09)); }
+    .launch-tool-label { color: var(--cyan); font: .64rem/var(--leading-control) var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+    .launch-tool strong { min-width: 0; overflow: hidden; font-size: .9rem; line-height: var(--leading-heading); text-overflow: ellipsis; white-space: nowrap; }
+    .launch-tool-description { min-width: 0; overflow: hidden; color: var(--text-subtle); font-size: .68rem; line-height: var(--leading-control); text-overflow: ellipsis; white-space: nowrap; }
 
     .agent-signal {
       position: relative;
@@ -92,12 +92,7 @@
     .window-dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); }
     .workbench-meta { color: var(--text-subtle); font: .68rem/var(--leading-control) var(--font-mono); }
 
-    .workspace-grid { display: grid; grid-template-columns: 92px minmax(0, 1fr) 350px; min-height: 680px; }
-    .task-rail { display: flex; flex-direction: column; gap: 7px; padding: 18px 12px; border-right: 1px solid var(--line); background: var(--surface-soft); }
-    .task-link { min-height: 65px; display: grid; place-items: center; gap: 4px; padding: 8px 4px; border: 1px solid transparent; border-radius: 13px; color: var(--text-subtle); font-size: .64rem; line-height: var(--leading-control); text-decoration: none; text-align: center; }
-    .task-link strong { font: 700 .7rem/var(--leading-control) var(--font-mono); }
-    .task-link:hover, .task-link.active { border-color: var(--line); background: var(--surface-soft); color: var(--text); }
-    .task-link.active strong { color: var(--cyan); }
+    .workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr) 350px; min-height: 680px; }
 
     .canvas-column { min-width: 0; padding: 18px; background: var(--workspace-bg); }
     .canvas-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; color: var(--text-subtle); font: .68rem/var(--leading-control) var(--font-mono); }
@@ -137,14 +132,8 @@
     .section-heading { max-width: 690px; margin-bottom: 28px; }
     .section-heading h2 { margin: 0; font-size: clamp(2rem, 5vw, 3.7rem); line-height: var(--leading-display); letter-spacing: var(--tracking-display); }
     .section-heading p { margin: 15px 0 0; color: var(--text-muted); line-height: var(--leading-copy); }
-    .feature-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-    .feature-card { min-height: 210px; display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface-soft); text-decoration: none; transition: transform 160ms ease, border-color 160ms ease, background 160ms ease; }
-    .feature-card:hover { transform: translateY(-4px); border-color: var(--line-strong); background: var(--hover-bg); }
-    .feature-index { color: var(--cyan); font: .7rem var(--font-mono); }
-    .feature-card h3 { margin: auto 0 7px; font-size: 1.05rem; line-height: var(--leading-heading); }
-    .feature-card p { margin: 0; color: var(--text-muted); font-size: .79rem; line-height: var(--leading-copy); }
-
     .ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .ai-grid > .agent-signal { grid-column: 1 / -1; }
     .ai-card { padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface-soft); }
     .ai-card h3 { margin: 0 0 8px; line-height: var(--leading-heading); }
     .ai-card > p { margin: 0 0 18px; color: var(--text-muted); font-size: .84rem; line-height: var(--leading-copy); }
@@ -154,35 +143,41 @@
     .ai-link:hover { color: var(--text); border-color: var(--line-strong); }
 
     @media (max-width: 1120px) {
-      .workspace-grid { grid-template-columns: 78px minmax(0, 1fr) 310px; }
+      .workspace-grid { grid-template-columns: minmax(0, 1fr) 310px; }
       .preview-stage { min-height: 500px; }
-      .feature-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
     }
     @media (max-width: 900px) {
-      .hero { min-height: auto; grid-template-columns: 1fr; padding-top: 68px; }
-      .agent-signal { max-width: 620px; }
+      .hero { padding-top: 30px; }
+      .tool-launchpad-nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .launch-tool-primary { grid-column: span 3; }
       .workspace-grid { grid-template-columns: 1fr; }
-      .task-rail { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); }
-      .task-link { min-width: 78px; min-height: 54px; }
       .inspector { border-top: 1px solid var(--line); border-left: 0; }
-      .preview-stage { min-height: 440px; }
+      .preview-stage { min-height: 340px; }
       .ai-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 620px) {
-      .hero { padding: 58px 0 46px; }
-      .hero h1 { font-size: clamp(3.25rem, 17vw, 4.8rem); }
-      .hero-actions .button { width: 100%; }
+      .hero { padding: 14px 0 10px; }
+      .hero .eyebrow { display: none; }
+      .hero h1 { font-size: clamp(1.8rem, 8vw, 2.2rem); }
+      .hero-copy > p:not(.eyebrow) { margin-top: 7px; font-size: .82rem; }
+      .tool-launchpad { margin-inline: -8px; }
+      .tool-launchpad-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin: 0 8px 10px; }
+      .launch-tool { min-height: 48px; padding: 7px 10px; }
+      .launch-tool-primary { grid-column: span 2; }
+      .launch-tool-label, .launch-tool-description { display: none; }
       .segment, .output-tab { min-height: 44px; }
-      .workbench { margin-inline: -8px; border-radius: 22px; }
+      .workbench { margin: 0 -8px 64px; border-radius: 22px; }
+      .workbench-bar { min-height: 48px; padding: 0 12px; }
       .workbench-meta { display: none; }
-      .canvas-column { padding: 10px; }
-      .preview-stage { min-height: 270px; }
-      .preview-stage img { width: 96%; max-height: 245px; border-radius: 12px; }
+      .canvas-column { padding: 8px; }
+      .canvas-toolbar { margin-bottom: 8px; }
+      .preview-stage { min-height: 160px; }
+      .preview-stage img { width: 96%; max-height: 148px; border-radius: 12px; }
+      .inspector { padding: 14px; }
+      .inspector-section + .inspector-section { margin-top: 16px; padding-top: 15px; }
       .preset-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .output-body { grid-template-columns: 1fr; }
       .output-body .button { width: 100%; }
-      .feature-grid { grid-template-columns: 1fr; }
-      .feature-card { min-height: 150px; }
       .ai-links { grid-template-columns: 1fr; }
     }
   </style>
@@ -213,31 +208,43 @@
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
           <p class="eyebrow">Color infrastructure · Human + machine</p>
-          <h1 id="hero-title">Build in color.<span class="gradient-text">Ship at machine speed.</span></h1>
-          <p>Create expressive SVG placeholders visually, then hand developers and AI agents the exact same deterministic URL, code, and instruction.</p>
-          <div class="hero-actions">
-            <a class="button button-primary" href="#create">Open the workbench</a>
-            <a class="button" href="#for-ai">Connect an AI agent</a>
-          </div>
-          <div class="signal-row" aria-label="Product attributes">
-            <span class="signal-pill">NO AUTH</span>
-            <span class="signal-pill">EDGE NATIVE</span>
-            <span class="signal-pill">SVG + JSON</span>
-            <span class="signal-pill">OPENAPI</span>
-          </div>
+          <h1 id="hero-title">Color tools, ready to use.</h1>
+          <p>Create placeholders, convert colors, build palettes, search names, and process images.</p>
         </div>
-
-        <aside class="agent-signal" aria-label="Machine-readable API example">
-          <div class="signal-head"><span>Agent request</span><span class="live-dot">Ready</span></div>
-          <div class="signal-code">
-            <p>&gt; Create a <strong>1200×630 mesh hero</strong><br>&gt; with an aurora palette</p>
-            <div class="response">GET /placeholder<br>?w=1200&amp;h=630<br>&amp;effect=mesh<br>&amp;palette=%23FFD6A5,...</div>
-            <p>One intent → one reproducible asset.</p>
-          </div>
-        </aside>
       </section>
 
-      <section class="workbench" id="create" aria-labelledby="workbench-title">
+      <section class="tool-launchpad" data-home-role="tool-launchpad" aria-labelledby="launchpad-title">
+        <h2 class="sr-only" id="launchpad-title">Choose a color tool</h2>
+        <nav class="tool-launchpad-nav" aria-label="Color tools">
+          <a class="launch-tool launch-tool-primary" href="#create" aria-current="page">
+            <span class="launch-tool-label">Primary tool</span>
+            <strong>Placeholder generator</strong>
+            <span class="launch-tool-description">Create SVG placeholders</span>
+          </a>
+          <a class="launch-tool" href="/tools/converter">
+            <span class="launch-tool-label">Convert</span>
+            <strong>Color converter</strong>
+            <span class="launch-tool-description">HEX · RGB · HSL · CMYK</span>
+          </a>
+          <a class="launch-tool" href="/tools/random-palette">
+            <span class="launch-tool-label">Explore</span>
+            <strong>Palette generator</strong>
+            <span class="launch-tool-description">Theme-ready colors</span>
+          </a>
+          <a class="launch-tool" href="/tools/color-names">
+            <span class="launch-tool-label">Reference</span>
+            <strong>Color names</strong>
+            <span class="launch-tool-description">Search CSS names</span>
+          </a>
+          <a class="launch-tool" href="/tools/image-compress">
+            <span class="launch-tool-label">Local</span>
+            <strong>Image tools</strong>
+            <span class="launch-tool-description">Process files locally</span>
+          </a>
+        </nav>
+      </section>
+
+      <section class="workbench" id="create" data-home-role="placeholder-primary" aria-labelledby="workbench-title">
         <header class="workbench-bar">
           <div class="workbench-title">
             <span class="window-dots" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -247,13 +254,6 @@
         </header>
 
         <div class="workspace-grid">
-          <nav class="task-rail" aria-label="Color tasks">
-            <a class="task-link active" href="#create"><strong>01</strong><span>Create</span></a>
-            <a class="task-link" href="/tools/random-palette"><strong>02</strong><span>Palette</span></a>
-            <a class="task-link" href="/tools/converter"><strong>03</strong><span>Convert</span></a>
-            <a class="task-link" href="/tools/color-names"><strong>04</strong><span>Names</span></a>
-          </nav>
-
           <section class="canvas-column" aria-label="Live placeholder preview">
             <div class="canvas-toolbar">
               <span id="canvasMeta">800 × 400 · MESH</span>
@@ -330,21 +330,6 @@
         </section>
       </section>
 
-      <section class="content-section" aria-labelledby="tools-title">
-        <div class="section-heading">
-          <p class="eyebrow">One color system</p>
-          <h2 id="tools-title">Move from inspiration to implementation.</h2>
-          <p>Explore, translate, and reuse color through interfaces that produce both a human result and a machine-ready contract.</p>
-        </div>
-        <div class="feature-grid">
-          <a class="feature-card" href="/tools/converter"><span class="feature-index">01 / CONVERT</span><h3>Universal converter</h3><p>Keep HEX, RGB, HSL, and CMYK synchronized.</p></a>
-          <a class="feature-card" href="/tools/random-palette"><span class="feature-index">02 / PALETTE</span><h3>Curated palettes</h3><p>Generate and copy theme-driven color systems.</p></a>
-          <a class="feature-card" href="/tools/color-names"><span class="feature-index">03 / NAMES</span><h3>CSS color atlas</h3><p>Search the complete named-color directory.</p></a>
-          <a class="feature-card" href="/tools/fluid-placeholder"><span class="feature-index">04 / MOTION</span><h3>Fluid SVG studio</h3><p>Focus on animated, production-ready hero assets.</p></a>
-          <a class="feature-card" href="/tools/image-compress"><span class="feature-index">05 / IMAGE</span><h3>Local image studio</h3><p>Compress, watermark, and arrange images without uploading them.</p></a>
-        </div>
-      </section>
-
       <section class="content-section" id="for-ai" aria-labelledby="ai-title">
         <div class="section-heading">
           <p class="eyebrow">AI First by contract</p>
@@ -352,6 +337,14 @@
           <p>Every capability has a compact LLM context, a structured OpenAPI contract, and an installable skill with failure-resistant examples.</p>
         </div>
         <div class="ai-grid">
+          <aside class="agent-signal" aria-label="Machine-readable API example">
+            <div class="signal-head"><span>Agent request</span><span class="live-dot">Ready</span></div>
+            <div class="signal-code">
+              <p>&gt; Create a <strong>1200×630 mesh hero</strong><br>&gt; with an aurora palette</p>
+              <div class="response">GET /placeholder<br>?w=1200&amp;h=630<br>&amp;effect=mesh<br>&amp;palette=%23FFD6A5,...</div>
+              <p>One intent → one reproducible asset.</p>
+            </div>
+          </aside>
           <article class="ai-card">
             <h3>Copy an agent rule</h3>
             <p>Drop this into Cursor, Cline, Codex, or another coding agent.</p>

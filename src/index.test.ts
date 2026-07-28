@@ -278,6 +278,110 @@ describe('colors-cc Frontend', () => {
       expect(html).toContain('/tools/image-compress')
       expect(html).not.toContain('__COLOR_API_CONTRACT__')
     })
+
+    it('should preserve the placeholder workbench interaction contract', async () => {
+      const html = await (await app.request('/')).text()
+
+      expect(html).toContain('id="create"')
+      expect(html).toContain('id="previewImage"')
+      expect(html).toContain('id="previewStage"')
+      expect(html).toContain('id="effectControls"')
+      expect(html).toContain('id="presetControls"')
+      expect(html).toContain('id="outputCode"')
+      expect(html).toContain('id="copyOutput"')
+      expect(html).toContain('id="quickCopy"')
+      expect(html.match(/class="output-tab"/g)).toHaveLength(5)
+      expect(html).toContain('const state = {')
+      expect(html).toContain('function buildUrl() {')
+      expect(html).toContain('function renderPreview() {')
+      expect(html).toContain('function commit(delay = 180) {')
+      expect(html).toContain('function syncQuery() {')
+    })
+
+    it('should render the existing workbench as the primary launchpad tool', async () => {
+      const html = await (await app.request('/')).text()
+      const launchpadIndex = html.indexOf('data-home-role="tool-launchpad"')
+      const workbenchIndex = html.indexOf('id="create"')
+      const aiIndex = html.indexOf('id="for-ai"')
+      const launchpadNavigation = html.slice(launchpadIndex, workbenchIndex)
+      const normalizedHtml = html.replace(/\s+/g, ' ')
+
+      expect(launchpadIndex).toBeGreaterThan(-1)
+      expect(workbenchIndex).toBeGreaterThan(launchpadIndex)
+      expect(aiIndex).toBeGreaterThan(workbenchIndex)
+      expect(html).toContain('data-home-role="placeholder-primary"')
+      expect(launchpadNavigation).toContain('href="#create"')
+      expect(launchpadNavigation).toContain('href="/en/tools/converter"')
+      expect(launchpadNavigation).toContain('href="/en/tools/random-palette"')
+      expect(launchpadNavigation).toContain('href="/en/tools/color-names"')
+      expect(launchpadNavigation).toContain('href="/en/tools/image-compress"')
+      expect(html).not.toContain('class="task-rail"')
+      expect(normalizedHtml).not.toContain('.hero { min-height: 610px;')
+    })
+
+    it('should keep the agent example below the primary workbench', async () => {
+      const html = await (await app.request('/')).text()
+      const workbenchIndex = html.indexOf('id="create"')
+      const agentIndex = html.indexOf('class="agent-signal"')
+      const aiSection = html.slice(html.indexOf('id="for-ai"'))
+
+      expect(agentIndex).toBeGreaterThan(workbenchIndex)
+      expect(aiSection).toContain('href="/llms.txt"')
+      expect(aiSection).toContain('href="/openapi.json"')
+      expect(aiSection).toContain('href="/skills/colors-cc.md"')
+    })
+
+    it('should localize the function-first launchpad on /, /en, and /zh', async () => {
+      const routes = [
+        { path: '/', locale: 'en', prefix: '/en' },
+        { path: '/en', locale: 'en', prefix: '/en' },
+        { path: '/zh', locale: 'zh', prefix: '/zh' }
+      ] as const
+
+      for (const route of routes) {
+        const response = await app.request(route.path)
+        const html = await response.text()
+        const launchpadIndex = html.indexOf('data-home-role="tool-launchpad"')
+        const workbenchIndex = html.indexOf('id="create"')
+        const launchpadNavigation = html.slice(launchpadIndex, workbenchIndex)
+
+        expect(response.status, route.path).toBe(200)
+        expect(launchpadIndex, route.path).toBeGreaterThan(-1)
+        expect(html, route.path).toContain('data-home-role="placeholder-primary"')
+        expect(launchpadNavigation, route.path).toContain(`href="${route.prefix}/tools/converter"`)
+        expect(launchpadNavigation, route.path).toContain(`href="${route.prefix}/tools/random-palette"`)
+        expect(launchpadNavigation, route.path).toContain(`href="${route.prefix}/tools/color-names"`)
+        expect(launchpadNavigation, route.path).toContain(`href="${route.prefix}/tools/image-compress"`)
+
+        if (route.locale === 'zh') {
+          expect(html).toContain('即开即用的色彩工具。')
+          expect(html).toContain('创建占位图、转换颜色、生成配色、查询颜色名称，并在本地处理图片。')
+          expect(launchpadNavigation).toContain('占位图生成器')
+          expect(launchpadNavigation).toContain('颜色转换器')
+          expect(launchpadNavigation).toContain('配色生成器')
+          expect(launchpadNavigation).toContain('颜色名称')
+          expect(launchpadNavigation).toContain('图片工具')
+        } else {
+          expect(html).toContain('Color tools, ready to use.')
+          expect(html).toContain('Create placeholders, convert colors, build palettes, search names, and process images.')
+          expect(launchpadNavigation).toContain('Placeholder generator')
+          expect(launchpadNavigation).toContain('Color converter')
+          expect(launchpadNavigation).toContain('Palette generator')
+          expect(launchpadNavigation).toContain('Color names')
+          expect(launchpadNavigation).toContain('Image tools')
+        }
+      }
+    })
+
+    it('should reserve the mobile first viewport for the placeholder controls', () => {
+      const mobileBreakpoint = homeTemplate.slice(homeTemplate.indexOf('@media (max-width: 620px)'))
+
+      expect(mobileBreakpoint).toContain('.hero .eyebrow { display: none; }')
+      expect(mobileBreakpoint).toContain('.hero { padding: 14px 0 10px; }')
+      expect(mobileBreakpoint).toContain('.hero h1 { font-size: clamp(1.8rem, 8vw, 2.2rem); }')
+      expect(mobileBreakpoint).toContain('.launch-tool { min-height: 48px;')
+      expect(mobileBreakpoint).toContain('.workbench-bar { min-height: 48px;')
+    })
   })
 
   describe('Bilingual pages', () => {
@@ -293,14 +397,14 @@ describe('colors-cc Frontend', () => {
 
       expect(englishResponse.status).toBe(200)
       expect(english).toContain('<html lang="en">')
-      expect(english).toContain('Build in color.')
+      expect(english).toContain('Color tools, ready to use.')
       expect(english).toContain('href="/zh"')
       expect(english).toContain('aria-label="Simplified Chinese"')
       expect(english).toContain('https://colors-cc.top/en')
 
       expect(chineseResponse.status).toBe(200)
       expect(chinese).toContain('<html lang="zh-CN">')
-      expect(chinese).toContain('用色彩构建。')
+      expect(chinese).toContain('即开即用的色彩工具。')
       expect(chinese).toContain('--leading-hero: 1.18;')
       expect(chinese).toContain('line-height: var(--leading-hero);')
       expect(chinese).toContain('href="/en"')
