@@ -475,6 +475,70 @@
         box-shadow: 0 16px 46px rgba(20, 31, 47, 0.2);
       }
 
+      .compress-preview {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: fit-content;
+        max-width: min(100%, 1180px);
+        max-height: calc(100vh - 132px);
+        overflow: hidden;
+        border: 1px solid rgba(28, 36, 48, 0.18);
+        background: #fff;
+        box-shadow: 0 16px 46px rgba(20, 31, 47, 0.2);
+      }
+
+      .compress-preview img {
+        display: block;
+        max-width: 100%;
+        max-height: calc(100vh - 132px);
+        width: auto;
+        height: auto;
+      }
+
+      .compress-loading {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: rgba(7, 8, 12, 0.62);
+        color: #fff;
+        backdrop-filter: blur(3px);
+      }
+
+      .compress-loading-content {
+        display: grid;
+        justify-items: center;
+        gap: 12px;
+        padding: 18px 22px;
+        border-radius: var(--radius-md);
+        background: rgba(7, 8, 12, 0.72);
+        font-size: 14px;
+        font-weight: 700;
+        line-height: var(--leading-control);
+      }
+
+      .compress-spinner {
+        width: 34px;
+        height: 34px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: compress-spin 700ms linear infinite;
+      }
+
+      @keyframes compress-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .compress-spinner {
+          animation: none;
+        }
+      }
+
       .empty {
         display: grid;
         place-items: center;
@@ -711,6 +775,22 @@
             </span>
           </div>
           <canvas id="canvas" width="1024" height="768" hidden></canvas>
+          <div class="compress-preview" id="compressPreview" hidden>
+            <img id="compressPreviewImage" alt="" />
+            <div
+              class="compress-loading"
+              id="compressLoading"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              hidden
+            >
+              <span class="compress-loading-content">
+                <span class="compress-spinner" aria-hidden="true"></span>
+                <span id="compressLoadingText">正在压缩…</span>
+              </span>
+            </div>
+          </div>
         </div>
           </section>
         </div>
@@ -756,6 +836,10 @@
         imageList: document.querySelector("#imageList"),
         canvas: document.querySelector("#canvas"),
         emptyState: document.querySelector("#emptyState"),
+        compressPreview: document.querySelector("#compressPreview"),
+        compressPreviewImage: document.querySelector("#compressPreviewImage"),
+        compressLoading: document.querySelector("#compressLoading"),
+        compressLoadingText: document.querySelector("#compressLoadingText"),
         canvasWidth: document.querySelector("#canvasWidth"),
         canvasHeight: document.querySelector("#canvasHeight"),
         lockRatio: document.querySelector("#lockRatio"),
@@ -1232,6 +1316,22 @@
         setTimeout(() => URL.revokeObjectURL(url), 2000);
       }
 
+      function showCompressionPreview(item, current, total) {
+        els.compressPreviewImage.src = item.url;
+        els.compressPreviewImage.alt = item.file.name;
+        els.compressLoadingText.textContent = `正在压缩… ${current} / ${total}`;
+        els.compressPreview.hidden = false;
+        els.compressPreview.setAttribute("aria-busy", "true");
+        els.compressLoading.hidden = false;
+        els.canvas.hidden = true;
+        els.emptyState.hidden = true;
+      }
+
+      function hideCompressionPreview() {
+        els.compressLoading.hidden = true;
+        els.compressPreview.setAttribute("aria-busy", "false");
+      }
+
       async function exportCompressed() {
         if (state.images.length === 0) return;
         const quality = clampNumber(els.qualityRange.value, 80, 10, 100);
@@ -1246,6 +1346,7 @@
             const baseName = item.file.name.replace(/\.[^.]+$/, "");
             const isPng = item.file.type === "image/png" || /\.png$/i.test(item.file.name);
             els.renderMeta.textContent = `压缩中… ${i + 1} / ${state.images.length}`;
+            showCompressionPreview(item, i + 1, state.images.length);
 
             try {
               if (isPng) {
@@ -1272,6 +1373,7 @@
             }
           }
         } finally {
+          hideCompressionPreview();
           els.exportButton.disabled = false;
         }
 
@@ -1290,7 +1392,9 @@
 
         if (isCompress) {
           els.canvas.hidden = true;
-          els.emptyState.hidden = false;
+          const hasPreview = hasImages && Boolean(els.compressPreviewImage.getAttribute("src"));
+          els.compressPreview.hidden = !hasPreview;
+          els.emptyState.hidden = hasPreview;
           els.emptyTitle.textContent = hasImages
             ? `${state.images.length} 张图片待压缩`
             : "未选择图片";
@@ -1298,11 +1402,13 @@
             ? `质量 ${clampNumber(els.qualityRange.value, 80, 10, 100)}%，PNG 将自动选择量化或无损方案`
             : "PNG 自动选择 PNG-8 或无损优化，其他图片按自适应质量导出";
         } else if (isWatermark) {
+          els.compressPreview.hidden = true;
           els.canvas.hidden = !hasImages;
           els.emptyState.hidden = hasImages;
           els.emptyTitle.textContent = "未选择图片";
           els.emptyDesc.textContent = "每张图片单独添加水印后导出";
         } else {
+          els.compressPreview.hidden = true;
           els.canvas.hidden = !hasImages;
           els.emptyState.hidden = hasImages;
           els.emptyTitle.textContent = "未选择图片";

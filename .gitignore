@@ -9,3 +9,4 @@ scripts/gsc-key.json
 .wrangler
 .agent/
 skills/
+/.tmp/
