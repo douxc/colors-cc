@@ -705,6 +705,27 @@ describe('colors-cc Frontend', () => {
       }
     )
 
+    it('should align navbar utility controls with the navigation links', async () => {
+      const html = await (await app.request('/tools/converter')).text()
+
+      expect(html).toMatch(
+        /\.nav-segmented \{[^}]*padding: 0;[^}]*border: 0;[^}]*background: transparent;/s
+      )
+      expect(html).not.toContain('.nav-segmented { padding: 2px;')
+      expect(html).toContain(
+        '.nav-switch-option:hover { color: var(--text); background: var(--surface-soft); }'
+      )
+      expect(html).toMatch(
+        /\.nav-switch-option\[aria-current='page'\],[^}]*background: var\(--surface-strong\);[^}]*color: var\(--text\);[^}]*box-shadow: 0 2px 8px rgba\(48, 58, 78, \.12\);/s
+      )
+      expect(html).toMatch(
+        /\.nav-actions > \.button-quiet \{[^}]*border: 0;[^}]*background: transparent;[^}]*color: var\(--text-muted\);/s
+      )
+      expect(html).toContain(
+        '.nav-actions > .button-quiet:hover { transform: none; color: var(--text); background: var(--surface-soft); }'
+      )
+    })
+
     it('should preserve an accessible navigation path on compact screens', async () => {
       const html = await (await app.request('/tools/converter')).text()
 
@@ -718,6 +739,31 @@ describe('colors-cc Frontend', () => {
       expect(html).toContain('--shell-inline-padding: 14px;')
       expect(html).toContain('.nav-links {\n      order: 3;')
       expect(html).not.toContain('.nav-links { display: none; }')
+    })
+
+    it('should remove the language preference visible label while keeping accessible names', async () => {
+      const html = await (await app.request('/en')).text()
+
+      expect(html).not.toContain('nav-preference-label')
+      expect(html).toContain('class="nav-preference-control language-control"')
+      expect(html).toContain('>简</a>')
+      expect(html).toContain('>EN</a>')
+      expect(html).toContain('aria-label="Language"')
+    })
+
+    it('should render square theme buttons aligned with language buttons', async () => {
+      const html = await (await app.request('/tools/converter')).text()
+
+      expect(html).not.toContain('.theme-option { padding-inline: 7px;')
+      expect(html).toMatch(/\.theme-option \{[^}]*padding-inline: 0;/)
+      expect(html.match(/class="theme-option-icon"/g)).toHaveLength(3)
+    })
+
+    it('should space navbar utility controls with a 16px gap', async () => {
+      const html = await (await app.request('/tools/converter')).text()
+
+      expect(html).toMatch(/\.nav-actions \{[^}]*gap: 16px;/)
+      expect(html).toMatch(/\.nav-utility-group \{[^}]*gap: 16px;/)
     })
   })
 

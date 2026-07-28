@@ -98,7 +98,6 @@ export const renderNavUtilityControlItems = (
   const messages = commonMessages[locale]
   const languageControl = config.enabledLocales.length > 1
     ? `<div class="nav-preference-control language-control">
-      <span class="nav-preference-label">${messages.languageControlLabel}</span>
       <div class="nav-segmented" role="group" aria-label="${escapeAttribute(messages.languageControlLabel)}">
         ${languageOption('zh', locale, path, messages.simplifiedChineseLabel, '简')}
         ${languageOption('en', locale, path, messages.englishLabel, 'EN')}
