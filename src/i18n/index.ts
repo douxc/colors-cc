@@ -318,6 +318,7 @@ const toolScriptEnglishToChinese: readonly Replacement[] = [
 const imageChineseToEnglish: readonly Replacement[] = [
   ['面包屑导航', 'Breadcrumb'],
   ['>首页</a>', '>Home</a>'],
+  ['拖放或选择图片', 'Drop or choose images'],
   ['在浏览器本地压缩、排列图片并添加水印。图片不会上传到服务器。', 'Compress, arrange, and watermark images locally in your browser. Images are never uploaded to a server.'],
   ['图片压缩、排列与水印', 'Image compression, layout, and watermarking'],
   ['在一个工作台中整理图片、生成客户确认图，或批量导出压缩和水印版本。', 'Organize images, create client proofs, or batch-export compressed and watermarked versions in one workspace.'],

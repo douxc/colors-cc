@@ -562,6 +562,22 @@
         line-height: var(--leading-copy);
       }
 
+      .empty.is-dropzone {
+        cursor: pointer;
+        border-color: rgba(94, 231, 247, 0.38);
+        background:
+          radial-gradient(circle at 50% 0, rgba(94, 231, 247, 0.1), transparent 70%),
+          var(--input-bg);
+        transition:
+          border-color 160ms ease,
+          background 160ms ease;
+      }
+
+      .empty.is-dragging {
+        border-color: var(--accent);
+        background: rgba(94, 231, 247, 0.12);
+      }
+
       @media (max-width: 980px) {
         .app {
           grid-template-columns: 1fr;
@@ -770,8 +786,8 @@
         <div class="canvas-wrap">
           <div class="empty" id="emptyState">
             <span>
-              <strong id="emptyTitle">未选择图片</strong>
-              <span id="emptyDesc">图片会按列表顺序扇形排布到同一张大图</span>
+              <strong id="emptyTitle">拖放或选择图片</strong>
+              <span id="emptyDesc">支持多选和拖放</span>
             </span>
           </div>
           <canvas id="canvas" width="1024" height="768" hidden></canvas>
@@ -1385,6 +1401,24 @@
           : `${state.images.length} 张已压缩，共节省 ${saved}`;
       }
 
+      function setEmptyStateDropzone() {
+        els.emptyTitle.textContent = "拖放或选择图片";
+        els.emptyDesc.textContent = "支持多选和拖放";
+        els.emptyState.classList.add("is-dropzone");
+        els.emptyState.setAttribute("role", "button");
+        els.emptyState.setAttribute("tabindex", "0");
+        els.emptyState.setAttribute("aria-label", "拖放或选择图片");
+      }
+
+      function setEmptyStateInfo(title, desc) {
+        els.emptyTitle.textContent = title;
+        els.emptyDesc.textContent = desc;
+        els.emptyState.classList.remove("is-dropzone");
+        els.emptyState.setAttribute("role", "status");
+        els.emptyState.removeAttribute("tabindex");
+        els.emptyState.removeAttribute("aria-label");
+      }
+
       function update() {
         const hasImages = state.images.length > 0;
         const isCompress = state.mode === "compress";
@@ -1395,24 +1429,32 @@
           const hasPreview = hasImages && Boolean(els.compressPreviewImage.getAttribute("src"));
           els.compressPreview.hidden = !hasPreview;
           els.emptyState.hidden = hasPreview;
-          els.emptyTitle.textContent = hasImages
-            ? `${state.images.length} 张图片待压缩`
-            : "未选择图片";
-          els.emptyDesc.textContent = hasImages
-            ? `质量 ${clampNumber(els.qualityRange.value, 80, 10, 100)}%，PNG 将自动选择量化或无损方案`
-            : "PNG 自动选择 PNG-8 或无损优化，其他图片按自适应质量导出";
+          if (hasImages) {
+            setEmptyStateInfo(
+              `${state.images.length} 张图片待压缩`,
+              `质量 ${clampNumber(els.qualityRange.value, 80, 10, 100)}%，PNG 将自动选择量化或无损方案`
+            );
+          } else {
+            setEmptyStateDropzone();
+          }
         } else if (isWatermark) {
           els.compressPreview.hidden = true;
           els.canvas.hidden = !hasImages;
           els.emptyState.hidden = hasImages;
-          els.emptyTitle.textContent = "未选择图片";
-          els.emptyDesc.textContent = "每张图片单独添加水印后导出";
+          if (hasImages) {
+            setEmptyStateInfo("未选择图片", "每张图片单独添加水印后导出");
+          } else {
+            setEmptyStateDropzone();
+          }
         } else {
           els.compressPreview.hidden = true;
           els.canvas.hidden = !hasImages;
           els.emptyState.hidden = hasImages;
-          els.emptyTitle.textContent = "未选择图片";
-          els.emptyDesc.textContent = "图片会按列表顺序扇形排布到同一张大图";
+          if (hasImages) {
+            setEmptyStateInfo("未选择图片", "图片会按列表顺序扇形排布到同一张大图");
+          } else {
+            setEmptyStateDropzone();
+          }
         }
 
         els.exportButton.disabled = !hasImages;
@@ -1563,6 +1605,41 @@
       });
 
       els.dropzone.addEventListener("drop", (event) => addFiles(event.dataTransfer.files));
+
+      els.emptyState.addEventListener("click", () => {
+        if (state.images.length > 0) return;
+        els.fileInput.click();
+      });
+
+      els.emptyState.addEventListener("keydown", (event) => {
+        if (state.images.length > 0) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          els.fileInput.click();
+        }
+      });
+
+      ["dragenter", "dragover"].forEach((name) => {
+        els.emptyState.addEventListener(name, (event) => {
+          if (state.images.length > 0) return;
+          event.preventDefault();
+          els.emptyState.classList.add("is-dragging");
+        });
+      });
+
+      ["dragleave", "drop"].forEach((name) => {
+        els.emptyState.addEventListener(name, (event) => {
+          if (state.images.length > 0) return;
+          event.preventDefault();
+          els.emptyState.classList.remove("is-dragging");
+        });
+      });
+
+      els.emptyState.addEventListener("drop", (event) => {
+        if (state.images.length > 0) return;
+        addFiles(event.dataTransfer.files);
+      });
+
       window.addEventListener("beforeunload", () => {
         state.objectUrls.forEach((url) => URL.revokeObjectURL(url));
         if (state.pngCodecWorker) state.pngCodecWorker.terminate();

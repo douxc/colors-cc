@@ -229,6 +229,23 @@ describe('colors-cc Frontend', () => {
       expect(html).not.toContain('__SHARED_STYLES__')
     })
 
+    it('should turn the empty state into a drop-or-choose upload affordance', async () => {
+      const [enRes, zhRes] = await Promise.all([
+        app.request('/tools/image-compress'),
+        app.request('/zh/tools/image-compress')
+      ])
+      const [en, zh] = await Promise.all([enRes.text(), zhRes.text()])
+
+      // EN SSR renders the new empty-state upload guidance copy.
+      expect(en).toContain('Drop or choose images')
+      // ZH SSR renders the new empty-state upload guidance copy.
+      expect(zh).toContain('拖放或选择图片')
+      // #emptyState opens the file picker on click/keyboard by reusing #fileInput.
+      expect(en).toContain('els.fileInput.click()')
+      // #emptyState binds drop so users can drag-and-drop images onto it.
+      expect(en).toMatch(/els\.emptyState\.addEventListener\(\s*["']drop/)
+    })
+
     it('should serve the self-hosted PNG codec worker', async () => {
       const res = await app.request('/assets/image-compress-worker.js')
       expect(res.status).toBe(200)
