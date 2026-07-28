@@ -754,9 +754,21 @@ describe('colors-cc Frontend', () => {
     it('should render square theme buttons aligned with language buttons', async () => {
       const html = await (await app.request('/tools/converter')).text()
 
-      expect(html).not.toContain('.theme-option { padding-inline: 7px;')
-      expect(html).toMatch(/\.theme-option \{[^}]*padding-inline: 0;/)
+      expect(html).toMatch(/\.nav-switch-option \{[^}]*width: 32px;/)
+      expect(html).toMatch(/\.nav-switch-option \{[^}]*height: 32px;/)
+      expect(html).toMatch(/\.nav-switch-option \{[^}]*min-height: 32px;/)
+      expect(html).not.toContain('min-width: 30px')
+      expect(html).not.toMatch(/\.nav-switch-option \{[^}]*height: 34px/)
+      expect(html).not.toContain('.theme-option { padding-inline: 0;')
       expect(html.match(/class="theme-option-icon"/g)).toHaveLength(3)
+    })
+
+    it('should keep theme buttons square on the image-compress page', async () => {
+      const html = await (await app.request('/tools/image-compress')).text()
+
+      expect(html).toMatch(/\.nav-switch-option \{[^}]*min-height: 32px;/)
+      expect(html).toMatch(/\.nav-switch-option \{[^}]*width: 32px;/)
+      expect(html).toMatch(/\.nav-switch-option \{[^}]*height: 32px;/)
     })
 
     it('should space navbar utility controls with a 16px gap', async () => {
