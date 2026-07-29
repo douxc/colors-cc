@@ -38,6 +38,13 @@ const applicationCategory = (path: string): string => {
   return 'DeveloperApplication'
 }
 
+const toolKeywords: Readonly<Record<string, { en: readonly string[]; zh: readonly string[] }>> = {
+  '/tools/image-compress': {
+    en: ['image compressor', 'compress png', 'compress jpeg', 'image watermark', 'batch image compression', 'browser image optimizer', 'no upload image tool'],
+    zh: ['在线图片压缩', 'PNG 压缩', 'JPEG 压缩', '图片水印', '批量压缩', '本地图片处理', '图片压缩工具']
+  }
+}
+
 const localizedKeywords = (locale: Locale, path: string): string => {
   const common = locale === 'zh'
     ? ['颜色工具', 'SVG 占位图', '颜色 API', '颜色转换器', '配色生成器', 'CSS 颜色']
@@ -47,8 +54,10 @@ const localizedKeywords = (locale: Locale, path: string): string => {
     .filter(Boolean)
     .flatMap(term => term.split('-'))
     .filter(term => term !== 'tools')
+  const specific = toolKeywords[path]
+  const base = specific ? (locale === 'zh' ? specific.zh : specific.en) : common
 
-  return [...new Set([...pathTerms, ...common])].join(', ')
+  return [...new Set([...pathTerms, ...base])].join(', ')
 }
 
 const createStructuredData = (
@@ -62,6 +71,11 @@ const createStructuredData = (
   const siteId = `${config.origin}/#website`
   const organizationId = `${config.origin}/#organization`
   const graph: Array<Record<string, unknown>> = []
+  const featureList = path === '/tools/image-compress'
+    ? locale === 'zh'
+      ? ['本地处理不上传', 'PNG/JPEG 智能压缩', '水印与排版', '批量导出']
+      : ['100% local, no upload', 'PNG/JPEG smart compression', 'Watermark & layout', 'Batch export']
+    : undefined
 
   if (path === '/') {
     graph.push(
@@ -104,6 +118,7 @@ const createStructuredData = (
     inLanguage: htmlLang(locale),
     isAccessibleForFree: true,
     offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' },
+    ...(featureList ? { featureList } : {}),
     author: { '@id': organizationId }
   })
 

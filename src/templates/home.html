@@ -59,6 +59,23 @@
     .launch-tool strong { min-width: 0; overflow: hidden; font-size: .9rem; line-height: var(--leading-heading); text-overflow: ellipsis; white-space: nowrap; }
     .launch-tool-description { min-width: 0; overflow: hidden; color: var(--text-subtle); font-size: .68rem; line-height: var(--leading-control); text-overflow: ellipsis; white-space: nowrap; }
 
+    .launch-tool-featured { position: relative; border-color: rgba(94,230,168,.52); background: linear-gradient(135deg, rgba(94,230,168,.13), rgba(94,231,247,.07)); }
+    .launch-tool-featured:hover { border-color: rgba(94,230,168,.85); background: linear-gradient(135deg, rgba(94,230,168,.19), rgba(94,231,247,.1)); }
+    .launch-tool-featured .launch-tool-label { color: var(--green); }
+    .launch-tool-featured strong { padding-right: 44px; }
+    .launch-tool-badge { position: absolute; top: 9px; right: 10px; padding: 2px 7px; border-radius: 999px; background: var(--green); color: #04130c; font: 700 .54rem/1.5 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
+
+    .image-feature { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 28px; align-items: center; margin: 0 0 26px; padding: 28px; border: 1px solid rgba(94,230,168,.3); border-radius: var(--radius-xl); background: linear-gradient(135deg, var(--surface-strong), var(--surface-soft)); box-shadow: var(--shadow); }
+    .image-feature-copy .eyebrow { color: var(--green); }
+    .image-feature-copy h2 { margin: 10px 0 0; font-size: clamp(1.5rem, 3vw, 2.2rem); line-height: var(--leading-display); letter-spacing: var(--tracking-display); }
+    .image-feature-lede { margin: 14px 0 18px; max-width: 62ch; color: var(--text-muted); font-size: clamp(.94rem, 1.4vw, 1.04rem); line-height: var(--leading-copy); }
+    .image-feature-points { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+    .image-feature-points li { display: grid; gap: 3px; padding: 14px 15px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+    .image-feature-points strong { font-size: .86rem; line-height: var(--leading-heading); }
+    .image-feature-points span { color: var(--text-subtle); font-size: .74rem; line-height: var(--leading-control); }
+    @media (max-width: 900px) { .image-feature { grid-template-columns: 1fr; } }
+    @media (max-width: 620px) { .image-feature { margin: 0 -8px 18px; padding: 18px; border-radius: 22px; } .image-feature-points { grid-template-columns: 1fr; } .launch-tool-badge { display: none; } .launch-tool-featured strong { padding-right: 0; } }
+
     .agent-signal {
       position: relative;
       overflow: hidden;
@@ -213,9 +230,29 @@
         </div>
       </section>
 
+      <section class="image-feature" data-home-role="image-feature" aria-labelledby="image-feature-title">
+        <div class="image-feature-copy">
+          <p class="eyebrow">Local image studio · No upload</p>
+          <h2 id="image-feature-title">Compress, watermark, and arrange images - without uploading.</h2>
+          <p class="image-feature-lede">The most-used tool on colors-cc. PNG/JPEG smart compression, watermarking, and fan-layout proofs run entirely in your browser - your files never leave this device.</p>
+          <a class="button button-primary" href="/tools/image-compress">Compress images</a>
+        </div>
+        <ul class="image-feature-points">
+          <li><strong>Private by default</strong><span>Files are processed locally and never uploaded.</span></li>
+          <li><strong>Smart compression</strong><span>PNG-8 quantization plus OxiPNG, and adaptive JPEG quality.</span></li>
+          <li><strong>Watermark &amp; layout</strong><span>Build client proofs and batch exports on one canvas.</span></li>
+        </ul>
+      </section>
+
       <section class="tool-launchpad" data-home-role="tool-launchpad" aria-labelledby="launchpad-title">
         <h2 class="sr-only" id="launchpad-title">Choose a color tool</h2>
         <nav class="tool-launchpad-nav" aria-label="Color tools">
+          <a class="launch-tool launch-tool-featured" href="/tools/image-compress">
+            <span class="launch-tool-badge">Most used</span>
+            <span class="launch-tool-label">Local</span>
+            <strong>Image tools</strong>
+            <span class="launch-tool-description">Compress · watermark · layout</span>
+          </a>
           <a class="launch-tool launch-tool-primary" href="#create" aria-current="page">
             <span class="launch-tool-label">Primary tool</span>
             <strong>Placeholder generator</strong>
@@ -235,11 +272,6 @@
             <span class="launch-tool-label">Reference</span>
             <strong>Color names</strong>
             <span class="launch-tool-description">Search CSS names</span>
-          </a>
-          <a class="launch-tool" href="/tools/image-compress">
-            <span class="launch-tool-label">Local</span>
-            <strong>Image tools</strong>
-            <span class="launch-tool-description">Process files locally</span>
           </a>
         </nav>
       </section>

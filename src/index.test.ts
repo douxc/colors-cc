@@ -123,7 +123,7 @@ describe('colors-cc Frontend', () => {
       expect(xml).toContain('hreflang="x-default"')
       expect(xml).toContain('https://www.colors-cc.top/zh/tools/converter')
       expect(xml.match(/<mobile:mobile type="pc,mobile" \/>/g)).toHaveLength(PAGE_PATHS.length * 2)
-      expect(xml.match(/<lastmod>2026-07-14<\/lastmod>/g)).toHaveLength(PAGE_PATHS.length * 2)
+      expect(xml.match(/<lastmod>2026-07-29<\/lastmod>/g)).toHaveLength(PAGE_PATHS.length * 2)
     })
 
     it('should serve a plain-text sitemap fallback', async () => {
