@@ -29,6 +29,16 @@ const main = async (): Promise<void> => {
   const output = result.outputFiles[0]
   if (!output) throw new Error('Image codec worker bundle was not generated')
 
+  try {
+    const existingOutput = await fs.readFile(outputFile, 'utf8')
+    if (existingOutput === output.text) {
+      console.log(`Unchanged ${outputFile} (${output.contents.byteLength} bytes)`)
+      return
+    }
+  } catch (error: unknown) {
+    if (!(error instanceof Error && 'code' in error && error.code === 'ENOENT')) throw error
+  }
+
   await fs.mkdir('src/generated', { recursive: true })
   await fs.writeFile(outputFile, output.contents)
   console.log(`Generated ${outputFile} (${output.contents.byteLength} bytes)`)
