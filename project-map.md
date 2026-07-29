@@ -14,4 +14,6 @@
 
 ## Components
 
+- `shared/site-chrome` → `src/templates/site-chrome.ts`
+
 ## Constraints
