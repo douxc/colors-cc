@@ -21,6 +21,7 @@ export type CommonMessages = {
   footerTagline: string
   colorTool: string
   agentSkill: string
+  feedbackLabel: string
 }
 
 export const commonMessages: Record<Locale, CommonMessages> = {
@@ -44,7 +45,8 @@ export const commonMessages: Record<Locale, CommonMessages> = {
     footerNavigation: 'Footer navigation',
     footerTagline: 'Edge-native color infrastructure for humans and AI agents.',
     colorTool: 'Color tool',
-    agentSkill: 'Agent Skill'
+    agentSkill: 'Agent Skill',
+    feedbackLabel: 'Feedback'
   },
   zh: {
     skipToContent: '跳至正文',
@@ -66,7 +68,8 @@ export const commonMessages: Record<Locale, CommonMessages> = {
     footerNavigation: '页脚导航',
     footerTagline: '为用户和 AI 智能体提供运行于边缘节点的色彩基础服务。',
     colorTool: '色彩工具',
-    agentSkill: '智能体技能'
+    agentSkill: '智能体技能',
+    feedbackLabel: '反馈'
   }
 }
 

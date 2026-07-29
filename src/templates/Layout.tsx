@@ -152,6 +152,9 @@ export const Layout: FC<LayoutProps> = (props) => {
                 <a href="/llms.txt">llms.txt</a>
                 <a href="/openapi.json">OpenAPI</a>
                 <a href="/skills/colors-cc.md">{messages.agentSkill}</a>
+                {props.config.edition === 'global' && props.config.feedbackEmail && (
+                  <a href={`mailto:${props.config.feedbackEmail}`}>{messages.feedbackLabel}</a>
+                )}
               </nav>
             </div>
             {props.config.edition === 'cn' && (

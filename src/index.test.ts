@@ -810,6 +810,58 @@ describe('colors-cc Frontend', () => {
     })
   })
 
+  describe('Global feedback mailto link', () => {
+    it('should render the mailto feedback link on global EN home, image-compress, and converter', async () => {
+      const [homeRes, imageRes, converterRes] = await Promise.all([
+        app.request('/'),
+        app.request('/tools/image-compress'),
+        app.request('/tools/converter')
+      ])
+      const [home, image, converter] = await Promise.all([
+        homeRes.text(),
+        imageRes.text(),
+        converterRes.text()
+      ])
+
+      expect(homeRes.status).toBe(200)
+      expect(imageRes.status).toBe(200)
+      expect(converterRes.status).toBe(200)
+      expect(home).toContain('mailto:douxc512@gmail.com')
+      expect(home).toContain('>Feedback</a>')
+      expect(image).toContain('mailto:douxc512@gmail.com')
+      expect(image).toContain('>Feedback</a>')
+      expect(converter).toContain('mailto:douxc512@gmail.com')
+      expect(converter).toContain('>Feedback</a>')
+    })
+
+    it('should render the ZH feedback label on the global ZH image-compress page', async () => {
+      const res = await app.request('/zh/tools/image-compress')
+      const html = await res.text()
+
+      expect(res.status).toBe(200)
+      expect(html).toContain('mailto:douxc512@gmail.com')
+      expect(html).toContain('>反馈</a>')
+    })
+
+    it('should not render the feedback link or leave the placeholder on the CN edition', async () => {
+      const [homeRes, imageRes] = await Promise.all([
+        cnApp.request('/zh'),
+        cnApp.request('/zh/tools/image-compress')
+      ])
+      const [home, image] = await Promise.all([
+        homeRes.text(),
+        imageRes.text()
+      ])
+
+      expect(homeRes.status).toBe(200)
+      expect(imageRes.status).toBe(200)
+      expect(home).not.toContain('mailto:douxc512@gmail.com')
+      expect(home).not.toContain('__FEEDBACK_LINK__')
+      expect(image).not.toContain('mailto:douxc512@gmail.com')
+      expect(image).not.toContain('__FEEDBACK_LINK__')
+    })
+  })
+
   describe('Theme support', () => {
     it.each(['/', '/tools/converter', '/tools/image-compress'])(
       'should render language and theme switches on %s',

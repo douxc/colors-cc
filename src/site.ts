@@ -6,6 +6,7 @@ type BaseSiteConfig = {
   enabledLocales: readonly Locale[]
   apiBaseUrl: string
   verificationMeta?: Readonly<Record<string, string>>
+  feedbackEmail?: string
 }
 
 export type SiteConfig =
@@ -25,7 +26,8 @@ export const globalSiteConfig = {
   origin: 'https://colors-cc.top',
   defaultLocale: 'en',
   enabledLocales: ['en', 'zh'],
-  apiBaseUrl: 'https://api.colors-cc.top'
+  apiBaseUrl: 'https://api.colors-cc.top',
+  feedbackEmail: 'douxc512@gmail.com'
 } satisfies SiteConfig
 
 export const cnSiteConfig = {
@@ -70,4 +72,10 @@ export const hreflangAlternates = (path: string): readonly HreflangAlternate[] =
 export const renderComplianceFooter = (config: SiteConfig): string => {
   if (config.edition !== 'cn') return ''
   return `<div class="site-compliance"><a href="${config.icp.url}" target="_blank" rel="noopener noreferrer">${config.icp.number}</a></div>`
+}
+
+export const renderFeedbackLink = (config: SiteConfig, locale: Locale): string => {
+  if (config.edition !== 'global' || !config.feedbackEmail) return ''
+  const label = locale === 'zh' ? '反馈' : 'Feedback'
+  return `<a href="mailto:${config.feedbackEmail}">${label}</a>`
 }

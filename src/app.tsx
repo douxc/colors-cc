@@ -14,6 +14,7 @@ import {
   htmlLang,
   localePrefix,
   renderComplianceFooter,
+  renderFeedbackLink,
   type Locale,
   type SiteConfig
 } from './site'
@@ -61,6 +62,7 @@ const decorateDocument = (
     .replace(/<!--__SEO_HEAD_START__-->[\s\S]*?<!--__SEO_HEAD_END__-->/, seoHead)
     .replace('__NAV_UTILITY_CONTROLS__', renderNavUtilityControlItems(config, locale, path))
     .replace('__COMPLIANCE_FOOTER__', renderComplianceFooter(config))
+    .replace('__FEEDBACK_LINK__', renderFeedbackLink(config, locale))
 }
 
 const renderHome = (
