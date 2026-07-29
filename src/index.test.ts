@@ -224,7 +224,7 @@ describe('colors-cc Frontend', () => {
       expect(html).toContain('libimagequant-oxipng')
       expect(html).toContain('GPL-3.0-or-later')
       expect(html).toContain('github.com/douxc/colors-cc')
-      expect(html).toContain('aria-current="page">Image tools</a>')
+      expect(html).toContain('aria-current="page">Prepare</a>')
       expect(html).not.toContain('fetch(')
       expect(html).not.toContain('__SHARED_STYLES__')
     })
@@ -862,6 +862,62 @@ describe('colors-cc Frontend', () => {
     })
   })
 
+  describe('Shared brand chrome', () => {
+    it('should render one shared Generate, Prepare, and Developers navigation on every page shell', async () => {
+      for (const path of ['/', '/tools/converter', '/tools/image-compress']) {
+        const html = await (await app.request(path)).text()
+
+        expect(html.match(/data-site-chrome="navigation"/g), path).toHaveLength(1)
+        expect(html.match(/data-site-chrome="footer"/g), path).toHaveLength(1)
+        expect(html.match(/class="site-nav"/g), path).toHaveLength(1)
+        expect(html, path).toContain('data-brand-mark="canvas-pair"')
+        expect(html, path).toContain('>Generate</a>')
+        expect(html, path).toContain('>Prepare</a>')
+        expect(html, path).toContain('>Developers</a>')
+        expect(html, path).toContain('--paper: #f3f0e9;')
+        expect(html, path).toContain('--ink: #1d2025;')
+        expect(html, path).toContain('--accent-coral: #d45d4c;')
+        expect(html, path).toContain('--surface-canvas: #e7e3da;')
+        expect(html, path).toContain('--radius-panel: 16px;')
+        expect(html, path).toContain('--shadow-panel:')
+        expect(html, path).not.toContain('__SITE_NAV__')
+        expect(html, path).not.toContain('__SITE_FOOTER__')
+        expectValidInlineScripts(html)
+      }
+    })
+
+    it('should render a keyboard-operable compact menu with preferences inside it', async () => {
+      const html = await (await app.request('/tools/converter')).text()
+
+      expect(html).toContain('class="nav-menu"')
+      expect(html).toContain('class="nav-menu-toggle"')
+      expect(html).toContain('<details class="nav-menu" open')
+      expect(html).toContain('aria-label="Open navigation menu"')
+      expect(html).toContain('data-label-close="Close navigation menu"')
+      expect(html).toContain('class="nav-menu-panel"')
+      expect(html).toContain('class="nav-preferences"')
+      expect(html).toContain("window.matchMedia('(max-width: 760px)')")
+      expect(html).toContain('menu.open = !isCompact')
+      expect(html).toMatch(
+        /@media \(max-width: 760px\)[\s\S]*\.site-nav \{[^}]*min-height: 64px;[^}]*flex-wrap: nowrap;/
+      )
+      expect(html).toMatch(
+        /@media \(max-width: 760px\)[\s\S]*\.nav-menu-toggle \{[^}]*min-width: 44px;[^}]*min-height: 44px;/
+      )
+    })
+
+    it('should localize the shared chrome without changing stable locale URLs', async () => {
+      const html = await (await app.request('/zh/tools/image-compress')).text()
+
+      expect(html).toContain('>生成素材</a>')
+      expect(html).toContain('>处理素材</a>')
+      expect(html).toContain('>开发者</a>')
+      expect(html).toContain('aria-label="打开导航菜单"')
+      expect(html).toContain('href="/en/tools/image-compress"')
+      expect(html.match(/data-site-chrome="navigation"/g)).toHaveLength(1)
+    })
+  })
+
   describe('Theme support', () => {
     it.each(['/', '/tools/converter', '/tools/image-compress'])(
       'should render language and theme switches on %s',
@@ -922,7 +978,7 @@ describe('colors-cc Frontend', () => {
     it('should preserve an accessible navigation path on compact screens', async () => {
       const html = await (await app.request('/tools/converter')).text()
 
-      expect(html).toContain('aria-current="page">Convert</a>')
+      expect(html).toContain('aria-current="page">Generate</a>')
       expect(html).toContain('--shell-inline-padding: 28px;')
       expect(html).toContain('width: min(1384px, 100%);')
       expect(html).toContain('width: calc(100% + (2 * var(--shell-inline-padding)));')
@@ -930,7 +986,9 @@ describe('colors-cc Frontend', () => {
       expect(html).not.toContain('@media (min-width: 2048px)')
       expect(html).toContain('--shell-inline-padding: 18px;')
       expect(html).toContain('--shell-inline-padding: 14px;')
-      expect(html).toContain('.nav-links {\n      order: 3;')
+      expect(html).toContain('@media (max-width: 760px)')
+      expect(html).toMatch(/\.site-nav \{[^}]*min-height: 64px;[^}]*flex-wrap: nowrap;/)
+      expect(html).toContain('.nav-menu[open] > .nav-menu-panel {')
       expect(html).not.toContain('.nav-links { display: none; }')
     })
 

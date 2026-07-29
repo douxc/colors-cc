@@ -13,12 +13,10 @@ import { createSeoMetadata, renderSeoHead } from './seo'
 import {
   htmlLang,
   localePrefix,
-  renderComplianceFooter,
-  renderFeedbackLink,
   type Locale,
   type SiteConfig
 } from './site'
-import { renderNavUtilityControlItems } from './templates/nav-controls'
+import { renderSiteFooter, renderSiteNav, siteNavScript } from './templates/site-chrome'
 import { sharedStyles } from './templates/styles'
 import { themeControlScript, themeInitScript } from './templates/theme'
 import type { Env, Variables } from './types'
@@ -60,9 +58,8 @@ const decorateDocument = (
   return prefixInternalLinks(html, locale)
     .replace(/<html lang="[^"]+">/, `<html lang="${htmlLang(locale)}">`)
     .replace(/<!--__SEO_HEAD_START__-->[\s\S]*?<!--__SEO_HEAD_END__-->/, seoHead)
-    .replace('__NAV_UTILITY_CONTROLS__', renderNavUtilityControlItems(config, locale, path))
-    .replace('__COMPLIANCE_FOOTER__', renderComplianceFooter(config))
-    .replace('__FEEDBACK_LINK__', renderFeedbackLink(config, locale))
+    .replace('__SITE_NAV__', renderSiteNav(config, locale, path))
+    .replace('__SITE_FOOTER__', renderSiteFooter(config, locale))
 }
 
 const renderHome = (
@@ -73,7 +70,7 @@ const renderHome = (
   const contract = { ...PUBLIC_COLOR_API_CONTRACT, baseUrl: config.apiBaseUrl }
   const html = template
     .replace('__THEME_INIT_SCRIPT__', themeInitScript)
-    .replace('__THEME_CONTROL_SCRIPT__', themeControlScript)
+    .replace('__THEME_CONTROL_SCRIPT__', `${themeControlScript}\n${siteNavScript}`)
     .replace('/*__SHARED_STYLES__*/', sharedStyles)
     .replace('__COLOR_API_CONTRACT__', JSON.stringify(contract).replace(/</g, '\\u003c'))
   return decorateDocument(localizeHomeHtml(html, locale), config, locale, '/')
@@ -86,7 +83,7 @@ const renderImageCompress = (
 ): string => {
   const html = template
     .replace('__THEME_INIT_SCRIPT__', themeInitScript)
-    .replace('__THEME_CONTROL_SCRIPT__', themeControlScript)
+    .replace('__THEME_CONTROL_SCRIPT__', `${themeControlScript}\n${siteNavScript}`)
     .replace('/*__SHARED_STYLES__*/', sharedStyles)
   return decorateDocument(localizeImageHtml(html, locale), config, locale, '/tools/image-compress')
 }

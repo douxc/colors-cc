@@ -4,6 +4,13 @@ export type CommonMessages = {
   skipToContent: string
   homeLabel: string
   primaryNavigation: string
+  generate: string
+  prepare: string
+  developers: string
+  preferences: string
+  menu: string
+  openNavigationMenu: string
+  closeNavigationMenu: string
   create: string
   convert: string
   palettes: string
@@ -29,6 +36,13 @@ export const commonMessages: Record<Locale, CommonMessages> = {
     skipToContent: 'Skip to content',
     homeLabel: 'colors-cc home',
     primaryNavigation: 'Primary navigation',
+    generate: 'Generate',
+    prepare: 'Prepare',
+    developers: 'Developers',
+    preferences: 'Preferences',
+    menu: 'Menu',
+    openNavigationMenu: 'Open navigation menu',
+    closeNavigationMenu: 'Close navigation menu',
     create: 'Create',
     convert: 'Convert',
     palettes: 'Palettes',
@@ -43,7 +57,7 @@ export const commonMessages: Record<Locale, CommonMessages> = {
     darkThemeLabel: 'Dark theme',
     systemThemeLabel: 'Follow system theme',
     footerNavigation: 'Footer navigation',
-    footerTagline: 'Edge-native color infrastructure for humans and AI agents.',
+    footerTagline: 'Generate, prepare, and ship visual assets for human and AI workflows.',
     colorTool: 'Color tool',
     agentSkill: 'Agent Skill',
     feedbackLabel: 'Feedback'
@@ -52,6 +66,13 @@ export const commonMessages: Record<Locale, CommonMessages> = {
     skipToContent: '跳至正文',
     homeLabel: 'colors-cc 首页',
     primaryNavigation: '主导航',
+    generate: '生成素材',
+    prepare: '处理素材',
+    developers: '开发者',
+    preferences: '偏好设置',
+    menu: '菜单',
+    openNavigationMenu: '打开导航菜单',
+    closeNavigationMenu: '关闭导航菜单',
     create: '创建',
     convert: '转换',
     palettes: '配色',
@@ -66,7 +87,7 @@ export const commonMessages: Record<Locale, CommonMessages> = {
     darkThemeLabel: '暗色主题',
     systemThemeLabel: '跟随系统主题',
     footerNavigation: '页脚导航',
-    footerTagline: '为用户和 AI 智能体提供运行于边缘节点的色彩基础服务。',
+    footerTagline: '为创作者、开发者和 AI 工作流生成、处理并交付视觉素材。',
     colorTool: '色彩工具',
     agentSkill: '智能体技能',
     feedbackLabel: '反馈'

@@ -7,7 +7,7 @@ import {
   type Locale,
   type SiteConfig
 } from '../site'
-import { renderNavUtilityControlItems } from './nav-controls'
+import { renderSiteFooter, renderSiteNav, siteNavScript } from './site-chrome'
 import { sharedStyles } from './styles'
 import { themeControlScript, themeInitScript } from './theme'
 
@@ -25,15 +25,6 @@ export const Layout: FC<LayoutProps> = (props) => {
   const messages = commonMessages[props.locale]
   const prefix = localePrefix(props.locale)
   const path = props.path || ''
-  const currentSection = path === '/tools/random-palette'
-    ? 'palettes'
-    : path === '/tools/color-names'
-      ? 'names'
-      : path === '/tools/image-compress'
-        ? 'images'
-        : path.startsWith('/tools/')
-          ? 'convert'
-          : 'create'
   const fullTitle = `${props.title} | colors-cc`
   const seo = createSeoMetadata(props.config, props.locale, path, fullTitle, props.desc)
   const structuredData = JSON.stringify(seo.structuredData).replace(/</g, '\\u003c')
@@ -86,49 +77,10 @@ export const Layout: FC<LayoutProps> = (props) => {
       <body>
         <a href="#main-content" class="skip-link">{messages.skipToContent}</a>
         <div class="app-shell">
-          <header class="site-nav">
-            <a href={prefix} class="brand" aria-label={messages.homeLabel}>
-              <span class="brand-mark" aria-hidden="true"></span>
-              <span>colors-cc</span>
-            </a>
-            <nav class="nav-links" aria-label={messages.primaryNavigation}>
-              <a
-                class="nav-link"
-                href={prefix}
-                aria-current={currentSection === 'create' ? 'page' : undefined}
-              >{messages.create}</a>
-              <a
-                class="nav-link"
-                href={`${prefix}/tools/converter`}
-                aria-current={currentSection === 'convert' ? 'page' : undefined}
-              >{messages.convert}</a>
-              <a
-                class="nav-link"
-                href={`${prefix}/tools/random-palette`}
-                aria-current={currentSection === 'palettes' ? 'page' : undefined}
-              >{messages.palettes}</a>
-              <a
-                class="nav-link"
-                href={`${prefix}/tools/color-names`}
-                aria-current={currentSection === 'names' ? 'page' : undefined}
-              >{messages.colorNames}</a>
-              <a
-                class="nav-link"
-                href={`${prefix}/tools/image-compress`}
-                aria-current={currentSection === 'images' ? 'page' : undefined}
-              >{messages.imageTools}</a>
-            </nav>
-            <div class="nav-actions">
-              <div
-                class="nav-utility-group"
-                dangerouslySetInnerHTML={{
-                  __html: renderNavUtilityControlItems(props.config, props.locale, path)
-                }}
-              />
-              <a class="button button-quiet button-small" href="/llms.txt">llms.txt</a>
-              <a class="button button-primary button-small" href={`${prefix}#for-ai`}>{messages.forAi}</a>
-            </div>
-          </header>
+          <div
+            class="site-chrome-slot"
+            dangerouslySetInnerHTML={{ __html: renderSiteNav(props.config, props.locale, path) }}
+          />
 
           <main id="main-content">
             <header class="page-heading">
@@ -144,27 +96,13 @@ export const Layout: FC<LayoutProps> = (props) => {
             {props.children}
           </main>
 
-          <footer class="site-footer">
-            <div class="site-footer-main">
-              <span>{messages.footerTagline}</span>
-              <nav class="footer-links" aria-label={messages.footerNavigation}>
-                <a href="https://github.com/douxc/colors-cc" target="_blank" rel="noopener">GitHub</a>
-                <a href="/llms.txt">llms.txt</a>
-                <a href="/openapi.json">OpenAPI</a>
-                <a href="/skills/colors-cc.md">{messages.agentSkill}</a>
-                {props.config.edition === 'global' && props.config.feedbackEmail && (
-                  <a href={`mailto:${props.config.feedbackEmail}`}>{messages.feedbackLabel}</a>
-                )}
-              </nav>
-            </div>
-            {props.config.edition === 'cn' && (
-              <div class="site-compliance">
-                <a href={props.config.icp.url} target="_blank" rel="noopener noreferrer">{props.config.icp.number}</a>
-              </div>
-            )}
-          </footer>
+          <div
+            class="site-chrome-slot"
+            dangerouslySetInnerHTML={{ __html: renderSiteFooter(props.config, props.locale) }}
+          />
         </div>
         <script dangerouslySetInnerHTML={{ __html: themeControlScript }} />
+        <script dangerouslySetInnerHTML={{ __html: siteNavScript }} />
       </body>
     </html>
   )
