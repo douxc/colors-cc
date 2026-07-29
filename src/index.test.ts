@@ -369,7 +369,7 @@ describe('colors-cc Frontend', () => {
         )
         for (const html of [converter, palette, names]) {
           expect(html).toContain('.page-heading {')
-          expect(html).toContain('padding: 48px 0 24px;')
+          expect(html).toContain('padding: 40px 0 24px;')
           expect(html).toContain('font-size: clamp(2rem, 4vw, 3.35rem);')
           expect(html).toContain('.panel-copy-feedback')
         }
@@ -1043,16 +1043,42 @@ describe('colors-cc Frontend', () => {
         expect(html, path).toContain('>Generate</a>')
         expect(html, path).toContain('>Prepare</a>')
         expect(html, path).toContain('>Developers</a>')
-        expect(html, path).toContain('--paper: #f3f0e9;')
-        expect(html, path).toContain('--ink: #1d2025;')
+        expect(html, path).toContain('--paper: #f7f6f2;')
+        expect(html, path).toContain('--ink: #1d1d1f;')
         expect(html, path).toContain('--accent-coral: #d45d4c;')
-        expect(html, path).toContain('--surface-canvas: #e7e3da;')
-        expect(html, path).toContain('--radius-panel: 16px;')
-        expect(html, path).toContain('--shadow-panel:')
+        expect(html, path).toContain('--surface-canvas: #eceae4;')
+        expect(html, path).toContain('--radius-panel: 12px;')
+        expect(html, path).toContain('--shadow-panel: 0 1px 2px rgba(29, 29, 31, 0.06);')
         expect(html, path).not.toContain('__SITE_NAV__')
         expect(html, path).not.toContain('__SITE_FOOTER__')
         expectValidInlineScripts(html)
       }
+    })
+
+    it('should render a quiet visual foundation without ambient effects or ornamental UI treatments', async () => {
+      const html = await (await app.request('/tools/converter')).text()
+
+      expect(html).toContain(
+        '--font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;'
+      )
+      expect(html).not.toMatch(/--font-sans:[^;]*\bInter\b/)
+      expect(html).toMatch(/body \{[^}]*background: var\(--bg\);/s)
+      expect(html).not.toContain('body::before')
+      expect(html).not.toContain('--page-glow-')
+      expect(html).not.toContain('--grid-line:')
+      expect(html).toContain('--primary-gradient: var(--primary-bg);')
+      expect(html).toContain('--primary-gradient-hover: var(--primary-hover-bg);')
+      expect(html).not.toMatch(/--primary-gradient(?:-hover)?:[^;]*linear-gradient/)
+      expect(html).toMatch(
+        /\.button-primary \{[^}]*background: var\(--primary-bg\);[^}]*color: var\(--primary-text\);[^}]*box-shadow: none;/s
+      )
+      expect(html).not.toMatch(/\.eyebrow \{[^}]*font-family: var\(--font-mono\);/s)
+      expect(html).not.toMatch(/\.eyebrow \{[^}]*text-transform: uppercase;/s)
+      expect(html).not.toMatch(/\.panel \{[^}]*backdrop-filter:/s)
+      expect(html).toMatch(/\.site-nav \{[^}]*min-height: 60px;/s)
+      expect(html).toMatch(
+        /@media \(max-width: 760px\)[\s\S]*\.nav-switch-option \{[^}]*width: 44px;[^}]*height: 44px;[^}]*min-height: 44px;/
+      )
     })
 
     it('should render a keyboard-operable compact menu with preferences inside it', async () => {
@@ -1068,7 +1094,7 @@ describe('colors-cc Frontend', () => {
       expect(html).toContain("window.matchMedia('(max-width: 760px)')")
       expect(html).toContain('menu.open = !isCompact')
       expect(html).toMatch(
-        /@media \(max-width: 760px\)[\s\S]*\.site-nav \{[^}]*min-height: 64px;[^}]*flex-wrap: nowrap;/
+        /@media \(max-width: 760px\)[\s\S]*\.site-nav \{[^}]*min-height: 56px;[^}]*flex-wrap: nowrap;/
       )
       expect(html).toMatch(
         /@media \(max-width: 760px\)[\s\S]*\.nav-menu-toggle \{[^}]*min-width: 44px;[^}]*min-height: 44px;/
@@ -1134,7 +1160,7 @@ describe('colors-cc Frontend', () => {
         '.nav-switch-option:hover { color: var(--text); background: var(--surface-soft); }'
       )
       expect(html).toMatch(
-        /\.nav-switch-option\[aria-current='page'\],[^}]*background: var\(--surface-strong\);[^}]*color: var\(--text\);[^}]*box-shadow: 0 2px 8px rgba\(48, 58, 78, \.12\);/s
+        /\.nav-switch-option\[aria-current='page'\],[^}]*background: var\(--surface-strong\);[^}]*color: var\(--text\);[^}]*box-shadow: none;/s
       )
       expect(html).toMatch(
         /\.nav-actions > \.button-quiet \{[^}]*border: 0;[^}]*background: transparent;[^}]*color: var\(--text-muted\);/s
@@ -1156,7 +1182,7 @@ describe('colors-cc Frontend', () => {
       expect(html).toContain('--shell-inline-padding: 18px;')
       expect(html).toContain('--shell-inline-padding: 14px;')
       expect(html).toContain('@media (max-width: 760px)')
-      expect(html).toMatch(/\.site-nav \{[^}]*min-height: 64px;[^}]*flex-wrap: nowrap;/)
+      expect(html).toMatch(/\.site-nav \{[^}]*min-height: 56px;[^}]*flex-wrap: nowrap;/)
       expect(html).toContain('.nav-menu[open] > .nav-menu-panel {')
       expect(html).not.toContain('.nav-links { display: none; }')
     })
