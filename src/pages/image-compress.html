@@ -444,6 +444,20 @@
         line-height: var(--leading-control);
       }
 
+      .stage-header__actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .stage-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
       .canvas-wrap {
         display: grid;
         place-items: center;
@@ -602,6 +616,11 @@
         .stage-header {
           align-items: flex-start;
           flex-direction: column;
+        }
+
+        .stage-header__actions {
+          justify-content: flex-start;
+          width: 100%;
         }
       }
 
@@ -777,11 +796,17 @@
 
       <section class="stage" aria-label="画布预览">
         <header class="stage-header">
-          <div>
+          <div class="stage-header__meta">
             <h2>Canvas 预览</h2>
             <div class="canvas-meta" id="canvasMeta">1024 x 768 px</div>
           </div>
-          <div class="canvas-meta" id="renderMeta">等待图片</div>
+          <div class="stage-header__actions">
+            <div class="canvas-meta" id="renderMeta">等待图片</div>
+            <div class="stage-actions" aria-label="操作">
+              <button class="primary" id="exportButtonTop" type="button" disabled>导出 JPEG</button>
+              <button class="danger" id="clearButtonTop" type="button" disabled>清空</button>
+            </div>
+          </div>
         </header>
         <div class="canvas-wrap">
           <div class="empty" id="emptyState">
@@ -865,6 +890,8 @@
         watermarkSize: document.querySelector("#watermarkSize"),
         exportButton: document.querySelector("#exportButton"),
         clearButton: document.querySelector("#clearButton"),
+        exportButtonTop: document.querySelector("#exportButtonTop"),
+        clearButtonTop: document.querySelector("#clearButtonTop"),
         canvasMeta: document.querySelector("#canvasMeta"),
         renderMeta: document.querySelector("#renderMeta"),
         modeButtons: document.querySelectorAll(".mode-btn"),
@@ -1251,6 +1278,21 @@
         return button;
       }
 
+      function setExportLabel(label) {
+        els.exportButton.textContent = label;
+        els.exportButtonTop.textContent = label;
+      }
+
+      function setExportDisabled(disabled) {
+        els.exportButton.disabled = disabled;
+        els.exportButtonTop.disabled = disabled;
+      }
+
+      function setClearDisabled(disabled) {
+        els.clearButton.disabled = disabled;
+        els.clearButtonTop.disabled = disabled;
+      }
+
       function setMode(mode) {
         state.mode = mode;
         state.previewIndex = 0;
@@ -1262,8 +1304,8 @@
         els.sizeSection.hidden = isCompress || isWatermark;
         els.fanSection.hidden = isCompress || isWatermark;
         els.watermarkSection.hidden = isCompress;
-        if (isWatermark) els.exportButton.textContent = "导出水印图片";
-        else els.exportButton.textContent = isCompress ? "自动压缩并导出" : "导出 JPEG";
+        if (isWatermark) setExportLabel("导出水印图片");
+        else setExportLabel(isCompress ? "自动压缩并导出" : "导出 JPEG");
         update();
       }
 
@@ -1354,7 +1396,7 @@
         let savedBytes = 0;
         let failedCount = 0;
         els.renderMeta.textContent = "压缩中…";
-        els.exportButton.disabled = true;
+        setExportDisabled(true);
 
         try {
           for (let i = 0; i < state.images.length; i++) {
@@ -1390,7 +1432,7 @@
           }
         } finally {
           hideCompressionPreview();
-          els.exportButton.disabled = false;
+          setExportDisabled(false);
         }
 
         const saved = savedBytes >= 1024 * 1024
@@ -1457,8 +1499,8 @@
           }
         }
 
-        els.exportButton.disabled = !hasImages;
-        els.clearButton.disabled = !hasImages;
+        setExportDisabled(!hasImages);
+        setClearDisabled(!hasImages);
         els.imageCount.textContent = `${state.images.length} 张`;
         els.opacityValue.textContent = `${clampNumber(els.opacityRange.value, 45, 0, 80)}%`;
         els.qualityValue.textContent = `${clampNumber(els.qualityRange.value, 80, 10, 100)}%`;
@@ -1571,6 +1613,8 @@
       els.fileInput.addEventListener("change", (event) => addFiles(event.target.files));
       els.exportButton.addEventListener("click", exportJpeg);
       els.clearButton.addEventListener("click", clearImages);
+      els.exportButtonTop.addEventListener("click", exportJpeg);
+      els.clearButtonTop.addEventListener("click", clearImages);
 
       els.modeButtons.forEach((btn) => {
         btn.addEventListener("click", () => setMode(btn.dataset.mode));

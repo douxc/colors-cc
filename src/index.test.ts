@@ -246,6 +246,26 @@ describe('colors-cc Frontend', () => {
       expect(en).toMatch(/els\.emptyState\.addEventListener\(\s*["']drop/)
     })
 
+    it('should mirror export/clear actions in the stage header', async () => {
+      const [enRes, zhRes] = await Promise.all([
+        app.request('/tools/image-compress'),
+        app.request('/zh/tools/image-compress')
+      ])
+      const [en, zh] = await Promise.all([enRes.text(), zhRes.text()])
+
+      // Top action buttons exist with unique ids alongside the sidebar ones.
+      expect(en).toContain('id="exportButtonTop"')
+      expect(en).toContain('id="clearButtonTop"')
+      expect(zh).toContain('id="exportButtonTop"')
+      expect(zh).toContain('id="clearButtonTop"')
+      // Default copy mirrors the sidebar buttons.
+      expect(zh).toContain('导出 JPEG')
+      expect(zh).toContain('清空')
+      // Top buttons reuse the same export/clear handlers as the sidebar.
+      expect(en).toMatch(/exportButtonTop\.addEventListener\(\s*["']click["'].*exportJpeg/)
+      expect(en).toMatch(/clearButtonTop\.addEventListener\(\s*["']click["'].*clearImages/)
+    })
+
     it('should serve the self-hosted PNG codec worker', async () => {
       const res = await app.request('/assets/image-compress-worker.js')
       expect(res.status).toBe(200)
