@@ -331,6 +331,15 @@ describe('colors-cc Frontend', () => {
         expect(html).toMatch(
           /\.mobile-panel-switch button \{[^}]*min-height: 44px;/
         )
+        expect(html).toMatch(
+          /@media \(max-width: 620px\)[\s\S]*main \.app button,[\s\S]*main \.app summary \{[^}]*min-height: 44px;/
+        )
+        expect(html).toMatch(
+          /@media \(max-width: 620px\)[\s\S]*\.check \{[^}]*min-height: 44px;/
+        )
+        expect(html).toContain(
+          'main .app input:not([type="file"]):not([type="checkbox"])'
+        )
         expect(html).toContain('padding-bottom: calc(12px + env(safe-area-inset-bottom))')
       })
 
