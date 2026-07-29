@@ -144,17 +144,46 @@ describe('colors-cc Frontend', () => {
       ])
       const [icon, manifest] = await Promise.all([
         iconResponse.text(),
-        manifestResponse.json() as Promise<{ name: string; start_url: string; icons: unknown[] }>
+        manifestResponse.json() as Promise<{
+          name: string
+          start_url: string
+          icons: Array<{ src: string; sizes: string; type: string; purpose: string }>
+        }>
       ])
 
       expect(iconResponse.status).toBe(200)
       expect(iconResponse.headers.get('Content-Type')).toContain('image/svg+xml')
       expect(icon).toContain('<svg')
+      expect(icon).toContain('data-brand-mark="canvas-pair"')
+      expect(icon).toMatch(
+        /<rect data-layer="generate" class="generate" x="5" y="9" width="36" height="36" rx="9"/
+      )
+      expect(icon).toMatch(
+        /<rect data-layer="prepare" class="prepare" x="24" y="20" width="32" height="32" rx="7"/
+      )
+      expect(icon).toContain('<path data-extension="right" class="extension" d="M52 30h10"')
+      expect(icon).toContain('<path data-extension="bottom" class="extension" d="M46 46v12"')
+      expect(icon).toContain('.generate { fill: #087f8c; }')
+      expect(icon).toContain('.prepare { fill: #fffefa; stroke: #1d1d1f; }')
+      expect(icon).toContain('.extension { stroke: #1d1d1f; }')
+      expect(icon).toContain('@media (prefers-color-scheme: dark)')
+      expect(icon).toContain('.generate { fill: #62d5df; }')
+      expect(icon).toContain('.prepare { fill: #101011; stroke: #f5f5f7; }')
+      expect(icon).toContain('.extension { stroke: #f5f5f7; }')
+      expect(icon).not.toContain('<linearGradient')
+      expect(icon).not.toContain('<circle')
       expect(manifestResponse.status).toBe(200)
       expect(manifestResponse.headers.get('Content-Type')).toContain('application/manifest+json')
       expect(manifest.name).toBe('colors-cc')
       expect(manifest.start_url).toBe('/en')
-      expect(manifest.icons).toHaveLength(1)
+      expect(manifest.icons).toEqual([
+        {
+          src: '/favicon.svg',
+          sizes: 'any',
+          type: 'image/svg+xml',
+          purpose: 'any maskable'
+        }
+      ])
     })
   })
 
