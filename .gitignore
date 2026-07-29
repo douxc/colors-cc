@@ -8,5 +8,9 @@ node_modules
 scripts/gsc-key.json
 .wrangler
 .agent/
+.agents/
 skills/
 /.tmp/
+.claude/
+.pnpm-store/
+.understand-anything/
