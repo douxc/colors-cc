@@ -57,7 +57,7 @@ app.get('/random-palette', (c) => {
           <div class="inspector-section">
             <span class="section-label">API request</span>
             <pre class="code-surface" id="palette-endpoint"></pre>
-            <button class="button button-small button-block" id="copy-endpoint" type="button" style="margin-top:9px">Copy request URL</button>
+            <button class="button button-small button-block panel-copy-feedback" id="copy-endpoint" type="button" style="margin-top:9px">Copy request URL</button>
           </div>
         </div>
       </section>
@@ -186,7 +186,7 @@ app.get('/color-names', (c) => {
         colors.forEach(([name, hex]) => {
           const card = document.createElement('button')
           card.type = 'button'
-          card.className = 'color-card'
+          card.className = 'color-card panel-copy-feedback'
           card.setAttribute('aria-label', 'Copy ' + name + ' ' + hex)
           card.innerHTML = '<span class="color-card-swatch" style="display:block;background:' + hex + '"></span><span class="color-card-meta"><span class="color-card-name">' + name + '</span><span class="color-card-code">' + hex + '</span></span>'
           card.addEventListener('click', () => {
@@ -412,7 +412,45 @@ app.get(
   ).join('')
 
   const content = localizeToolHtml(`
-    <div class="tool-layout">
+    <div class="tool-layout converter-layout">
+      <section class="panel" aria-labelledby="converter-inputs-title">
+        <header class="panel-header">
+          <div>
+            <h2 id="converter-inputs-title">Synchronized values</h2>
+            <p>Edit any field. Copy the representation you need.</p>
+          </div>
+          <span class="signal-pill">4 FORMATS</span>
+        </header>
+        <div class="panel-body">
+          <div class="result-grid">
+            <div class="field result-field">
+              <label for="hex-input">HEX</label>
+              <input class="input input-mono" id="hex-input" value="#7C3AED" placeholder="#FFFFFF" autocomplete="off">
+              <button class="button button-small panel-copy-feedback" type="button" data-copy="hex-input">Copy</button>
+            </div>
+            <div class="field result-field">
+              <label for="rgb-input">RGB</label>
+              <input class="input input-mono" id="rgb-input" placeholder="rgb(255, 255, 255)" autocomplete="off">
+              <button class="button button-small panel-copy-feedback" type="button" data-copy="rgb-input">Copy</button>
+            </div>
+            <div class="field result-field">
+              <label for="hsl-input">HSL</label>
+              <input class="input input-mono" id="hsl-input" placeholder="hsl(0, 0%, 100%)" autocomplete="off">
+              <button class="button button-small panel-copy-feedback" type="button" data-copy="hsl-input">Copy</button>
+            </div>
+            <div class="field result-field">
+              <label for="cmyk-input">CMYK</label>
+              <input class="input input-mono" id="cmyk-input" placeholder="cmyk(0%, 0%, 0%, 0%)" autocomplete="off">
+              <button class="button button-small panel-copy-feedback" type="button" data-copy="cmyk-input">Copy</button>
+            </div>
+          </div>
+          <div class="inspector-section">
+            <span class="section-label">More conversions</span>
+            <nav class="tool-links" aria-label="Color conversion pages">${conversionLinks}</nav>
+          </div>
+        </div>
+      </section>
+
       <section class="panel tool-sticky" aria-labelledby="converter-preview-title">
         <header class="panel-header">
           <div>
@@ -428,44 +466,6 @@ app.get(
           <div class="inspector-section">
             <span class="section-label">API pattern</span>
             <pre class="code-surface">GET ${apiBaseUrl}/convert?hex=%237C3AED</pre>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel" aria-labelledby="converter-inputs-title">
-        <header class="panel-header">
-          <div>
-            <h2 id="converter-inputs-title">Synchronized values</h2>
-            <p>Edit any field. Copy the representation you need.</p>
-          </div>
-          <span class="signal-pill">4 FORMATS</span>
-        </header>
-        <div class="panel-body">
-          <div class="result-grid">
-            <div class="field result-field">
-              <label for="hex-input">HEX</label>
-              <input class="input input-mono" id="hex-input" value="#7C3AED" placeholder="#FFFFFF" autocomplete="off">
-              <button class="button button-small" type="button" data-copy="hex-input">Copy</button>
-            </div>
-            <div class="field result-field">
-              <label for="rgb-input">RGB</label>
-              <input class="input input-mono" id="rgb-input" placeholder="rgb(255, 255, 255)" autocomplete="off">
-              <button class="button button-small" type="button" data-copy="rgb-input">Copy</button>
-            </div>
-            <div class="field result-field">
-              <label for="hsl-input">HSL</label>
-              <input class="input input-mono" id="hsl-input" placeholder="hsl(0, 0%, 100%)" autocomplete="off">
-              <button class="button button-small" type="button" data-copy="hsl-input">Copy</button>
-            </div>
-            <div class="field result-field">
-              <label for="cmyk-input">CMYK</label>
-              <input class="input input-mono" id="cmyk-input" placeholder="cmyk(0%, 0%, 0%, 0%)" autocomplete="off">
-              <button class="button button-small" type="button" data-copy="cmyk-input">Copy</button>
-            </div>
-          </div>
-          <div class="inspector-section">
-            <span class="section-label">More conversions</span>
-            <nav class="tool-links" aria-label="Color conversion pages">${conversionLinks}</nav>
           </div>
         </div>
       </section>

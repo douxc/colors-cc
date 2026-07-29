@@ -35,6 +35,7 @@
 
       .tool-heading {
         max-width: none;
+        padding: 32px 0 20px;
       }
 
       .tool-heading-copy {
@@ -42,14 +43,18 @@
       }
 
       .tool-heading h1 {
-        font-size: clamp(2.7rem, 5vw, 4.2rem);
+        font-size: clamp(2rem, 4vw, 3.35rem);
+      }
+
+      .tool-heading-copy > p:not(.eyebrow) {
+        margin-top: 10px;
       }
 
       .privacy-note {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        margin-top: 22px;
+        margin-top: 12px;
         padding: 8px 11px;
         border: 1px solid rgba(94, 230, 168, 0.22);
         border-radius: 999px;
@@ -73,7 +78,7 @@
 
       .about-tool {
         max-width: 1040px;
-        margin: 0 0 24px;
+        margin: 0 0 72px;
         padding: 18px 22px;
         border: 1px solid var(--line);
         border-radius: var(--radius);
@@ -134,6 +139,11 @@
         gap: 18px;
         align-items: start;
         padding-bottom: 72px;
+      }
+
+      .mobile-panel-switch,
+      .mobile-export-bar {
+        display: none;
       }
 
       .sidebar,
@@ -661,11 +671,23 @@
 
       @media (max-width: 620px) {
         .tool-heading {
-          padding-bottom: 24px;
+          padding: 18px 0 16px;
         }
 
         .tool-heading h1 {
-          font-size: clamp(2.35rem, 12vw, 3.3rem);
+          font-size: clamp(1.85rem, 9vw, 2.5rem);
+        }
+
+        .tool-heading .breadcrumb {
+          margin-bottom: 8px;
+        }
+
+        .tool-heading .eyebrow {
+          margin-bottom: 8px;
+        }
+
+        .privacy-note {
+          padding: 6px 9px;
         }
 
         .tool-header,
@@ -678,8 +700,72 @@
           grid-template-columns: 1fr;
         }
 
+        .mobile-panel-switch {
+          position: sticky;
+          top: 64px;
+          z-index: 25;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 4px;
+          margin-bottom: 10px;
+          padding: 4px;
+          border: 1px solid var(--line);
+          border-radius: var(--radius-md);
+          background: var(--paper-elevated);
+          box-shadow: var(--shadow);
+        }
+
+        .mobile-panel-switch button {
+          min-height: 44px;
+          border-color: transparent;
+          background: transparent;
+        }
+
+        .mobile-panel-switch button[aria-pressed="true"] {
+          border-color: var(--line-strong);
+          background: var(--surface-strong);
+          box-shadow: 0 4px 12px rgba(29, 32, 37, 0.08);
+        }
+
+        .app {
+          display: block;
+          padding-bottom: 96px;
+        }
+
+        .app[data-mobile-panel="settings"] .stage,
+        .app[data-mobile-panel="preview"] .sidebar {
+          display: none;
+        }
+
+        .sidebar {
+          width: 100%;
+        }
+
+        .stage {
+          min-height: calc(100svh - 150px);
+        }
+
         .canvas-wrap {
           padding: 14px;
+        }
+
+        .mobile-export-bar {
+          position: fixed;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          z-index: 35;
+          display: block;
+          padding: 10px 14px;
+          padding-bottom: calc(12px + env(safe-area-inset-bottom));
+          border-top: 1px solid var(--line);
+          background: var(--nav-bg);
+          backdrop-filter: blur(12px);
+        }
+
+        .mobile-export-bar button {
+          width: 100%;
+          min-height: 48px;
         }
       }
     </style>
@@ -704,18 +790,13 @@
           </div>
         </header>
 
-        <section class="about-tool" aria-labelledby="aboutToolTitle">
-          <h2 id="aboutToolTitle">关于这个图片压缩工具</h2>
-          <p class="about-tool-lede">这是 colors-cc 上使用最多的工具。所有压缩、加水印与排版都在你的浏览器本地完成，图片不会上传，适合处理网页素材、确认图与隐私图片。</p>
-          <ul class="about-tool-points">
-            <li><strong>智能压缩</strong>：PNG 使用 PNG-8 量化加 OxiPNG 无损优化，JPEG 按自适应质量导出，只保留比原图更小的结果。</li>
-            <li><strong>水印与排版</strong>：把多张图片排布到同一画布生成确认图，或逐张加上文字水印后批量导出。</li>
-            <li><strong>全程本地</strong>：解码、压缩、编码都在浏览器中完成，文件不会离开你的设备。</li>
-          </ul>
-        </section>
+        <div class="mobile-panel-switch" role="group" aria-label="移动工作台视图">
+          <button id="mobileSettingsTab" type="button" aria-controls="imageSettings" aria-pressed="true">设置</button>
+          <button id="mobilePreviewTab" type="button" aria-controls="imagePreview" aria-pressed="false">预览</button>
+        </div>
 
-        <div class="app">
-          <aside class="sidebar" aria-label="图片处理设置">
+        <div class="app" data-mobile-panel="settings">
+          <aside class="sidebar" id="imageSettings" aria-label="图片处理设置">
             <header class="tool-header">
               <div class="tool-title">
                 <span class="tool-kicker">Controls</span>
@@ -735,14 +816,14 @@
 
           <section class="section" aria-labelledby="modeTitle">
             <div class="section-title" id="modeTitle">模式</div>
-            <div class="mode-toggle" role="tablist">
-              <button type="button" class="mode-btn active" data-mode="fan">一张图</button>
-              <button type="button" class="mode-btn" data-mode="watermark">逐张水印</button>
-              <button type="button" class="mode-btn" data-mode="compress">仅压缩</button>
+            <div class="mode-toggle" role="group" aria-label="图片处理模式">
+              <button type="button" class="mode-btn active" data-mode="compress" aria-pressed="true">仅压缩</button>
+              <button type="button" class="mode-btn" data-mode="watermark" aria-pressed="false">逐张水印</button>
+              <button type="button" class="mode-btn" data-mode="fan" aria-pressed="false">一张图</button>
             </div>
           </section>
 
-          <section class="section" aria-labelledby="sizeTitle" id="sizeSection">
+          <section class="section" aria-labelledby="sizeTitle" id="sizeSection" hidden>
             <div class="section-title" id="sizeTitle">尺寸</div>
             <div class="field-grid">
               <div class="field">
@@ -760,7 +841,7 @@
             </label>
           </section>
 
-          <section class="section" aria-labelledby="blendTitle" id="fanSection">
+          <section class="section" aria-labelledby="blendTitle" id="fanSection" hidden>
             <div class="section-title" id="blendTitle">
               <span>扇形排布</span>
               <span id="opacityValue">45%</span>
@@ -771,7 +852,7 @@
             </div>
           </section>
 
-          <section class="section" aria-labelledby="watermarkTitle" id="watermarkSection">
+          <section class="section" aria-labelledby="watermarkTitle" id="watermarkSection" hidden>
             <div class="section-title" id="watermarkTitle">
               <span>水印</span>
               <span id="watermarkOpacityValue">60%</span>
@@ -810,7 +891,7 @@
           <section class="section" aria-labelledby="actionsTitle">
             <div class="section-title" id="actionsTitle">操作</div>
             <div class="toolbar">
-              <button class="primary" id="exportButton" type="button" disabled>导出 JPEG</button>
+              <button class="primary" id="exportButton" type="button" disabled>自动压缩并导出</button>
               <button class="danger" id="clearButton" type="button" disabled>清空</button>
             </div>
           </section>
@@ -822,7 +903,7 @@
         </div>
       </aside>
 
-      <section class="stage" aria-label="画布预览">
+      <section class="stage" id="imagePreview" aria-label="画布预览">
         <header class="stage-header">
           <div class="stage-header__meta">
             <h2>Canvas 预览</h2>
@@ -831,7 +912,7 @@
           <div class="stage-header__actions">
             <div class="canvas-meta" id="renderMeta">等待图片</div>
             <div class="stage-actions" aria-label="操作">
-              <button class="primary" id="exportButtonTop" type="button" disabled>导出 JPEG</button>
+              <button class="primary" id="exportButtonTop" type="button" disabled>自动压缩并导出</button>
               <button class="danger" id="clearButtonTop" type="button" disabled>清空</button>
             </div>
           </div>
@@ -863,6 +944,20 @@
         </div>
           </section>
         </div>
+
+        <div class="mobile-export-bar">
+          <button class="primary" id="mobileExportButton" type="button" disabled>自动压缩并导出</button>
+        </div>
+
+        <section class="about-tool" aria-labelledby="aboutToolTitle">
+          <h2 id="aboutToolTitle">关于这个图片压缩工具</h2>
+          <p class="about-tool-lede">这是 colors-cc 上使用最多的工具。所有压缩、加水印与排版都在你的浏览器本地完成，图片不会上传，适合处理网页素材、确认图与隐私图片。</p>
+          <ul class="about-tool-points">
+            <li><strong>智能压缩</strong>：PNG 使用 PNG-8 量化加 OxiPNG 无损优化，JPEG 按自适应质量导出，只保留比原图更小的结果。</li>
+            <li><strong>水印与排版</strong>：把多张图片排布到同一画布生成确认图，或逐张加上文字水印后批量导出。</li>
+            <li><strong>全程本地</strong>：解码、压缩、编码都在浏览器中完成，文件不会离开你的设备。</li>
+          </ul>
+        </section>
       </main>
 
       __SITE_FOOTER__
@@ -870,11 +965,15 @@
 
     <script>__THEME_CONTROL_SCRIPT__</script>
     <script>
+      const allowedModes = new Set(["compress", "watermark", "fan"]);
+      const requestedMode = new URLSearchParams(window.location.search).get("mode");
+      const initialMode = allowedModes.has(requestedMode) ? requestedMode : "compress";
+
       const state = {
         images: [],
         aspectRatio: 1024 / 768,
         objectUrls: [],
-        mode: "fan",
+        mode: initialMode,
         previewIndex: 0,
         pngCodecWorker: null,
         pngCodecRequestId: 0,
@@ -903,6 +1002,10 @@
         clearButton: document.querySelector("#clearButton"),
         exportButtonTop: document.querySelector("#exportButtonTop"),
         clearButtonTop: document.querySelector("#clearButtonTop"),
+        mobileExportButton: document.querySelector("#mobileExportButton"),
+        mobileSettingsTab: document.querySelector("#mobileSettingsTab"),
+        mobilePreviewTab: document.querySelector("#mobilePreviewTab"),
+        app: document.querySelector(".app"),
         canvasMeta: document.querySelector("#canvasMeta"),
         renderMeta: document.querySelector("#renderMeta"),
         modeButtons: document.querySelectorAll(".mode-btn"),
@@ -985,6 +1088,7 @@
 
         els.fileInput.value = "";
         update();
+        setMobilePanel("preview");
       }
 
       function drawImageCover(image, x, y, width, height) {
@@ -1292,11 +1396,13 @@
       function setExportLabel(label) {
         els.exportButton.textContent = label;
         els.exportButtonTop.textContent = label;
+        els.mobileExportButton.textContent = label;
       }
 
       function setExportDisabled(disabled) {
         els.exportButton.disabled = disabled;
         els.exportButtonTop.disabled = disabled;
+        els.mobileExportButton.disabled = disabled;
       }
 
       function setClearDisabled(disabled) {
@@ -1305,19 +1411,30 @@
       }
 
       function setMode(mode) {
-        state.mode = mode;
+        const nextMode = allowedModes.has(mode) ? mode : "compress";
+        state.mode = nextMode;
         state.previewIndex = 0;
         els.modeButtons.forEach((btn) => {
-          btn.classList.toggle("active", btn.dataset.mode === mode);
+          const isActive = btn.dataset.mode === nextMode;
+          btn.classList.toggle("active", isActive);
+          btn.setAttribute("aria-pressed", String(isActive));
         });
-        const isCompress = mode === "compress";
-        const isWatermark = mode === "watermark";
+        const isCompress = nextMode === "compress";
+        const isWatermark = nextMode === "watermark";
         els.sizeSection.hidden = isCompress || isWatermark;
         els.fanSection.hidden = isCompress || isWatermark;
         els.watermarkSection.hidden = isCompress;
         if (isWatermark) setExportLabel("导出水印图片");
         else setExportLabel(isCompress ? "自动压缩并导出" : "导出 JPEG");
         update();
+      }
+
+      function setMobilePanel(panel) {
+        const nextPanel = panel === "preview" ? "preview" : "settings";
+        const showSettings = nextPanel === "settings";
+        els.app.dataset.mobilePanel = nextPanel;
+        els.mobileSettingsTab.setAttribute("aria-pressed", String(showSettings));
+        els.mobilePreviewTab.setAttribute("aria-pressed", String(!showSettings));
       }
 
       function compressImageToBlob(image, quality) {
@@ -1626,6 +1743,9 @@
       els.clearButton.addEventListener("click", clearImages);
       els.exportButtonTop.addEventListener("click", exportJpeg);
       els.clearButtonTop.addEventListener("click", clearImages);
+      els.mobileExportButton.addEventListener("click", exportJpeg);
+      els.mobileSettingsTab.addEventListener("click", () => setMobilePanel("settings"));
+      els.mobilePreviewTab.addEventListener("click", () => setMobilePanel("preview"));
 
       els.modeButtons.forEach((btn) => {
         btn.addEventListener("click", () => setMode(btn.dataset.mode));
@@ -1700,7 +1820,7 @@
         if (state.pngCodecWorker) state.pngCodecWorker.terminate();
       });
 
-      update();
+      setMode(initialMode);
     </script>
   </body>
 </html>

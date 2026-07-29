@@ -266,6 +266,107 @@ describe('colors-cc Frontend', () => {
       expect(en).toMatch(/clearButtonTop\.addEventListener\(\s*["']click["'].*clearImages/)
     })
 
+    describe('task-first tool workflows', () => {
+      it('should default image processing to compression and accept only supported deep-link modes', async () => {
+        const responses = await Promise.all([
+          app.request('/tools/image-compress'),
+          app.request('/tools/image-compress?mode=compress'),
+          app.request('/tools/image-compress?mode=watermark'),
+          app.request('/tools/image-compress?mode=fan'),
+          app.request('/tools/image-compress?mode=unknown')
+        ])
+        const pages = await Promise.all(responses.map(response => response.text()))
+
+        responses.forEach(response => expect(response.status).toBe(200))
+        pages.forEach((html) => {
+          expect(html).toContain('const allowedModes = new Set(["compress", "watermark", "fan"])')
+          expect(html).toContain(
+            'const requestedMode = new URLSearchParams(window.location.search).get("mode")'
+          )
+          expect(html).toContain(
+            'const initialMode = allowedModes.has(requestedMode) ? requestedMode : "compress"'
+          )
+          expect(html).toContain('mode: initialMode')
+          expect(html).toContain('setMode(initialMode)')
+        })
+
+        const html = pages[0]
+        expect(html).toContain(
+          'class="mode-btn active" data-mode="compress" aria-pressed="true"'
+        )
+        expect(html).toContain('data-mode="watermark" aria-pressed="false"')
+        expect(html).toContain('data-mode="fan" aria-pressed="false"')
+        expect(html).toContain('id="sizeSection" hidden')
+        expect(html).toContain('id="fanSection" hidden')
+        expect(html).toContain('id="watermarkSection" hidden')
+        expect(html).toContain('id="exportButton" type="button" disabled>Compress and export automatically')
+        expect(html).toContain('btn.setAttribute("aria-pressed", String(isActive))')
+      })
+
+      it('should prioritize upload and expose a one-tap mobile settings/preview workflow', async () => {
+        const html = await (await app.request('/tools/image-compress')).text()
+        const appIndex = html.indexOf('class="app"')
+        const aboutIndex = html.indexOf('class="about-tool"')
+
+        expect(appIndex).toBeGreaterThan(-1)
+        expect(aboutIndex).toBeGreaterThan(appIndex)
+        expect(html).toContain('class="mobile-panel-switch"')
+        expect(html).toContain(
+          'id="mobileSettingsTab" type="button" aria-controls="imageSettings" aria-pressed="true"'
+        )
+        expect(html).toContain(
+          'id="mobilePreviewTab" type="button" aria-controls="imagePreview" aria-pressed="false"'
+        )
+        expect(html).toContain('id="imageSettings"')
+        expect(html).toContain('id="imagePreview"')
+        expect(html).toContain('function setMobilePanel(panel)')
+        expect(html).toMatch(/async function addFiles[\s\S]*setMobilePanel\("preview"\)/)
+        expect(html).toContain('class="mobile-export-bar"')
+        expect(html).toContain('id="mobileExportButton"')
+        expect(html).toContain('els.mobileExportButton.textContent = label')
+        expect(html).toContain('els.mobileExportButton.disabled = disabled')
+        expect(html).toMatch(
+          /mobileExportButton\.addEventListener\(\s*["']click["']\s*,\s*exportJpeg/
+        )
+        expect(html).toMatch(
+          /\.mobile-panel-switch button \{[^}]*min-height: 44px;/
+        )
+        expect(html).toContain('padding-bottom: calc(12px + env(safe-area-inset-bottom))')
+      })
+
+      it('should render converter input before preview and share compact task styling', async () => {
+        const [converterResponse, paletteResponse, namesResponse] = await Promise.all([
+          app.request('/tools/converter'),
+          app.request('/tools/random-palette'),
+          app.request('/tools/color-names')
+        ])
+        const [converter, palette, names] = await Promise.all([
+          converterResponse.text(),
+          paletteResponse.text(),
+          namesResponse.text()
+        ])
+        const inputsIndex = converter.indexOf('id="converter-inputs-title"')
+        const previewIndex = converter.indexOf('id="converter-preview-title"')
+
+        expect(inputsIndex).toBeGreaterThan(-1)
+        expect(previewIndex).toBeGreaterThan(inputsIndex)
+        expect(converter).toContain('class="tool-layout converter-layout"')
+        expect(converter).toContain('.converter-layout {')
+        expect(converter).toMatch(
+          /\.converter-layout \{[^}]*grid-template-columns: minmax\(0, 1\.35fr\) minmax\(280px, \.75fr\);/
+        )
+        expect(converter).toMatch(
+          /@media \(max-width: 1100px\)[\s\S]*\.converter-layout \{[^}]*grid-template-columns: 1fr;/
+        )
+        for (const html of [converter, palette, names]) {
+          expect(html).toContain('.page-heading {')
+          expect(html).toContain('padding: 48px 0 24px;')
+          expect(html).toContain('font-size: clamp(2rem, 4vw, 3.35rem);')
+          expect(html).toContain('.panel-copy-feedback')
+        }
+      })
+    })
+
     it('should serve the self-hosted PNG codec worker', async () => {
       const res = await app.request('/assets/image-compress-worker.js')
       expect(res.status).toBe(200)
