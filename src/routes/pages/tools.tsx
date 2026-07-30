@@ -144,7 +144,7 @@ app.get('/random-palette', (c) => {
       config={config}
       locale={locale}
       title={localizeToolHtml('Curated palette generator', locale)}
-      desc={localizeToolHtml('Generate theme-driven color systems, inspect them visually, and copy the exact API request or individual HEX values.', locale)}
+      desc={localizeToolHtml('Generate a complete, curated palette for your chosen theme, inspect every color, and copy exact HEX values or the API request.', locale)}
       path="/tools/random-palette"
       eyebrow={localizeToolHtml('Explore · Palette', locale)}
     >
@@ -228,7 +228,7 @@ app.get('/color-names', (c) => {
       config={config}
       locale={locale}
       title={localizeToolHtml('CSS color atlas', locale)}
-      desc={localizeToolHtml('Search the complete CSS named-color directory and copy precise, machine-readable HEX values.', locale)}
+      desc={localizeToolHtml('Search the complete CSS named-color directory and copy precise, standards-based HEX values.', locale)}
       path="/tools/color-names"
       eyebrow={localizeToolHtml('Reference · Color names', locale)}
     >
@@ -249,7 +249,7 @@ app.get('/fluid-placeholder', (c) => {
         <header class="panel-header">
           <div>
             <h2 id="fluid-controls-title">Animation controls</h2>
-            <p>Compose a fluid SVG with a deterministic URL.</p>
+            <p>Fine-tune a fluid SVG and get a reproducible URL.</p>
           </div>
         </header>
         <div class="panel-body">
@@ -277,7 +277,7 @@ app.get('/fluid-placeholder', (c) => {
         <header class="panel-header">
           <div>
             <h2 id="fluid-preview-title">Live animated SVG</h2>
-            <p>Lightweight, infinitely looping, and ready to embed.</p>
+            <p>Lightweight, smoothly animated, and ready to embed.</p>
           </div>
           <span class="signal-pill">SVG / EDGE</span>
         </header>
@@ -363,7 +363,7 @@ app.get('/fluid-placeholder', (c) => {
       config={config}
       locale={locale}
       title={localizeToolHtml('Fluid SVG studio', locale)}
-      desc={localizeToolHtml('Create smooth, animated gradient placeholders with exact palette, timing, text, and an embeddable API URL.', locale)}
+      desc={localizeToolHtml('Create lightweight SVG placeholders with smooth, looping animation, precise control over palette, timing, and text, and a reproducible API URL.', locale)}
       path="/tools/fluid-placeholder"
       eyebrow={localizeToolHtml('Create · Motion', locale)}
     >
@@ -383,7 +383,7 @@ app.get(
   (c) => {
   const conversion = c.req.param('conversion')
   let title = localizeToolHtml('Universal color converter', locale)
-  let desc = localizeToolHtml('Convert between HEX, RGB, HSL, and CMYK while keeping every representation synchronized.', locale)
+  let desc = localizeToolHtml('Convert instantly between HEX, RGB, HSL, and CMYK with precise, synchronized values.', locale)
 
   if (conversion.includes('-to-')) {
     const parts = conversion.split('-to-')
@@ -399,8 +399,8 @@ app.get(
     const to = parts[1].toUpperCase()
     title = locale === 'zh' ? `${from} 转 ${to} 转换器` : `${from} to ${to} converter`
     desc = locale === 'zh'
-      ? `可立即将 ${from} 转换为 ${to}，并同步显示其他颜色格式。`
-      : `Translate ${from} into ${to} instantly, with every other color representation kept in sync.`
+      ? `可立即将 ${from} 转换为 ${to}，并精确同步所有颜色格式。`
+      : `Convert ${from} to ${to} instantly, with precise values synchronized across every format.`
   } else if (conversion !== 'converter') {
     return c.notFound()
   }

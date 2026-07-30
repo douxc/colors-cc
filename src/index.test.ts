@@ -195,6 +195,7 @@ describe('colors-cc Frontend', () => {
       
       const html = await res.text()
       expect(html).toContain('Universal color converter')
+      expect(html).toContain('Convert instantly between HEX, RGB, HSL, and CMYK with precise, synchronized values.')
       expect(html).toContain('Synchronized values')
       expect(html).toContain('<link rel="canonical"')
       expect(html).toContain('og:title')
@@ -206,6 +207,7 @@ describe('colors-cc Frontend', () => {
       
       const html = await res.text()
       expect(html).toContain('Curated palette generator')
+      expect(html).toContain('Generate a complete, curated palette for your chosen theme')
       expect(html).toContain('palette-display')
       expect(html).toContain('role="status"')
     })
@@ -216,6 +218,7 @@ describe('colors-cc Frontend', () => {
       
       const html = await res.text()
       expect(html).toContain('CSS color atlas')
+      expect(html).toContain('Search the complete CSS named-color directory')
       expect(html).toContain('type="search"')
     })
 
@@ -225,6 +228,7 @@ describe('colors-cc Frontend', () => {
       
       const html = await res.text()
       expect(html).toContain('Fluid SVG studio')
+      expect(html).toContain('Create lightweight SVG placeholders with smooth, looping animation')
       expect(html).toContain('palette=')
       expect(html).not.toContain('stops=')
     })
@@ -235,7 +239,11 @@ describe('colors-cc Frontend', () => {
       expect(res.headers.get('Content-Type')).toContain('text/html')
 
       const html = await res.text()
-      expect(html).toContain('Image compression, layout, and watermarking')
+      expect(html).toContain('Image compression, watermarking, and layout')
+      expect(html).toContain('PNG/JPEG, Watermark &amp; Layout')
+      expect(html).toContain('Browser-local processing · Files are never uploaded')
+      expect(html).toContain('smart compression keeps only results smaller than the original')
+      expect(html).not.toContain('most-used')
       expect(html).toContain('data-mode="fan"')
       expect(html).toContain('data-mode="watermark"')
       expect(html).toContain('data-mode="compress"')
@@ -493,7 +501,7 @@ describe('colors-cc Frontend', () => {
       expect(showcaseIndex).toBeGreaterThan(heroIndex)
       expect(workbenchIndex).toBeGreaterThan(showcaseIndex)
       expect(aiIndex).toBeGreaterThan(workbenchIndex)
-      expect(hero).toContain('Generate and prepare visual assets.')
+      expect(hero).toContain('Create, prepare, and deliver visual assets.')
       expect(hero).toContain('data-brand-path="generate"')
       expect(hero).toContain('data-brand-path="prepare"')
       expect(hero).toContain('href="#create"')
@@ -624,16 +632,16 @@ describe('colors-cc Frontend', () => {
         expect(workflowNavigation, route.path).toContain(`href="${route.prefix}/tools/image-compress?mode=fan"`)
 
         if (route.locale === 'zh') {
-          expect(html).toContain('生成与处理视觉素材。')
-          expect(html).toContain('生成占位图与色彩系统，或在本地处理真实图片')
+          expect(html).toContain('生成、处理并交付视觉素材。')
+          expect(html).toContain('生成可复现的占位图与精选配色')
           expect(workflowNavigation).toContain('占位图')
           expect(workflowNavigation).toContain('转换器')
           expect(workflowNavigation).toContain('配色')
           expect(workflowNavigation).toContain('颜色名称')
           expect(workflowNavigation).toContain('添加水印')
         } else {
-          expect(html).toContain('Generate and prepare visual assets.')
-          expect(html).toContain('Create placeholders and color systems, or prepare real images locally')
+          expect(html).toContain('Create, prepare, and deliver visual assets.')
+          expect(html).toContain('Create reproducible placeholders and curated palettes')
           expect(workflowNavigation).toContain('Placeholder')
           expect(workflowNavigation).toContain('Converter')
           expect(workflowNavigation).toContain('Palette')
@@ -671,14 +679,16 @@ describe('colors-cc Frontend', () => {
 
       expect(englishResponse.status).toBe(200)
       expect(english).toContain('<html lang="en">')
-      expect(english).toContain('Generate and prepare visual assets.')
+      expect(english).toContain('Create, prepare, and deliver visual assets.')
+      expect(english).toContain('Give every agent precise, reliable context.')
       expect(english).toContain('href="/zh"')
       expect(english).toContain('aria-label="Simplified Chinese"')
       expect(english).toContain('https://colors-cc.top/en')
 
       expect(chineseResponse.status).toBe(200)
       expect(chinese).toContain('<html lang="zh-CN">')
-      expect(chinese).toContain('生成与处理视觉素材。')
+      expect(chinese).toContain('生成、处理并交付视觉素材。')
+      expect(chinese).toContain('为每个智能体提供精确、可靠的上下文。')
       expect(chinese).toContain('--leading-hero: 1.18;')
       expect(chinese).toContain('line-height: var(--leading-hero);')
       expect(chinese).toContain('href="/en"')
@@ -691,20 +701,34 @@ describe('colors-cc Frontend', () => {
     })
 
     it('should render both languages for tool pages', async () => {
-      const [englishResponse, chineseResponse, chineseImageResponse] = await Promise.all([
+      const [
+        englishResponse,
+        chineseResponse,
+        chineseImageResponse,
+        chinesePaletteResponse,
+        chineseNamesResponse,
+        chineseFluidResponse
+      ] = await Promise.all([
         app.request('/en/tools/converter'),
         app.request('/zh/tools/converter'),
-        app.request('/zh/tools/image-compress')
+        app.request('/zh/tools/image-compress'),
+        app.request('/zh/tools/random-palette'),
+        app.request('/zh/tools/color-names'),
+        app.request('/zh/tools/fluid-placeholder')
       ])
-      const [english, chinese, chineseImage] = await Promise.all([
+      const [english, chinese, chineseImage, chinesePalette, chineseNames, chineseFluid] = await Promise.all([
         englishResponse.text(),
         chineseResponse.text(),
-        chineseImageResponse.text()
+        chineseImageResponse.text(),
+        chinesePaletteResponse.text(),
+        chineseNamesResponse.text(),
+        chineseFluidResponse.text()
       ])
 
       expect(english).toContain('Universal color converter')
       expect(english).toContain('href="/zh/tools/converter"')
       expect(chinese).toContain('通用颜色转换器')
+      expect(chinese).toContain('即时转换，获得精确、同步的各格式色值')
       expect(chinese).toContain('href="/en/tools/converter"')
       expect(chinese).toContain('转换完成 · 所有颜色格式已同步')
       expect(chinese).toContain('正在转换 ')
@@ -712,6 +736,11 @@ describe('colors-cc Frontend', () => {
       expect(chinese).not.toContain("'Converting '")
       expect(chinese).not.toContain("'That value is not a valid '")
       expect(chineseImage).toContain('图片压缩、排列与水印')
+      expect(chineseImage).toContain('浏览器本地处理 · 文件不会上传')
+      expect(chineseImage).not.toContain('使用最多')
+      expect(chinesePalette).toContain('根据所选主题生成完整、精选的配色方案')
+      expect(chineseNames).toContain('搜索完整的 CSS 颜色名称目录')
+      expect(chineseFluid).toContain('生成轻量、流畅循环的 SVG 占位图')
     })
 
     it('should switch languages on the same valid path across every page', async () => {
@@ -807,7 +836,7 @@ describe('colors-cc Frontend', () => {
 
             expect(response.status, requestPath).toBe(200)
             expect(title, requestPath).toBeTruthy()
-            expect(title?.length, requestPath).toBeLessThanOrEqual(60)
+            expect(title?.replaceAll('&amp;', '&').length, requestPath).toBeLessThanOrEqual(60)
             expect(description, requestPath).toBeTruthy()
             expect(description?.length, requestPath).toBeLessThanOrEqual(180)
             titles.add(title as string)
