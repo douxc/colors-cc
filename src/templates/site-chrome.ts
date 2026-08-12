@@ -3,15 +3,15 @@ import {
   localePrefix,
   renderComplianceFooter,
   renderFeedbackLink,
+  TOOL_REDIRECTS,
   type Locale,
   type SiteConfig
 } from '../site'
 import { renderNavUtilityControlItems } from './nav-controls'
 
-type SiteSection = 'generate' | 'prepare' | 'developers'
+type SiteSection = 'generate' | 'developers'
 
-const currentSection = (path: string): SiteSection =>
-  path === '/tools/image-compress' ? 'prepare' : 'generate'
+const currentSection = (path: string): SiteSection => 'generate'
 
 const currentAttribute = (
   section: SiteSection,
@@ -49,7 +49,7 @@ export const renderSiteNav = (
         <div class="nav-menu-panel">
           <nav class="nav-links" aria-label="${messages.primaryNavigation}">
             <a class="nav-link" href="${prefix}#create"${currentAttribute('generate', section)}>${messages.generate}</a>
-            <a class="nav-link" href="${prefix}/tools/image-compress"${currentAttribute('prepare', section)}>${messages.prepare}</a>
+            <a class="nav-link" href="${TOOL_REDIRECTS['/tools/image-compress']}">${messages.prepare}</a>
             <a class="nav-link" href="${prefix}#for-ai">${messages.developers}</a>
           </nav>
           <div class="nav-actions">

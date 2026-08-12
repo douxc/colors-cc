@@ -23,8 +23,7 @@ export const PAGE_PATHS = [
   '/tools/cmyk-to-hsl',
   '/tools/random-palette',
   '/tools/color-names',
-  '/tools/fluid-placeholder',
-  '/tools/image-compress'
+  '/tools/fluid-placeholder'
 ] as const
 
 export const SITEMAP_LAST_MODIFIED = '2026-07-29'
@@ -33,7 +32,7 @@ const escapeXml = (value: string): string => value.replaceAll('&', '&amp;').repl
 
 const renderUrl = (config: SiteConfig, locale: Locale, path: string): string => {
   const loc = localizedUrl(config.origin, locale, path)
-  const priority = path === '/' ? '1.0' : path === '/tools/image-compress' ? '0.9' : '0.8'
+  const priority = path === '/' ? '1.0' : '0.8'
   const frequency = path === '/' ? 'daily' : 'weekly'
   const alternates = hreflangAlternates(path)
     .map(({ hreflang, href }) =>

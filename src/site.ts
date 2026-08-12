@@ -42,6 +42,12 @@ export const cnSiteConfig = {
   }
 } satisfies SiteConfig
 
+// Legacy tool paths migrated to the standalone offline-tools app.
+// Single source of truth for both the Worker redirects and the home/nav links.
+export const TOOL_REDIRECTS = {
+  '/tools/image-compress': 'https://offline-tools.colors-cc.top/image-compress/'
+} as const
+
 export const localePrefix = (locale: Locale): string => `/${locale}`
 
 export const localizedPath = (locale: Locale, path = ''): string => {

@@ -1,16 +1,15 @@
 import { describe, it, expect } from 'vitest'
+import { execFileSync } from 'node:child_process'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
 import { createApp } from './app'
 import app from './index'
-import imageCompressWorker from './generated/image-compress-worker.html'
-import imageCompressTemplate from './pages/image-compress.html'
 import { PAGE_PATHS } from './routes/seo/sitemap'
-import { cnSiteConfig, globalSiteConfig, localizedUrl } from './site'
+import { cnSiteConfig, globalSiteConfig, localizedUrl, TOOL_REDIRECTS } from './site'
 import homeTemplate from './templates/home.html'
 
 const cnApp = createApp(cnSiteConfig, {
-  home: homeTemplate,
-  imageCompress: imageCompressTemplate,
-  imageCompressWorker
+  home: homeTemplate
 })
 
 const verificationApp = createApp({
@@ -22,10 +21,10 @@ const verificationApp = createApp({
     'bytedance-verification-code': 'bytedance-code'
   }
 }, {
-  home: homeTemplate,
-  imageCompress: imageCompressTemplate,
-  imageCompressWorker
+  home: homeTemplate
 })
+
+const OFFLINE_IMAGE_COMPRESS = 'https://offline-tools.colors-cc.top/image-compress/'
 
 const expectValidInlineScripts = (html: string): void => {
   const scripts = html.matchAll(/<script(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/g)
@@ -109,6 +108,9 @@ describe('colors-cc Frontend', () => {
       expect(res.headers.get('Content-Type')).toContain('application/xml')
       
       const xml = await res.text()
+      expect(PAGE_PATHS).toHaveLength(17)
+      expect(PAGE_PATHS).not.toContain('/tools/image-compress')
+      expect(xml).not.toContain('/zh/tools/image-compress')
       expect(xml).toContain('<?xml version="1.0"')
       expect(xml).toContain('<urlset')
       expect(xml.match(/<url>/g)).toHaveLength(PAGE_PATHS.length * 2)
@@ -134,7 +136,7 @@ describe('colors-cc Frontend', () => {
       expect(res.headers.get('Content-Type')).toContain('text/plain')
       expect(urls).toHaveLength(PAGE_PATHS.length * 2)
       expect(urls).toContain('https://colors-cc.top/en/tools/converter')
-      expect(urls).toContain('https://colors-cc.top/zh/tools/image-compress')
+      expect(urls).not.toContain('image-compress')
     })
 
     it('should serve stable favicon and web manifest assets', async () => {
@@ -233,153 +235,50 @@ describe('colors-cc Frontend', () => {
       expect(html).not.toContain('stops=')
     })
 
-    it('should render the browser-only image studio', async () => {
-      const res = await app.request('/tools/image-compress')
-      expect(res.status).toBe(200)
-      expect(res.headers.get('Content-Type')).toContain('text/html')
+    describe('image-compress migration redirects', () => {
+      it('should map the legacy tool path to the offline-tools destination', () => {
+        expect(TOOL_REDIRECTS['/tools/image-compress']).toBe(OFFLINE_IMAGE_COMPRESS)
+      })
 
-      const html = await res.text()
-      expect(html).toContain('Image compression, watermarking, and layout')
-      expect(html).toContain('PNG/JPEG, Watermark &amp; Layout')
-      expect(html).toContain('Browser-local processing · Files are never uploaded')
-      expect(html).toContain('smart compression keeps only results smaller than the original')
-      expect(html).not.toContain('most-used')
-      expect(html).toContain('data-mode="fan"')
-      expect(html).toContain('data-mode="watermark"')
-      expect(html).toContain('data-mode="compress"')
-      expect(html).toContain('id="compressPreview"')
-      expect(html).toContain('id="compressPreviewImage"')
-      expect(html).toContain('id="compressLoading"')
-      expect(html).toContain('role="status"')
-      expect(html).toContain('aria-live="polite"')
-      expect(html).toContain('class="compress-preview" id="compressPreview" hidden')
-      expect(html).toContain('els.compressPreviewImage.src = item.url')
-      expect(html).toContain('function showCompressionPreview(item, current, total)')
-      expect(html).toContain('showCompressionPreview(item, i + 1, state.images.length)')
-      expect(html).toMatch(/finally\s*{\s*hideCompressionPreview\(\)/)
-      expect(html).toContain('/assets/image-compress-worker.js')
-      expect(html).toContain('libimagequant-oxipng')
-      expect(html).toContain('GPL-3.0-or-later')
-      expect(html).toContain('github.com/douxc/colors-cc')
-      expect(html).toContain('aria-current="page">Prepare</a>')
-      expect(html).not.toContain('fetch(')
-      expect(html).not.toContain('__SHARED_STYLES__')
-    })
+      it('should 301 the global legacy route without a query', async () => {
+        const res = await app.request('/tools/image-compress?mode=compress')
+        expect(res.status).toBe(301)
+        expect(res.headers.get('location')).toBe(OFFLINE_IMAGE_COMPRESS)
+      })
 
-    it('should turn the empty state into a drop-or-choose upload affordance', async () => {
-      const [enRes, zhRes] = await Promise.all([
-        app.request('/tools/image-compress'),
-        app.request('/zh/tools/image-compress')
-      ])
-      const [en, zh] = await Promise.all([enRes.text(), zhRes.text()])
+      it('should 301 the global /en and /zh variants', async () => {
+        for (const path of ['/en/tools/image-compress', '/zh/tools/image-compress']) {
+          const res = await app.request(path)
+          expect(res.status, path).toBe(301)
+          expect(res.headers.get('location'), path).toBe(OFFLINE_IMAGE_COMPRESS)
+        }
+      })
 
-      // EN SSR renders the new empty-state upload guidance copy.
-      expect(en).toContain('Drop or choose images')
-      // ZH SSR renders the new empty-state upload guidance copy.
-      expect(zh).toContain('拖放或选择图片')
-      // #emptyState opens the file picker on click/keyboard by reusing #fileInput.
-      expect(en).toContain('els.fileInput.click()')
-      // #emptyState binds drop so users can drag-and-drop images onto it.
-      expect(en).toMatch(/els\.emptyState\.addEventListener\(\s*["']drop/)
-    })
+      it('should 301 the CN /zh variant while keeping the legacy route at 404', async () => {
+        const zhRes = await cnApp.request('/zh/tools/image-compress')
+        expect(zhRes.status).toBe(301)
+        expect(zhRes.headers.get('location')).toBe(OFFLINE_IMAGE_COMPRESS)
 
-    it('should mirror export/clear actions in the stage header', async () => {
-      const [enRes, zhRes] = await Promise.all([
-        app.request('/tools/image-compress'),
-        app.request('/zh/tools/image-compress')
-      ])
-      const [en, zh] = await Promise.all([enRes.text(), zhRes.text()])
+        const legacyRes = await cnApp.request('/tools/image-compress')
+        expect(legacyRes.status).toBe(404)
+      })
 
-      // Top action buttons exist with unique ids alongside the sidebar ones.
-      expect(en).toContain('id="exportButtonTop"')
-      expect(en).toContain('id="clearButtonTop"')
-      expect(zh).toContain('id="exportButtonTop"')
-      expect(zh).toContain('id="clearButtonTop"')
-      // Default copy mirrors the sidebar buttons.
-      expect(zh).toContain('导出 JPEG')
-      expect(zh).toContain('清空')
-      // Top buttons reuse the same export/clear handlers as the sidebar.
-      expect(en).toMatch(/exportButtonTop\.addEventListener\(\s*["']click["'].*exportJpeg/)
-      expect(en).toMatch(/clearButtonTop\.addEventListener\(\s*["']click["'].*clearImages/)
+      it('should drop every deep-link query when redirecting', async () => {
+        for (const mode of ['compress', 'watermark', 'fan', 'unknown']) {
+          const res = await app.request(`/tools/image-compress?mode=${mode}`)
+          expect(res.status, mode).toBe(301)
+          expect(res.headers.get('location'), mode).toBe(OFFLINE_IMAGE_COMPRESS)
+          expect(res.headers.get('location'), mode).not.toContain('?')
+        }
+      })
+
+      it('should return 404 for the removed worker asset', async () => {
+        const res = await app.request('/assets/image-compress-worker.js')
+        expect(res.status).toBe(404)
+      })
     })
 
     describe('task-first tool workflows', () => {
-      it('should default image processing to compression and accept only supported deep-link modes', async () => {
-        const responses = await Promise.all([
-          app.request('/tools/image-compress'),
-          app.request('/tools/image-compress?mode=compress'),
-          app.request('/tools/image-compress?mode=watermark'),
-          app.request('/tools/image-compress?mode=fan'),
-          app.request('/tools/image-compress?mode=unknown')
-        ])
-        const pages = await Promise.all(responses.map(response => response.text()))
-
-        responses.forEach(response => expect(response.status).toBe(200))
-        pages.forEach((html) => {
-          expect(html).toContain('const allowedModes = new Set(["compress", "watermark", "fan"])')
-          expect(html).toContain(
-            'const requestedMode = new URLSearchParams(window.location.search).get("mode")'
-          )
-          expect(html).toContain(
-            'const initialMode = allowedModes.has(requestedMode) ? requestedMode : "compress"'
-          )
-          expect(html).toContain('mode: initialMode')
-          expect(html).toContain('setMode(initialMode)')
-        })
-
-        const html = pages[0]
-        expect(html).toContain(
-          'class="mode-btn active" data-mode="compress" aria-pressed="true"'
-        )
-        expect(html).toContain('data-mode="watermark" aria-pressed="false"')
-        expect(html).toContain('data-mode="fan" aria-pressed="false"')
-        expect(html).toContain('id="sizeSection" hidden')
-        expect(html).toContain('id="fanSection" hidden')
-        expect(html).toContain('id="watermarkSection" hidden')
-        expect(html).toContain('id="exportButton" type="button" disabled>Compress and export automatically')
-        expect(html).toContain('btn.setAttribute("aria-pressed", String(isActive))')
-      })
-
-      it('should prioritize upload and expose a one-tap mobile settings/preview workflow', async () => {
-        const html = await (await app.request('/tools/image-compress')).text()
-        const appIndex = html.indexOf('class="app"')
-        const aboutIndex = html.indexOf('class="about-tool"')
-
-        expect(appIndex).toBeGreaterThan(-1)
-        expect(aboutIndex).toBeGreaterThan(appIndex)
-        expect(html).toContain('class="mobile-panel-switch"')
-        expect(html).toContain(
-          'id="mobileSettingsTab" type="button" aria-controls="imageSettings" aria-pressed="true"'
-        )
-        expect(html).toContain(
-          'id="mobilePreviewTab" type="button" aria-controls="imagePreview" aria-pressed="false"'
-        )
-        expect(html).toContain('id="imageSettings"')
-        expect(html).toContain('id="imagePreview"')
-        expect(html).toContain('function setMobilePanel(panel)')
-        expect(html).toMatch(/async function addFiles[\s\S]*setMobilePanel\("preview"\)/)
-        expect(html).toContain('class="mobile-export-bar"')
-        expect(html).toContain('id="mobileExportButton"')
-        expect(html).toContain('els.mobileExportButton.textContent = label')
-        expect(html).toContain('els.mobileExportButton.disabled = disabled')
-        expect(html).toMatch(
-          /mobileExportButton\.addEventListener\(\s*["']click["']\s*,\s*exportJpeg/
-        )
-        expect(html).toMatch(
-          /\.mobile-panel-switch button \{[^}]*min-height: 44px;/
-        )
-        expect(html).toMatch(
-          /@media \(max-width: 620px\)[\s\S]*main \.app button,[\s\S]*main \.app summary \{[^}]*min-height: 44px;/
-        )
-        expect(html).toMatch(
-          /@media \(max-width: 620px\)[\s\S]*\.check \{[^}]*min-height: 44px;/
-        )
-        expect(html).toContain(
-          'main .app input:not([type="file"]):not([type="checkbox"])'
-        )
-        expect(html).toContain('padding-bottom: calc(12px + env(safe-area-inset-bottom))')
-      })
-
       it('should render converter input before preview and share compact task styling', async () => {
         const [converterResponse, paletteResponse, namesResponse] = await Promise.all([
           app.request('/tools/converter'),
@@ -411,21 +310,6 @@ describe('colors-cc Frontend', () => {
           expect(html).toContain('.panel-copy-feedback')
         }
       })
-    })
-
-    it('should serve the self-hosted PNG codec worker', async () => {
-      const res = await app.request('/assets/image-compress-worker.js')
-      expect(res.status).toBe(200)
-      expect(res.headers.get('Content-Type')).toContain('text/javascript')
-      expect(res.headers.get('Cache-Control')).toContain('must-revalidate')
-
-      const worker = await res.text()
-      expect(worker.length).toBeGreaterThan(600_000)
-      expect(worker).toContain('GPL-3.0-or-later')
-      expect(worker).toContain('github.com/douxc/colors-cc')
-      expect(worker).toContain('THIRD_PARTY_NOTICES.md')
-      expect(worker).toContain('compress-png')
-      expect(worker).toContain('libimagequant-oxipng')
     })
 
     it('should return 404 for invalid tool route', async () => {
@@ -505,7 +389,7 @@ describe('colors-cc Frontend', () => {
       expect(hero).toContain('data-brand-path="generate"')
       expect(hero).toContain('data-brand-path="prepare"')
       expect(hero).toContain('href="#create"')
-      expect(hero).toContain('href="/en/tools/image-compress?mode=compress"')
+      expect(hero).toContain(`href="${OFFLINE_IMAGE_COMPRESS}"`)
       expect(showcase).toContain('data-workflow="generate"')
       expect(showcase).toContain('data-workflow="prepare"')
       expect(showcase).toContain('data-home-role="product-result"')
@@ -515,16 +399,13 @@ describe('colors-cc Frontend', () => {
       expect(html).not.toContain('data-home-role="tool-launchpad"')
     })
 
-    it('should group task links in workflow order with direct prepare modes', async () => {
+    it('should group task links in workflow order with prepare cards pointing at offline-tools', async () => {
       const html = await (await app.request('/')).text()
       const showcaseIndex = html.indexOf('data-home-role="workflow-showcase"')
       const workbenchIndex = html.indexOf('id="create"')
       const showcase = html.slice(showcaseIndex, workbenchIndex)
       const generateIndex = showcase.indexOf('data-workflow="generate"')
       const prepareIndex = showcase.indexOf('data-workflow="prepare"')
-      const compressIndex = showcase.indexOf('/en/tools/image-compress?mode=compress')
-      const watermarkIndex = showcase.indexOf('/en/tools/image-compress?mode=watermark')
-      const fanIndex = showcase.indexOf('/en/tools/image-compress?mode=fan')
 
       expect(generateIndex).toBeGreaterThan(-1)
       expect(prepareIndex).toBeGreaterThan(generateIndex)
@@ -532,9 +413,9 @@ describe('colors-cc Frontend', () => {
       expect(showcase).toContain('href="/en/tools/random-palette"')
       expect(showcase).toContain('href="/en/tools/converter"')
       expect(showcase).toContain('href="/en/tools/color-names"')
-      expect(compressIndex).toBeGreaterThan(prepareIndex)
-      expect(watermarkIndex).toBeGreaterThan(compressIndex)
-      expect(fanIndex).toBeGreaterThan(watermarkIndex)
+      expect(showcase).not.toContain('/tools/image-compress')
+      const offlineLinks = showcase.match(/href="https:\/\/offline-tools\.colors-cc\.top\/image-compress\/"/g)
+      expect(offlineLinks).toHaveLength(3)
     })
 
     it('should render /', async () => {
@@ -548,7 +429,7 @@ describe('colors-cc Frontend', () => {
       expect(html).toContain('Placeholder workbench')
       expect(html).toContain('Agent prompt')
       expect(html).toContain('aria-label="Placeholder controls"')
-      expect(html).toContain('/tools/image-compress')
+      expect(html).not.toContain('/tools/image-compress')
       expect(html).not.toContain('__COLOR_API_CONTRACT__')
     })
 
@@ -587,7 +468,7 @@ describe('colors-cc Frontend', () => {
       expect(workflowNavigation).toContain('href="/en/tools/converter"')
       expect(workflowNavigation).toContain('href="/en/tools/random-palette"')
       expect(workflowNavigation).toContain('href="/en/tools/color-names"')
-      expect(workflowNavigation).toContain('href="/en/tools/image-compress?mode=compress"')
+      expect(workflowNavigation).toContain(`href="${OFFLINE_IMAGE_COMPRESS}"`)
       expect(html).not.toContain('class="task-rail"')
       expect(normalizedHtml).not.toContain('.hero { min-height: 610px;')
     })
@@ -627,9 +508,8 @@ describe('colors-cc Frontend', () => {
         expect(workflowNavigation, route.path).toContain(`href="${route.prefix}/tools/converter"`)
         expect(workflowNavigation, route.path).toContain(`href="${route.prefix}/tools/random-palette"`)
         expect(workflowNavigation, route.path).toContain(`href="${route.prefix}/tools/color-names"`)
-        expect(workflowNavigation, route.path).toContain(`href="${route.prefix}/tools/image-compress?mode=compress"`)
-        expect(workflowNavigation, route.path).toContain(`href="${route.prefix}/tools/image-compress?mode=watermark"`)
-        expect(workflowNavigation, route.path).toContain(`href="${route.prefix}/tools/image-compress?mode=fan"`)
+        const offlineLinks = workflowNavigation.match(/href="https:\/\/offline-tools\.colors-cc\.top\/image-compress\/"/g)
+        expect(offlineLinks, route.path).toHaveLength(3)
 
         if (route.locale === 'zh') {
           expect(html).toContain('生成、处理并交付视觉素材。')
@@ -704,22 +584,19 @@ describe('colors-cc Frontend', () => {
       const [
         englishResponse,
         chineseResponse,
-        chineseImageResponse,
         chinesePaletteResponse,
         chineseNamesResponse,
         chineseFluidResponse
       ] = await Promise.all([
         app.request('/en/tools/converter'),
         app.request('/zh/tools/converter'),
-        app.request('/zh/tools/image-compress'),
         app.request('/zh/tools/random-palette'),
         app.request('/zh/tools/color-names'),
         app.request('/zh/tools/fluid-placeholder')
       ])
-      const [english, chinese, chineseImage, chinesePalette, chineseNames, chineseFluid] = await Promise.all([
+      const [english, chinese, chinesePalette, chineseNames, chineseFluid] = await Promise.all([
         englishResponse.text(),
         chineseResponse.text(),
-        chineseImageResponse.text(),
         chinesePaletteResponse.text(),
         chineseNamesResponse.text(),
         chineseFluidResponse.text()
@@ -735,9 +612,6 @@ describe('colors-cc Frontend', () => {
       expect(chinese).toContain('输入的内容不是有效的 ')
       expect(chinese).not.toContain("'Converting '")
       expect(chinese).not.toContain("'That value is not a valid '")
-      expect(chineseImage).toContain('图片压缩、排列与水印')
-      expect(chineseImage).toContain('浏览器本地处理 · 文件不会上传')
-      expect(chineseImage).not.toContain('使用最多')
       expect(chinesePalette).toContain('根据所选主题生成完整、精选的配色方案')
       expect(chineseNames).toContain('搜索完整的 CSS 颜色名称目录')
       expect(chineseFluid).toContain('生成轻量、流畅循环的 SVG 占位图')
@@ -1054,7 +928,7 @@ describe('colors-cc Frontend', () => {
     })
 
     it('should hide language switching while keeping theme controls', async () => {
-      for (const path of ['/zh', '/zh/tools/converter', '/zh/tools/image-compress']) {
+      for (const path of ['/zh', '/zh/tools/converter', '/zh/tools/random-palette']) {
         const response = await cnApp.request(path)
         const html = await response.text()
 
@@ -1077,31 +951,26 @@ describe('colors-cc Frontend', () => {
   })
 
   describe('Global feedback mailto link', () => {
-    it('should render the mailto feedback link on global EN home, image-compress, and converter', async () => {
-      const [homeRes, imageRes, converterRes] = await Promise.all([
+    it('should render the mailto feedback link on global EN home and converter', async () => {
+      const [homeRes, converterRes] = await Promise.all([
         app.request('/'),
-        app.request('/tools/image-compress'),
         app.request('/tools/converter')
       ])
-      const [home, image, converter] = await Promise.all([
+      const [home, converter] = await Promise.all([
         homeRes.text(),
-        imageRes.text(),
         converterRes.text()
       ])
 
       expect(homeRes.status).toBe(200)
-      expect(imageRes.status).toBe(200)
       expect(converterRes.status).toBe(200)
       expect(home).toContain('mailto:douxc512@gmail.com')
       expect(home).toContain('>Feedback</a>')
-      expect(image).toContain('mailto:douxc512@gmail.com')
-      expect(image).toContain('>Feedback</a>')
       expect(converter).toContain('mailto:douxc512@gmail.com')
       expect(converter).toContain('>Feedback</a>')
     })
 
-    it('should render the ZH feedback label on the global ZH image-compress page', async () => {
-      const res = await app.request('/zh/tools/image-compress')
+    it('should render the ZH feedback label on the global ZH converter page', async () => {
+      const res = await app.request('/zh/tools/converter')
       const html = await res.text()
 
       expect(res.status).toBe(200)
@@ -1110,27 +979,27 @@ describe('colors-cc Frontend', () => {
     })
 
     it('should not render the feedback link or leave the placeholder on the CN edition', async () => {
-      const [homeRes, imageRes] = await Promise.all([
+      const [homeRes, converterRes] = await Promise.all([
         cnApp.request('/zh'),
-        cnApp.request('/zh/tools/image-compress')
+        cnApp.request('/zh/tools/converter')
       ])
-      const [home, image] = await Promise.all([
+      const [home, converter] = await Promise.all([
         homeRes.text(),
-        imageRes.text()
+        converterRes.text()
       ])
 
       expect(homeRes.status).toBe(200)
-      expect(imageRes.status).toBe(200)
+      expect(converterRes.status).toBe(200)
       expect(home).not.toContain('mailto:douxc512@gmail.com')
       expect(home).not.toContain('__FEEDBACK_LINK__')
-      expect(image).not.toContain('mailto:douxc512@gmail.com')
-      expect(image).not.toContain('__FEEDBACK_LINK__')
+      expect(converter).not.toContain('mailto:douxc512@gmail.com')
+      expect(converter).not.toContain('__FEEDBACK_LINK__')
     })
   })
 
   describe('Shared brand chrome', () => {
     it('should render one shared Generate, Prepare, and Developers navigation on every page shell', async () => {
-      for (const path of ['/', '/tools/converter', '/tools/image-compress']) {
+      for (const path of ['/', '/tools/converter', '/tools/random-palette']) {
         const html = await (await app.request(path)).text()
 
         expect(html.match(/data-site-chrome="navigation"/g), path).toHaveLength(1)
@@ -1138,7 +1007,7 @@ describe('colors-cc Frontend', () => {
         expect(html.match(/class="site-nav"/g), path).toHaveLength(1)
         expect(html, path).toContain('data-brand-mark="canvas-pair"')
         expect(html, path).toContain('>Generate</a>')
-        expect(html, path).toContain('>Prepare</a>')
+        expect(html, path).toContain(`href="${OFFLINE_IMAGE_COMPRESS}">Prepare</a>`)
         expect(html, path).toContain('>Developers</a>')
         expect(html, path).toContain('--paper: #f7f6f2;')
         expect(html, path).toContain('--ink: #1d1d1f;')
@@ -1199,19 +1068,19 @@ describe('colors-cc Frontend', () => {
     })
 
     it('should localize the shared chrome without changing stable locale URLs', async () => {
-      const html = await (await app.request('/zh/tools/image-compress')).text()
+      const html = await (await app.request('/zh/tools/converter')).text()
 
       expect(html).toContain('>生成素材</a>')
       expect(html).toContain('>处理素材</a>')
       expect(html).toContain('>开发者</a>')
       expect(html).toContain('aria-label="打开导航菜单"')
-      expect(html).toContain('href="/en/tools/image-compress"')
+      expect(html).toContain('href="/en/tools/converter"')
       expect(html.match(/data-site-chrome="navigation"/g)).toHaveLength(1)
     })
   })
 
   describe('Theme support', () => {
-    it.each(['/', '/tools/converter', '/tools/image-compress'])(
+    it.each(['/', '/tools/converter', '/tools/random-palette'])(
       'should render language and theme switches on %s',
       async (path) => {
         const res = await app.request(path)
@@ -1306,14 +1175,6 @@ describe('colors-cc Frontend', () => {
       expect(html.match(/class="theme-option-icon"/g)).toHaveLength(3)
     })
 
-    it('should keep theme buttons square on the image-compress page', async () => {
-      const html = await (await app.request('/tools/image-compress')).text()
-
-      expect(html).toMatch(/\.nav-switch-option \{[^}]*min-height: 32px;/)
-      expect(html).toMatch(/\.nav-switch-option \{[^}]*width: 32px;/)
-      expect(html).toMatch(/\.nav-switch-option \{[^}]*height: 32px;/)
-    })
-
     it('should space navbar utility controls with a 16px gap', async () => {
       const html = await (await app.request('/tools/converter')).text()
 
@@ -1331,6 +1192,72 @@ describe('colors-cc Frontend', () => {
       
       const text = await res.text()
       expect(text).toContain('colors-cc.top - Agent & LLM Documentation')
+    })
+  })
+
+  describe('offline-tools migration collateral', () => {
+    const repoRoot = new URL('../', import.meta.url).pathname
+    const read = (relative: string): string =>
+      readFileSync(join(repoRoot, relative), 'utf8')
+
+    it('should update the verify-seo URL count and migration checks', () => {
+      const verifySeo = read('scripts/verify-seo.ts')
+
+      expect(verifySeo).toContain('enabledLocales.length * 17')
+      expect(verifySeo).toContain('OFFLINE_IMAGE_COMPRESS')
+      expect(verifySeo).toContain('verifyRedirect')
+      expect(verifySeo).toContain('verifyMigratedToolRedirects')
+      expect(verifySeo).not.toContain('enabledLocales.length * 18')
+      const pageChecks = verifySeo.slice(verifySeo.indexOf('pageChecks'))
+      expect(pageChecks).not.toContain('image-compress')
+    })
+
+    it('should build the VPS bundle without any image-compress output', () => {
+      execFileSync('pnpm', ['build:vps'], { cwd: repoRoot, stdio: 'pipe' })
+      const vpsOutputs = readdirSync(join(repoRoot, 'dist/vps'), {
+        recursive: true
+      }) as string[]
+      expect(vpsOutputs.some((name) => name.includes('image-compress'))).toBe(false)
+    })
+
+    it('should keep the CN nginx exact-match 301 rules for the legacy path', () => {
+      const nginx = read('deploy/nginx-vps.conf')
+
+      expect(nginx).toContain(
+        'location = /zh/tools/image-compress { return 301 https://offline-tools.colors-cc.top/image-compress/; }'
+      )
+      expect(nginx).toContain(
+        'location = /zh/tools/image-compress/ { return 301 https://offline-tools.colors-cc.top/image-compress/; }'
+      )
+    })
+
+    it('should drop the codec build from wrangler and package scripts', () => {
+      const wrangler = read('wrangler.toml')
+      expect(wrangler).not.toContain('[build]')
+      expect(wrangler).not.toContain('build:image-codecs')
+
+      const packageJson = read('package.json')
+      expect(packageJson).not.toContain('build:image-codecs')
+    })
+
+    it('should delete every image-compress source file', () => {
+      const removed = [
+        'src/pages/image-compress.html',
+        'src/client/image-compress-worker.ts',
+        'src/image-compression/png-strategy.ts',
+        'src/image-compression/png-strategy.test.ts',
+        'src/image-compression/png-worker.integration.test.ts',
+        'scripts/build-image-codecs.ts',
+        'src/generated/image-compress-worker.html'
+      ]
+      for (const relative of removed) {
+        expect(existsSync(join(repoRoot, relative)), relative).toBe(false)
+      }
+
+      const i18n = read('src/i18n/index.ts')
+      expect(i18n).not.toContain('localizeImageHtml')
+      expect(i18n).not.toContain('imageChineseToEnglish')
+      expect(i18n).not.toContain('imageEnglishToChinese')
     })
   })
 })

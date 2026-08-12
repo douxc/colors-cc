@@ -6,11 +6,7 @@
 
 ## Routes
 
-- `/tools/image-compress` → `src/app.tsx`
-
-## Pages
-
-- `image-compress` → `src/pages/image-compress.html`
+- `/tools/image-compress` (also `/en`, `/zh`) → 301 → `https://offline-tools.colors-cc.top/image-compress/` (source: `TOOL_REDIRECTS` in `src/site.ts`; CN nginx rules in `deploy/nginx-vps.conf`)
 
 ## Components
 

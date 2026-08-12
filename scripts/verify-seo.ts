@@ -70,7 +70,7 @@ const verifySitemaps = async (): Promise<void> => {
   const xmlLocations = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1])
   const textLocations = text.split(/\r?\n/).filter(Boolean)
 
-  const expectedUrlCount = enabledLocales.length * 18
+  const expectedUrlCount = enabledLocales.length * 17
   requireCondition(
     xmlLocations.length === expectedUrlCount,
     `XML sitemap has ${xmlLocations.length} URLs; expected ${expectedUrlCount}`
@@ -133,10 +133,32 @@ const verifyAssets = async (): Promise<void> => {
   ])
 }
 
+const OFFLINE_IMAGE_COMPRESS = 'https://offline-tools.colors-cc.top/image-compress/'
+
+const verifyRedirect = async (path: string): Promise<void> => {
+  const url = `${siteOrigin}${path}`
+  const response = await fetch(url, { redirect: 'manual' })
+
+  requireCondition(response.status === 301, `${url} returned ${response.status}; expected 301`)
+  const location = response.headers.get('location') ?? ''
+  requireCondition(
+    location === OFFLINE_IMAGE_COMPRESS,
+    `${url} redirected to ${location || '(missing)'}; expected ${OFFLINE_IMAGE_COMPRESS}`
+  )
+  requireCondition(!location.includes('?'), `${url} kept a query in its redirect: ${location}`)
+}
+
+const verifyMigratedToolRedirects = async (): Promise<void> => {
+  const paths = isCnDeployment
+    ? ['/zh/tools/image-compress']
+    : ['/tools/image-compress', '/en/tools/image-compress', '/zh/tools/image-compress']
+  await Promise.all(paths.map(verifyRedirect))
+}
+
 const main = async (): Promise<void> => {
   const pageChecks = enabledLocales.flatMap(locale => [
     verifyPage(`/${locale}`),
-    verifyPage(`/${locale}/tools/${locale === 'zh' ? 'image-compress' : 'converter'}`)
+    verifyPage(`/${locale}/tools/converter`)
   ])
   const results = await Promise.allSettled([
     verifyRobots(),
@@ -144,6 +166,7 @@ const main = async (): Promise<void> => {
     ...pageChecks,
     verifyCrawlerAccess(),
     verifyDisabledCnRoutes(),
+    verifyMigratedToolRedirects(),
     verifyAssets()
   ])
   const failures = results

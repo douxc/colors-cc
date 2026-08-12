@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { PUBLIC_COLOR_API_CONTRACT } from './contracts/colors-api'
-import { localizeHomeHtml, localizeImageHtml } from './i18n'
+import { localizeHomeHtml } from './i18n'
 import llmsRoute, { llmsContent } from './routes/docs/llms'
 import openapiRoute from './routes/docs/openapi'
 import skillsRoute from './routes/docs/skills'
@@ -13,6 +13,7 @@ import { createSeoMetadata, renderSeoHead } from './seo'
 import {
   htmlLang,
   localePrefix,
+  TOOL_REDIRECTS,
   type Locale,
   type SiteConfig
 } from './site'
@@ -23,8 +24,6 @@ import type { Env, Variables } from './types'
 
 export type HtmlTemplates = {
   home: string
-  imageCompress: string
-  imageCompressWorker: string
 }
 
 type App = Hono<{ Bindings: Env; Variables: Variables }>
@@ -76,18 +75,6 @@ const renderHome = (
   return decorateDocument(localizeHomeHtml(html, locale), config, locale, '/')
 }
 
-const renderImageCompress = (
-  template: string,
-  config: SiteConfig,
-  locale: Locale
-): string => {
-  const html = template
-    .replace('__THEME_INIT_SCRIPT__', themeInitScript)
-    .replace('__THEME_CONTROL_SCRIPT__', `${themeControlScript}\n${siteNavScript}`)
-    .replace('/*__SHARED_STYLES__*/', sharedStyles)
-  return decorateDocument(localizeImageHtml(html, locale), config, locale, '/tools/image-compress')
-}
-
 const createLocalizedPages = (
   config: SiteConfig,
   locale: Locale,
@@ -102,9 +89,11 @@ const createLocalizedPages = (
   })
 
   if (includeTools) {
-    const imageCompressPage = renderImageCompress(templates.imageCompress, config, locale)
-    // Register the exact image tool before the dynamic conversion route.
-    app.get('/tools/image-compress', (c) => c.html(imageCompressPage))
+    // Migrated tool paths redirect to the standalone offline-tools app.
+    // c.redirect does not carry the query string, so ?mode=* deep links are dropped.
+    for (const [source, target] of Object.entries(TOOL_REDIRECTS)) {
+      app.get(source, (c) => c.redirect(target, 301))
+    }
     app.route('/tools', createToolsRoute(config, locale))
   }
 
@@ -113,12 +102,6 @@ const createLocalizedPages = (
 
 export const createApp = (config: SiteConfig, templates: HtmlTemplates): App => {
   const app = new Hono<{ Bindings: Env; Variables: Variables }>()
-
-  app.get('/assets/image-compress-worker.js', (c) => {
-    c.header('Content-Type', 'text/javascript; charset=utf-8')
-    c.header('Cache-Control', 'public, max-age=3600, must-revalidate')
-    return c.body(templates.imageCompressWorker)
-  })
 
   app.route('/', llmsRoute)
   app.route('/', openapiRoute)

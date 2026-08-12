@@ -13,17 +13,15 @@ const nodeEnvironment = (globalThis as typeof globalThis & {
 const main = async (): Promise<void> => {
   await fs.rm(outputDir, { recursive: true, force: true })
 
-  const [home, imageCompress, imageCompressWorker] = await Promise.all([
-    fs.readFile(new URL('../src/templates/home.html', import.meta.url), 'utf8'),
-    fs.readFile(new URL('../src/pages/image-compress.html', import.meta.url), 'utf8'),
-    fs.readFile(new URL('../src/generated/image-compress-worker.html', import.meta.url), 'utf8')
-  ])
+  const home = await fs.readFile(new URL('../src/templates/home.html', import.meta.url), 'utf8')
 
   const config = withSearchVerification(cnSiteConfig, nodeEnvironment)
-  const app = createApp(config, { home, imageCompress, imageCompressWorker })
+  const app = createApp(config, { home })
   const result = await toSSG(app, fs, {
     dir: outputDir,
     concurrency: 4,
+    // Migrated tool paths are 301 redirects; do not emit redirect stubs as files.
+    afterResponseHook: (response) => response.status >= 300 && response.status < 400 ? false : response,
     extensionMap: {
       ...defaultExtensionMap,
       'text/markdown': 'md',
