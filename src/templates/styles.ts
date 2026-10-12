@@ -411,22 +411,6 @@ export const sharedStyles = `
     box-shadow: none;
   }
   .language-option[aria-current='page'] { color: var(--cyan); }
-  .language-control { position: relative; display: block; }
-  .language-control > summary { padding: 10px; color: var(--text-muted); font-size: .84rem; }
-  .language-control .nav-segmented {
-    position: absolute;
-    right: 0;
-    top: 100%;
-    z-index: 40;
-    display: grid;
-    min-width: 154px;
-    padding: 6px;
-    border: 1px solid var(--line);
-    background: var(--surface-strong);
-    box-shadow: var(--shadow);
-  }
-  .language-control:not([open]) .nav-segmented { display: none; }
-  .language-control .language-option { width: 100%; height: auto; padding: 10px; justify-content: flex-start; }
   .theme-option-icon { width: 17px; height: 17px; }
   .theme-option-light[aria-pressed='true'] { color: #9a6700; }
   .theme-option-dark[aria-pressed='true'] { color: var(--violet); }
@@ -826,6 +810,15 @@ export const sharedStyles = `
       width: 44px;
       height: 44px;
       min-height: 44px;
+    }
+    /* Language entries are self-named links, so they grow with their label instead of
+       being clipped by the fixed square above. Scoped to the language control so the
+       theme buttons keep their 44x44 shape, and specific enough to win over the rule
+       just above, which matches on source order. */
+    .nav-actions .language-control .nav-switch-option {
+      width: auto;
+      flex: 1 1 auto;
+      padding-inline: 10px;
     }
     .panel { border-radius: var(--radius-lg); }
     .panel-header, .panel-body { padding: 18px; }

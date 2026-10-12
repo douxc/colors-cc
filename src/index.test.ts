@@ -6,6 +6,7 @@ import { createApp } from './app'
 import app from './index'
 import { PAGE_PATHS } from './routes/seo/sitemap'
 import { cnSiteConfig, globalSiteConfig, localeInfo, localizedUrl, TOOL_REDIRECTS } from './site'
+import { languageControlBlock } from './templates/language-control-html'
 import homeTemplate from './templates/home.html'
 
 const cnApp = createApp(cnSiteConfig, {
@@ -935,6 +936,8 @@ describe('colors-cc Frontend', () => {
         expect(response.status, path).toBe(200)
         expect(html, path).not.toContain('class="nav-preference-control language-control"')
         expect(html, path).not.toContain('class="nav-switch-option language-option"')
+        expect(html, path).not.toContain('class="language-toggle"')
+        expect(html, path).not.toMatch(/<details[^>]*language-control/)
         expect(html, path).not.toContain('href="/en')
         expect(html, path).toContain('class="nav-preference-control theme-control"')
         expect(html, path).toContain('data-theme-option="system"')
@@ -1045,6 +1048,16 @@ describe('colors-cc Frontend', () => {
       expect(html).toMatch(
         /@media \(max-width: 760px\)[\s\S]*\.nav-switch-option \{[^}]*width: 44px;[^}]*height: 44px;[^}]*min-height: 44px;/
       )
+      // Language entries must outgrow the fixed square on compact viewports, or the
+      // self-named labels are clipped; the broadening rule has to stay scoped to the
+      // language control so the theme buttons keep their square shape.
+      expect(html).toMatch(
+        /@media \(max-width: 760px\)[\s\S]*\.nav-actions \.language-control \.nav-switch-option \{[^}]*width: auto;[^}]*flex: 1 1 auto;/
+      )
+      const optionRules = [...html.matchAll(/(?:^|\n)\s*([^{}\n]*\.nav-switch-option[^{}\n]*)\{([^}]*)\}/g)]
+      const unscoped = optionRules.filter(rule => rule[1].trim() === '.nav-switch-option')
+      expect(unscoped.length).toBeGreaterThan(0)
+      for (const rule of unscoped) expect(rule[2]).not.toContain('width: auto')
     })
 
     it('should render a keyboard-operable compact menu with preferences inside it', async () => {
@@ -1090,6 +1103,10 @@ describe('colors-cc Frontend', () => {
         expect(html).toContain('class="nav-preference-control language-control"')
         expect(html).toContain('class="nav-preference-control theme-control"')
         expect(html).toContain('class="nav-switch-option language-option"')
+        // Language choice is a plain link group, never a scripted disclosure.
+        expect(html).not.toContain('class="language-toggle"')
+        expect(html).not.toMatch(/<details[^>]*language-control/)
+        expect(languageControlBlock(html)).not.toContain('<summary')
         expect(html).toContain('data-theme-option="light"')
         expect(html).toContain('data-theme-option="dark"')
         expect(html).toContain('data-theme-option="system"')
@@ -1161,6 +1178,11 @@ describe('colors-cc Frontend', () => {
       expect(html).toContain('>简体中文</a>')
       expect(html).toContain('>English</a>')
       expect(html).toContain('aria-label="Language"')
+      // Self-named entries stay visible text on their own links, not a collapsed label.
+      const control = languageControlBlock(html)
+      expect(control).toContain('>日本語</a>')
+      expect(control).not.toContain('<summary')
+      expect(control).toContain('aria-current="page"')
     })
 
     it('should render square theme buttons aligned with language buttons', async () => {

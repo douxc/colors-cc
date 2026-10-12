@@ -97,18 +97,6 @@ export const siteNavScript = `
         }
       })
     })
-    document.querySelectorAll('.language-control').forEach((control) => {
-      control.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-          event.stopPropagation()
-          control.open = false
-          control.querySelector('summary').focus()
-        }
-      })
-      control.addEventListener('focusout', () => {
-        queueMicrotask(() => { if (!control.contains(document.activeElement)) control.open = false })
-      })
-    })
     applyNavigationMode(compactNavigation.matches)
     compactNavigation.addEventListener?.('change', (event) => {
       applyNavigationMode(event.matches)

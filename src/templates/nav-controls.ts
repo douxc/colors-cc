@@ -96,13 +96,14 @@ export const renderNavUtilityControlItems = (
   path: string
 ): string => {
   const messages = commonMessages[locale]
+  // A plain set of links: language choice must stay available without any scripted
+  // disclosure state, matching the always-visible theme control beside it.
   const languageControl = config.enabledLocales.length > 1
-    ? `<details class="nav-preference-control language-control">
-      <summary class="language-toggle" aria-label="${escapeAttribute(messages.languageControlLabel)}">${localeInfo[locale].label}</summary>
+    ? `<div class="nav-preference-control language-control">
       <div class="nav-segmented" role="group" aria-label="${escapeAttribute(messages.languageControlLabel)}">
         ${config.enabledLocales.map(option => languageOption(option, locale, path, localeInfo[option].label)).join('')}
       </div>
-    </details>`
+    </div>`
     : ''
 
   return `
