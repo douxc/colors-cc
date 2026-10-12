@@ -7,7 +7,6 @@
   "scripts": {
     "dev": "wrangler dev",
     "build:worker": "WRANGLER_LOG_PATH=dist/wrangler.log wrangler deploy --dry-run --outdir dist/worker",
-    "build:all": "pnpm build:worker",
     "deploy": "wrangler deploy",
     "deploy:worker": "pnpm validate && wrangler deploy",
     "typecheck": "tsc --noEmit",
