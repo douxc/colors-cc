@@ -1107,23 +1107,6 @@ describe('colors-cc Frontend', () => {
     })
   })
 
-  describe('Canonical host redirect', () => {
-    it('should 301 the retired www host to the canonical origin and keep the query', async () => {
-      const res = await app.request('https://www.colors-cc.top/zh/tools/converter?hex=%23ff0000')
-
-      expect(res.status).toBe(301)
-      expect(res.headers.get('location')).toBe('https://colors-cc.top/zh/tools/converter?hex=%23ff0000')
-    })
-
-    it('should serve the canonical host and local requests without redirecting', async () => {
-      const canonical = await app.request('https://colors-cc.top/zh')
-      expect(canonical.status).toBe(200)
-
-      const local = await app.request('/zh')
-      expect(local.status).toBe(200)
-    })
-  })
-
   describe('Global 404 Handler', () => {
     it('should return 404 status with llms.txt content', async () => {
       const res = await app.request('/some/random/path')

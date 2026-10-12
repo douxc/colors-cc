@@ -111,22 +111,6 @@ const createLocalizedPages = (
 
 export const createApp = (config: SiteConfig, templates: HtmlTemplates): App => {
   const app = new Hono<{ Bindings: Env; Variables: Variables }>()
-  const canonicalHost = new URL(config.origin).host.toLowerCase()
-  const retiredHost = `www.${canonicalHost}`
-
-  // The retired mainland host proxies this same Worker; keep one canonical host
-  // for search engines even when the edge layer does not redirect on its own.
-  app.use('*', async (c, next) => {
-    const headerHost = c.req.header('host')
-    const requestHost = (headerHost ?? new URL(c.req.url).host).toLowerCase().replace(/:\d+$/, '')
-
-    if (requestHost === retiredHost) {
-      const { pathname, search } = new URL(c.req.url)
-      return c.redirect(`${config.origin}${pathname}${search}`, 301)
-    }
-
-    await next()
-  })
 
   app.route('/', llmsRoute)
   app.route('/', openapiRoute)
