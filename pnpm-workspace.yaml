@@ -1,0 +1,7 @@
+# pnpm 11 reads build-script approvals from this file, not from the
+# `pnpm` field in package.json. Without it, `pnpm install` exits 1 with
+# ERR_PNPM_IGNORED_BUILDS, which fails the Cloudflare Workers Build on push.
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
