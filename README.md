@@ -9,7 +9,6 @@
 A blazing fast, free, and stateless API designed to help **AI Agents (Cursor, Cline, OpenClaw)** and developers instantly generate UI assets like SVG gradient placeholder images and random colors.
 
 **🌐 Frontend Site:** [https://colors-cc.top/](https://colors-cc.top/)  
-**🇨🇳 Mainland Site:** [https://www.colors-cc.top/](https://www.colors-cc.top/)
 **🚀 External API:** [https://api.colors-cc.top/](https://api.colors-cc.top/)
 
 ![Animated Fluid Gradient](https://api.colors-cc.top/fluid-placeholder?w=1200&h=300&palette=%23FFD6A5,%23FFADAD,%23E2A0FF&speed=12&text=Animated+Hero)
@@ -231,18 +230,15 @@ present at the expected path.
 
 ## Deployment
 
-The same application source produces two independent deployments. The global
-edition serves English under `/en`, Simplified Chinese under `/zh`, and Japanese
-under `/ja`, while
-preserving legacy unprefixed routes in English. The mainland edition is a
-Chinese-only build: it serves the root homepage and `/zh` pages, does not emit
-`/en` or `/ja`, and does not render a language switch.
+One Cloudflare Worker serves the whole site: English under `/en`, Simplified
+Chinese under `/zh`, and Japanese under `/ja`, while preserving legacy
+unprefixed routes in English. The mainland CN deployment was retired, so every
+push to `main` deploys this Worker through the Cloudflare Workers Build.
 
 The Japanese edition covers the homepage and all 16 tool pages, including the
 12 directed color conversions. Japanese public documentation is available at
 `/ja/llms.txt`, `/ja/openapi.json`, and `/ja/skills/colors-cc.md`; the existing root
-documentation URLs remain available. Japanese documents are only emitted by the
-global deployment.
+documentation URLs remain available.
 
 Tool inputs and search conditions are saved in the page URL and preserved when
 switching languages or refreshing. The main workflow presents a default result,
@@ -252,8 +248,6 @@ copying, and failed requests can be retried without clearing the current inputs.
 
 ### Cloudflare Worker (`colors-cc.top`)
 
-The global edition defaults to English and does not render ICP information.
-
 ```bash
 pnpm validate
 pnpm build:worker
@@ -262,57 +256,23 @@ pnpm deploy:worker
 
 `build:worker` writes an inspectable dry-run bundle to `dist/worker`.
 `deploy:worker` publishes the Worker using the Custom Domain declared in
-`wrangler.toml`.
-
-### Mainland VPS (`www.colors-cc.top`)
-
-The VPS edition defaults to Chinese and renders `苏ICP备2024075067号-4` in the
-footer of every HTML page. It is exported to static files and does not require a
-Node.js process on the server.
-
-```bash
-pnpm validate
-pnpm build:vps
-```
-
-The static site is generated in `dist/vps`. Configure the deployment target in
-the ignored `.env` file:
-
-```bash
-VPS_TARGET=deploy@your-vps
-# Optional; defaults match the current VPS layout
-VPS_ROOT=/var/www/colors-cc.top
-VPS_SITE_ORIGIN=https://www.colors-cc.top
-VPS_NGINX_CONFIG=/etc/nginx/sites-available/colors-cc.top
-```
-
-Then deploy it with a full replacement:
-
-```bash
-pnpm deploy:vps
-```
-
-The deployment uses `rsync --delete`; the target directory must contain only
-generated site files. It also installs `deploy/nginx-vps.conf` through the
-configured SSH account using passwordless `sudo`. The remote installer runs
-`nginx -t` before reloading and restores the previous configuration if
-validation fails.
-
-The deploy command runs `pnpm verify:seo` against the public CN origin after
-syncing. It fails if clean localized URLs redirect, a crawler is blocked, an
-SEO asset has the wrong content type, or required sitemap/page metadata is
-missing. The global deployment can be checked independently with:
+`wrangler.toml`, and the Cloudflare Workers Build runs the same deploy on every
+push to `main`. Check the public result with:
 
 ```bash
 pnpm verify:seo -- https://colors-cc.top
 ```
 
+It fails if clean localized URLs redirect, a crawler is blocked, an SEO asset
+has the wrong content type, required sitemap/page metadata is missing, or the
+retired CN host reappears in page metadata.
+
 ## Search engine onboarding
 
-Both deployments render complete server-side HTML and publish the same SEO
-contract on every localized page:
+The site renders complete server-side HTML and publishes the same SEO contract
+on every localized page:
 
-- self-referencing canonical URLs and reciprocal cross-domain `hreflang` links;
+- self-referencing canonical URLs and `hreflang` alternates on the canonical origin;
 - Open Graph, Twitter Card, favicon, manifest, and large-preview directives;
 - `WebSite`, `Organization`, `WebApplication`, and breadcrumb JSON-LD;
 - responsive-page metadata for Baidu (`applicable-device=pc,mobile`);
@@ -324,9 +284,10 @@ After each release that changes indexable page content, update
 Do not replace it with the request time: search engines expect `lastmod` to be
 truthful.
 
-Webmaster platforms require proof that you control each domain. Copy
-`.env.example` to the ignored `.env` file for the VPS deployment, then fill in
-only the `content` value issued by each platform:
+Webmaster platforms require proof that you control the domain. Copy
+`.env.example` to the ignored `.env` file, or set the same variables in the
+Cloudflare Worker's environment, then fill in only the `content` value issued
+by each platform:
 
 ```bash
 SEO_GOOGLE_SITE_VERIFICATION=
@@ -335,8 +296,7 @@ SEO_360_SITE_VERIFICATION=
 SEO_BYTEDANCE_VERIFICATION_CODE=
 ```
 
-Configure the same variables in the Cloudflare Worker's environment before
-deploying the global site. If another platform issues a different meta name,
+If another platform issues a different meta name,
 pass an exact name-to-value JSON object through
 `SEO_EXTRA_VERIFICATION_META`, for example:
 
@@ -349,8 +309,8 @@ values are configured. Platform-specific variables override duplicate names
 from the JSON object. Submit the matching sitemap after verification:
 
 - Google Search Console: `https://colors-cc.top/sitemap.xml`
-- Baidu Search Resource Platform: `https://www.colors-cc.top/sitemap.xml`
-- 360 Webmaster Platform: `https://www.colors-cc.top/sitemap.xml`
+- Baidu Search Resource Platform: `https://colors-cc.top/sitemap.xml`
+- 360 Webmaster Platform: `https://colors-cc.top/sitemap.xml`
 - Toutiao/ByteDance: Bytespider is allowed; use the current platform-provided
   verification and submission method if one is available for the account.
 
@@ -358,7 +318,7 @@ The generic sitemap and robots protocols remain valid for other standards-based
 search engines. Never commit placeholder verification values.
 
 Cloudflare can prepend a managed `robots.txt` that contains a separate
-`Bytespider` `Disallow` rule. For the global domain, turn off the conflicting
+`Bytespider` `Disallow` rule. For colors-cc.top, turn off the conflicting
 managed robots preference under **Security Settings → Bot traffic**, and set
 the Search/Bytespider crawler policy to **Allow** in AI Crawl Control. Verify
 the public response with `pnpm verify:seo -- https://colors-cc.top`; changing

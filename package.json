@@ -7,11 +7,9 @@
   "scripts": {
     "dev": "wrangler dev",
     "build:worker": "WRANGLER_LOG_PATH=dist/wrangler.log wrangler deploy --dry-run --outdir dist/worker",
-    "build:vps": "node --import tsx scripts/build-vps.ts",
-    "build:all": "pnpm build:worker && pnpm build:vps",
+    "build:all": "pnpm build:worker",
     "deploy": "wrangler deploy",
     "deploy:worker": "pnpm validate && wrangler deploy",
-    "deploy:vps": "sh scripts/deploy-vps.sh",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

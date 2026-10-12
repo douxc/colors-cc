@@ -23,7 +23,6 @@ The command bundles these inputs into the ignored generated file
 - the exact packages pinned by `pnpm-lock.yaml`
 
 `pnpm build:worker` embeds that generated file in the Cloudflare Worker build.
-`pnpm build:vps` emits it as `dist/vps/assets/image-compress-worker.js`.
 
 ## Exact upstream source
 

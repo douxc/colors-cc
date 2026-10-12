@@ -2,7 +2,6 @@ import { commonMessages } from '../i18n'
 import {
   localePrefix,
   documentationPath,
-  renderComplianceFooter,
   renderFeedbackLink,
   TOOL_REDIRECTS,
   type Locale,
@@ -124,7 +123,6 @@ export const renderSiteFooter = (
           ${renderFeedbackLink(config, locale)}
         </nav>
       </div>
-      ${renderComplianceFooter(config)}
     </footer>
   `
 }

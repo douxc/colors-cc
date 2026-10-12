@@ -1,4 +1,4 @@
-import { cnSiteConfig, globalSiteConfig, htmlLang } from '../src/site'
+import { globalSiteConfig, htmlLang } from '../src/site'
 import { PAGE_PATHS } from '../src/routes/seo/sitemap'
 
 const nodeProcess = (globalThis as typeof globalThis & {
@@ -12,8 +12,7 @@ if (!originArgument) throw new Error('Usage: pnpm verify:seo -- <request-origin>
 
 const siteOrigin = new URL(originArgument).origin
 const canonicalOrigin = new URL(urlArguments[1] ?? siteOrigin).origin
-const isCnDeployment = new URL(canonicalOrigin).hostname.startsWith('www.')
-const enabledLocales = (isCnDeployment ? cnSiteConfig : globalSiteConfig).enabledLocales
+const enabledLocales = globalSiteConfig.enabledLocales
 
 function requireCondition (condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message)
@@ -124,15 +123,6 @@ const verifyPage = async (path: string, userAgent?: string): Promise<void> => {
   requireIncludes(html, '<script type="application/ld+json">', url)
 }
 
-const verifyDisabledCnRoutes = async (): Promise<void> => {
-  if (!isCnDeployment) return
-
-  for (const path of ['/en', '/en/tools/converter', '/tools/converter', '/ja', '/ja/tools/converter', '/ja/llms.txt', '/ja/openapi.json', '/ja/skills/colors-cc.md']) {
-    const response = await fetch(`${siteOrigin}${path}`, { redirect: 'manual' })
-    requireCondition(response.status === 404, `${siteOrigin}${path} returned ${response.status}; expected 404`)
-  }
-}
-
 const verifyCrawlerAccess = async (): Promise<void> => {
   for (const crawler of ['Googlebot', 'Baiduspider/2.0', '360Spider', 'Bytespider']) {
     await verifyPage('/zh', crawler)
@@ -162,9 +152,7 @@ const verifyRedirect = async (path: string): Promise<void> => {
 }
 
 const verifyMigratedToolRedirects = async (): Promise<void> => {
-  const paths = isCnDeployment
-    ? ['/zh/tools/image-compress']
-    : ['/tools/image-compress', ...enabledLocales.map(locale => `/${locale}/tools/image-compress`)]
+  const paths = ['/tools/image-compress', ...enabledLocales.map(locale => `/${locale}/tools/image-compress`)]
   await Promise.all(paths.map(verifyRedirect))
 }
 
@@ -176,7 +164,6 @@ const main = async (): Promise<void> => {
     verifySitemaps(),
     ...pageChecks,
     verifyCrawlerAccess(),
-    verifyDisabledCnRoutes(),
     verifyMigratedToolRedirects(),
     verifyAssets()
   ])
@@ -188,7 +175,7 @@ const main = async (): Promise<void> => {
     throw new Error(`${failures.length} SEO checks failed for ${siteOrigin}:\n- ${failures.join('\n- ')}`)
   }
 
-  console.log(`SEO verification passed for ${siteOrigin} (${isCnDeployment ? 'CN VPS' : 'global Worker'})`)
+  console.log(`SEO verification passed for ${siteOrigin} (global Worker)`)
 }
 
 void main()

@@ -115,7 +115,7 @@ export const createApp = (config: SiteConfig, templates: HtmlTemplates): App => 
   app.route('/', llmsRoute)
   app.route('/', openapiRoute)
   app.route('/', skillsRoute)
-  if (config.edition === 'global' && config.enabledLocales.includes('ja')) {
+  if (config.enabledLocales.includes('ja')) {
     app.route('/ja', createJapaneseDocsRoute())
   }
   app.route('/', createRobotsRoute(config))
@@ -126,14 +126,8 @@ export const createApp = (config: SiteConfig, templates: HtmlTemplates): App => 
     app.route(localePrefix(locale), createLocalizedPages(config, locale, templates))
   }
 
-  // The global edition preserves legacy unprefixed tools. The CN edition emits
-  // only its root homepage plus explicit /zh routes to avoid duplicate pages.
-  app.route('/', createLocalizedPages(
-    config,
-    config.defaultLocale,
-    templates,
-    config.edition === 'global'
-  ))
+  // Legacy unprefixed routes keep serving the default locale.
+  app.route('/', createLocalizedPages(config, config.defaultLocale, templates, true))
 
   app.notFound((c) => {
     c.status(404)

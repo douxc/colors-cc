@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { JSDOM } from 'jsdom'
 import app from '../../index'
-import { createApp } from '../../app'
-import { cnSiteConfig, globalSiteConfig, htmlLang } from '../../site'
-import home from '../../templates/home.html'
+import { globalSiteConfig, htmlLang } from '../../site'
 import { PAGE_PATHS } from './sitemap'
 
 describe('Japanese discovery and deployment compatibility', () => {
@@ -27,20 +25,19 @@ describe('Japanese discovery and deployment compatibility', () => {
     }
   })
 
-  it('lists all 51 global and only 17 CN pages in both sitemap formats', async () => {
-    const cn = createApp(cnSiteConfig, { home })
-    for (const [site, count] of [[app, 51], [cn, 17]] as const) {
-      const xml = await (await site.request('/sitemap.xml')).text()
-      const txt = await (await site.request('/sitemap.txt')).text()
-      expect([...xml.matchAll(/<loc>/g)]).toHaveLength(count)
-      expect(txt.trim().split('\n')).toHaveLength(count)
-      expect(xml).toContain('hreflang="ja" href="https://colors-cc.top/ja')
-      if (count === 17) expect(txt).not.toContain('/ja')
-      else for (const path of PAGE_PATHS) expect(txt).toContain('https://colors-cc.top/ja' + (path === '/' ? '' : path))
+  it('lists every localized page in both sitemap formats', async () => {
+    const xml = await (await app.request('/sitemap.xml')).text()
+    const txt = await (await app.request('/sitemap.txt')).text()
+    const expected = globalSiteConfig.enabledLocales.length * PAGE_PATHS.length
+
+    expect([...xml.matchAll(/<loc>/g)]).toHaveLength(expected)
+    expect(txt.trim().split('\n')).toHaveLength(expected)
+    expect(xml).toContain('hreflang="ja" href="https://colors-cc.top/ja')
+    for (const path of PAGE_PATHS) {
+      expect(txt).toContain('https://colors-cc.top/ja' + (path === '/' ? '' : path))
     }
-    expect((await cn.request('/ja')).status).toBe(404)
-    const html = await (await cn.request('/zh/tools/converter')).text()
+
+    const html = await (await app.request('/zh/tools/converter')).text()
     expect(html).toContain('hreflang="ja" href="https://colors-cc.top/ja/tools/converter"')
-    expect(html).not.toContain('data-locale="ja"')
   })
 })

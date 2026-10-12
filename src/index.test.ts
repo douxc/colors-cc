@@ -1,17 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { createApp } from './app'
 import app from './index'
 import { PAGE_PATHS } from './routes/seo/sitemap'
-import { cnSiteConfig, globalSiteConfig, localeInfo, localizedUrl, TOOL_REDIRECTS } from './site'
+import { globalSiteConfig, localeInfo, localizedUrl, TOOL_REDIRECTS } from './site'
 import { languageControlBlock } from './templates/language-control-html'
 import homeTemplate from './templates/home.html'
-
-const cnApp = createApp(cnSiteConfig, {
-  home: homeTemplate
-})
 
 const verificationApp = createApp({
   ...globalSiteConfig,
@@ -254,15 +249,6 @@ describe('colors-cc Frontend', () => {
           expect(res.status, path).toBe(301)
           expect(res.headers.get('location'), path).toBe(OFFLINE_IMAGE_COMPRESS)
         }
-      })
-
-      it('should 301 the CN /zh variant while keeping the legacy route at 404', async () => {
-        const zhRes = await cnApp.request('/zh/tools/image-compress')
-        expect(zhRes.status).toBe(301)
-        expect(zhRes.headers.get('location')).toBe(OFFLINE_IMAGE_COMPRESS)
-
-        const legacyRes = await cnApp.request('/tools/image-compress')
-        expect(legacyRes.status).toBe(404)
       })
 
       it('should drop every deep-link query when redirecting', async () => {
@@ -689,8 +675,7 @@ describe('colors-cc Frontend', () => {
   describe('Search engine metadata', () => {
     it('should render complete, unique SEO metadata on every localized page and deployment', async () => {
       const deployments = [
-        { app, config: globalSiteConfig },
-        { app: cnApp, config: cnSiteConfig }
+        { app, config: globalSiteConfig }
       ]
 
       for (const deployment of deployments) {
@@ -849,7 +834,7 @@ describe('colors-cc Frontend', () => {
       for (const crawler of crawlers) {
         for (const path of PAGE_PATHS) {
           const suffix = path === '/' ? '' : path
-          const response = await cnApp.request(`/zh${suffix}`, {
+          const response = await app.request(`/zh${suffix}`, {
             headers: { 'User-Agent': crawler }
           })
           const html = await response.text()
@@ -876,82 +861,14 @@ describe('colors-cc Frontend', () => {
     })
   })
 
-  describe('CN VPS edition', () => {
-    it('should build only Chinese localized routes and the www origin', async () => {
-      const [homeResponse, chineseResponse, englishResponse, legacyToolResponse,
-        robotsResponse, sitemapResponse, textSitemapResponse, manifestResponse] = await Promise.all([
-        cnApp.request('/'),
-        cnApp.request('/zh'),
-        cnApp.request('/en'),
-        cnApp.request('/tools/converter'),
-        cnApp.request('/robots.txt'),
-        cnApp.request('/sitemap.xml'),
-        cnApp.request('/sitemap.txt'),
-        cnApp.request('/site.webmanifest')
-      ])
-      const [home, chinese, robots, sitemap, textSitemap, manifest] = await Promise.all([
-        homeResponse.text(),
-        chineseResponse.text(),
-        robotsResponse.text(),
-        sitemapResponse.text(),
-        textSitemapResponse.text(),
-        manifestResponse.json() as Promise<{ start_url: string; lang: string }>
-      ])
-
-      expect(homeResponse.status).toBe(200)
-      expect(home).toContain('<html lang="zh-CN">')
-      expect(home).toContain('https://www.colors-cc.top/zh')
-      expect(chineseResponse.status).toBe(200)
-      expect(chinese).toContain('<html lang="zh-CN">')
-      expect(englishResponse.status).toBe(404)
-      expect(legacyToolResponse.status).toBe(404)
-      expect(robots).toContain('Sitemap: https://www.colors-cc.top/sitemap.xml')
-      expect(sitemap.match(/<url>/g)).toHaveLength(PAGE_PATHS.length)
-      expect(sitemap).not.toContain('<loc>https://www.colors-cc.top/en')
-      expect(sitemap).toContain('https://www.colors-cc.top/zh/tools/converter')
-      expect(textSitemap.trim().split('\n')).toHaveLength(PAGE_PATHS.length)
-      expect(textSitemap).not.toContain('https://www.colors-cc.top/en')
-      expect(manifest.start_url).toBe('/zh')
-      expect(manifest.lang).toBe('zh-CN')
-    })
-
-    it('should include the ICP filing on every CN HTML page', async () => {
+  describe('Retired mainland edition', () => {
+    it('should not render the retired ICP filing on any page', async () => {
       for (const path of PAGE_PATHS) {
-        const requestPath = `/zh${path === '/' ? '' : path}`
-        const response = await cnApp.request(requestPath)
-        const html = await response.text()
+        const html = await (await app.request(path)).text()
 
-        expect(response.status, requestPath).toBe(200)
-        expect(html, requestPath).toContain('苏ICP备2024075067号-4')
-        expect(html, requestPath).toContain('https://beian.miit.gov.cn/')
+        expect(html, path).not.toContain('苏ICP备2024075067号-4')
+        expect(html, path).not.toContain('beian.miit.gov.cn')
       }
-
-      const rootHtml = await (await cnApp.request('/')).text()
-      expect(rootHtml).toContain('苏ICP备2024075067号-4')
-    })
-
-    it('should hide language switching while keeping theme controls', async () => {
-      for (const path of ['/zh', '/zh/tools/converter', '/zh/tools/random-palette']) {
-        const response = await cnApp.request(path)
-        const html = await response.text()
-
-        expect(response.status, path).toBe(200)
-        expect(html, path).not.toContain('class="nav-preference-control language-control"')
-        expect(html, path).not.toContain('class="nav-switch-option language-option"')
-        expect(html, path).not.toContain('class="language-toggle"')
-        expect(html, path).not.toMatch(/<details[^>]*language-control/)
-        expect(html, path).not.toContain('href="/en')
-        expect(html, path).toContain('class="nav-preference-control theme-control"')
-        expect(html, path).toContain('data-theme-option="system"')
-        expect(html, path).not.toContain('<span class="nav-preference-label">主题</span>')
-        expect(html, path).not.toContain('>System</')
-        expect(html.match(/class="theme-option-icon"/g), path).toHaveLength(3)
-      }
-    })
-
-    it('should not show ICP filing on the global Worker edition', async () => {
-      const html = await (await app.request('/zh')).text()
-      expect(html).not.toContain('苏ICP备2024075067号-4')
     })
   })
 
@@ -983,23 +900,6 @@ describe('colors-cc Frontend', () => {
       expect(html).toContain('>反馈</a>')
     })
 
-    it('should not render the feedback link or leave the placeholder on the CN edition', async () => {
-      const [homeRes, converterRes] = await Promise.all([
-        cnApp.request('/zh'),
-        cnApp.request('/zh/tools/converter')
-      ])
-      const [home, converter] = await Promise.all([
-        homeRes.text(),
-        converterRes.text()
-      ])
-
-      expect(homeRes.status).toBe(200)
-      expect(converterRes.status).toBe(200)
-      expect(home).not.toContain('mailto:douxc512@gmail.com')
-      expect(home).not.toContain('__FEEDBACK_LINK__')
-      expect(converter).not.toContain('mailto:douxc512@gmail.com')
-      expect(converter).not.toContain('__FEEDBACK_LINK__')
-    })
   })
 
   describe('Shared brand chrome', () => {
@@ -1234,25 +1134,6 @@ describe('colors-cc Frontend', () => {
       expect(verifySeo).not.toContain('enabledLocales.length * 18')
       const pageChecks = verifySeo.slice(verifySeo.indexOf('pageChecks'))
       expect(pageChecks).not.toContain('image-compress')
-    })
-
-    it('should build the VPS bundle without any image-compress output', () => {
-      execFileSync('pnpm', ['build:vps'], { cwd: repoRoot, stdio: 'pipe' })
-      const vpsOutputs = readdirSync(join(repoRoot, 'dist/vps'), {
-        recursive: true
-      }) as string[]
-      expect(vpsOutputs.some((name) => name.includes('image-compress'))).toBe(false)
-    })
-
-    it('should keep the CN nginx exact-match 301 rules for the legacy path', () => {
-      const nginx = read('deploy/nginx-vps.conf')
-
-      expect(nginx).toContain(
-        'location = /zh/tools/image-compress { return 301 https://offline-tools.colors-cc.top/image-compress/; }'
-      )
-      expect(nginx).toContain(
-        'location = /zh/tools/image-compress/ { return 301 https://offline-tools.colors-cc.top/image-compress/; }'
-      )
     })
 
     it('should drop the codec build from wrangler and package scripts', () => {

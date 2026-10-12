@@ -694,9 +694,6 @@ export const sharedStyles = `
   .footer-links { display: flex; flex-wrap: wrap; gap: 16px; }
   .footer-links a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; color: var(--text-muted); text-decoration: none; }
   .footer-links a:hover { color: var(--text); }
-  .site-compliance { width: 100%; padding: 14px 0 6px; text-align: center; font-size: 13px; }
-  .site-compliance a { color: var(--text-subtle); text-decoration: none; }
-  .site-compliance a:hover { color: var(--text); }
 
   .sr-only {
     position: absolute;

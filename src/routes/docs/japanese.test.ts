@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import app from '../../index'
-import { createApp } from '../../app'
-import { cnSiteConfig } from '../../site'
-import home from '../../templates/home.html'
 
 const withoutProse = (value: unknown): unknown => {
   if (Array.isArray(value)) return value.map(withoutProse)
@@ -39,12 +36,10 @@ describe('Japanese public documentation', () => {
     expect(JSON.stringify(localized)).not.toContain('Get a random HEX')
   })
 
-  it('connects Japanese developer links and excludes Japanese documents from CN', async () => {
+  it('connects Japanese developer links', async () => {
     const html = await (await app.request('/ja')).text()
     for (const path of ['llms.txt', 'openapi.json', 'skills/colors-cc.md']) {
       expect(html).toContain(`href="/ja/${path}"`)
-      const cn = createApp(cnSiteConfig, { home })
-      expect((await cn.request('/ja/' + path)).status).toBe(404)
     }
   })
 })

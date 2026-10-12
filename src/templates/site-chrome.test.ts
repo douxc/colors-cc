@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cnSiteConfig, globalSiteConfig } from '../site'
+import { globalSiteConfig } from '../site'
 import { renderSiteFooter, renderSiteNav } from './site-chrome'
 
 describe('localized chrome', () => {
@@ -14,11 +14,6 @@ describe('localized chrome', () => {
     expect(footer).toContain('/ja/openapi.json')
     expect(footer).toContain('/ja/skills/colors-cc.md')
     expect(footer).toContain('フィードバック')
-  })
-
-  it('does not offer nonexistent languages on the Chinese deployment', () => {
-    expect(renderSiteNav(cnSiteConfig, 'zh', '/')).not.toContain('data-locale=')
-    expect(renderSiteFooter(cnSiteConfig, 'zh')).toContain(cnSiteConfig.icp.number)
   })
 
   it('renders every language as a direct link to the same page', () => {

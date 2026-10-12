@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { cnSiteConfig, globalSiteConfig, htmlLang, hreflangAlternates, localizedPath } from './site'
+import { globalSiteConfig, htmlLang, hreflangAlternates, localizedPath } from './site'
 
 describe('deployment locales', () => {
-  it('adds Japanese on the global deployment and preserves Chinese deployment', () => {
+  it('serves English, Chinese, and Japanese from one origin', () => {
     expect(globalSiteConfig.enabledLocales).toEqual(['en', 'zh', 'ja'])
-    expect(cnSiteConfig.enabledLocales).toEqual(['zh'])
     expect(globalSiteConfig.defaultLocale).toBe('en')
     expect(htmlLang('ja')).toBe('ja')
     expect(htmlLang('zh')).toBe('zh-CN')
