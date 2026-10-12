@@ -18,13 +18,36 @@ function requireCondition (condition: unknown, message: string): asserts conditi
   if (!condition) throw new Error(message)
 }
 
+// The verifier fires dozens of parallel requests, so one dropped connection
+// must not fail the release gate. Retry thrown network errors with a short
+// backoff; HTTP error statuses are still reported as real failures.
+const RETRY_DELAYS_MS = [250, 750] as const
+
+const fetchWithRetry = async (url: string, init?: RequestInit): Promise<Response> => {
+  let lastError: unknown
+
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fetch(url, init)
+    } catch (error) {
+      lastError = error
+      const delay = RETRY_DELAYS_MS[attempt]
+
+      if (delay === undefined) break
+      await new Promise(resolve => setTimeout(resolve, delay))
+    }
+  }
+
+  throw lastError
+}
+
 const fetchText = async (
   path: string,
   expectedContentTypes: string | readonly string[],
   userAgent = 'colors-cc-seo-verifier/1.0'
 ): Promise<string> => {
   const url = `${siteOrigin}${path}`
-  const response = await fetch(url, {
+  const response = await fetchWithRetry(url, {
     redirect: 'manual',
     headers: { 'User-Agent': userAgent }
   })
@@ -140,7 +163,7 @@ const OFFLINE_IMAGE_COMPRESS = 'https://offline-tools.colors-cc.top/image-compre
 
 const verifyRedirect = async (path: string): Promise<void> => {
   const url = `${siteOrigin}${path}`
-  const response = await fetch(url, { redirect: 'manual' })
+  const response = await fetchWithRetry(url, { redirect: 'manual' })
 
   requireCondition(response.status === 301, `${url} returned ${response.status}; expected 301`)
   const location = response.headers.get('location') ?? ''
