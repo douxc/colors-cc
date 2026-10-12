@@ -5,6 +5,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    // Browser-level checks need a real Chrome; run them with `pnpm test:e2e`.
+    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
   },
   plugins: [
     {

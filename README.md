@@ -215,7 +215,19 @@ ColorsCC also provides interactive web tools for designers and developers:
 - [Hono](https://hono.dev/) - Web framework
 - [Cloudflare Workers](https://workers.cloudflare.com/) - Deployment
 - [TypeScript](https://www.typescriptlang.org/) - Language
-- [pnpm](https://pnpm.io/) - Package manager (v10.32.0)
+- [pnpm](https://pnpm.io/) - Package manager (v11.28.5)
+
+## Testing
+
+```bash
+pnpm typecheck
+pnpm test        # headless suites (routes, rendering, client behavior)
+pnpm test:e2e    # browser suites; needs Google Chrome installed
+```
+
+`pnpm test` runs everything that needs no browser. `pnpm test:e2e` drives a real
+headless Chrome against the Worker's own output and is skipped when Chrome is not
+present at the expected path.
 
 ## Deployment
 

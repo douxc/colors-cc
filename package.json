@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "license": "GPL-3.0-or-later",
-  "packageManager": "pnpm@10.32.0",
+  "packageManager": "pnpm@11.28.5",
   "scripts": {
     "dev": "wrangler dev",
     "build:worker": "WRANGLER_LOG_PATH=dist/wrangler.log wrangler deploy --dry-run --outdir dist/worker",
@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "verify:seo": "tsx scripts/verify-seo.ts",
     "validate": "pnpm typecheck && pnpm test"
   },
