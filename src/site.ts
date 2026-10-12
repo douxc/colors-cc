@@ -80,7 +80,7 @@ export type HreflangAlternate = {
 export const hreflangAlternates = (path: string): readonly HreflangAlternate[] => [
   { hreflang: 'en', href: localizedUrl(globalSiteConfig.origin, 'en', path) },
   { hreflang: 'zh-Hans', href: localizedUrl(globalSiteConfig.origin, 'zh', path) },
-  { hreflang: 'zh-CN', href: localizedUrl(cnSiteConfig.origin, 'zh', path) },
+  { hreflang: 'zh-CN', href: localizedUrl(globalSiteConfig.origin, 'zh', path) },
   { hreflang: 'ja', href: localizedUrl(globalSiteConfig.origin, 'ja', path) },
   { hreflang: 'x-default', href: localizedUrl(globalSiteConfig.origin, 'en', path) }
 ]

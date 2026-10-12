@@ -124,7 +124,8 @@ describe('colors-cc Frontend', () => {
       expect(xml).not.toContain('hreflang="en-CN"')
       expect(xml).toContain('hreflang="zh-CN"')
       expect(xml).toContain('hreflang="x-default"')
-      expect(xml).toContain('https://www.colors-cc.top/zh/tools/converter')
+      expect(xml).toContain('https://colors-cc.top/zh/tools/converter')
+      expect(xml).not.toContain('www.colors-cc.top')
       expect(xml.match(/<mobile:mobile type="pc,mobile" \/>/g)).toHaveLength(PAGE_PATHS.length * globalSiteConfig.enabledLocales.length)
       expect(xml.match(/<lastmod>2026-10-12<\/lastmod>/g)).toHaveLength(PAGE_PATHS.length * globalSiteConfig.enabledLocales.length)
     })
@@ -641,12 +642,13 @@ describe('colors-cc Frontend', () => {
       }
     })
 
-    it('should publish reciprocal cross-domain hreflang links', async () => {
+    it('should publish hreflang alternates only on the canonical origin', async () => {
       const html = await (await app.request('/zh/tools/converter')).text()
 
       expect(html).toContain('hreflang="en" href="https://colors-cc.top/en/tools/converter"')
-      expect(html).toContain('hreflang="zh-CN" href="https://www.colors-cc.top/zh/tools/converter"')
+      expect(html).toContain('hreflang="zh-CN" href="https://colors-cc.top/zh/tools/converter"')
       expect(html).not.toContain('hreflang="en-CN"')
+      expect(html).not.toContain('www.colors-cc.top')
       expect(html).toContain('hreflang="x-default"')
     })
 

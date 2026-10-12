@@ -12,12 +12,18 @@ describe('deployment locales', () => {
     expect(localizedPath('en')).toBe('/en')
   })
 
-  it('has reciprocal global Japanese alternates without changing CN origins', () => {
+  it('keeps every alternate on the canonical origin', () => {
     expect(hreflangAlternates('/tools/converter')).toContainEqual({
       hreflang: 'ja', href: 'https://colors-cc.top/ja/tools/converter'
     })
     expect(hreflangAlternates('/tools/converter')).toContainEqual({
-      hreflang: 'zh-CN', href: 'https://www.colors-cc.top/zh/tools/converter'
+      hreflang: 'zh-CN', href: 'https://colors-cc.top/zh/tools/converter'
     })
+    expect(hreflangAlternates('/tools/converter')).toContainEqual({
+      hreflang: 'zh-Hans', href: 'https://colors-cc.top/zh/tools/converter'
+    })
+    // The retired CN host must never come back as a cross-domain alternate.
+    expect(hreflangAlternates('/tools/converter').every(alternate =>
+      alternate.href.startsWith('https://colors-cc.top'))).toBe(true)
   })
 })

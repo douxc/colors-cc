@@ -85,6 +85,10 @@ const verifySitemaps = async (): Promise<void> => {
   requireIncludes(xml, 'hreflang="zh-CN"', `${siteOrigin}/sitemap.xml`)
   requireIncludes(xml, 'hreflang="ja"', `${siteOrigin}/sitemap.xml`)
   requireCondition(
+    !xml.includes('www.colors-cc.top'),
+    `${siteOrigin}/sitemap.xml still references the retired CN host`
+  )
+  requireCondition(
     !xml.includes('hreflang="en-CN"'),
     `${siteOrigin}/sitemap.xml references the disabled CN English locale`
   )
@@ -108,8 +112,12 @@ const verifyPage = async (path: string, userAgent?: string): Promise<void> => {
   requireIncludes(html, 'name="robots" content="index, follow, max-image-preview:large', url)
   requireIncludes(html, 'name="applicable-device" content="pc,mobile"', url)
   requireIncludes(html, 'hreflang="x-default" href="https://colors-cc.top/en', url)
-  requireIncludes(html, 'hreflang="zh-CN" href="https://www.colors-cc.top/zh', url)
+  requireIncludes(html, 'hreflang="zh-CN" href="https://colors-cc.top/zh', url)
   requireIncludes(html, 'hreflang="ja" href="https://colors-cc.top/ja', url)
+  requireCondition(
+    !html.includes('www.colors-cc.top'),
+    `${url} still references the retired CN host`
+  )
   const locale = enabledLocales.find(locale => path === `/${locale}` || path.startsWith(`/${locale}/`))
   if (locale) requireIncludes(html, `<html lang="${htmlLang(locale)}">`, url)
   requireCondition(!html.includes('hreflang="en-CN"'), `${url} references the disabled CN English locale`)
