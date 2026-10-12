@@ -26,7 +26,7 @@ export const PAGE_PATHS = [
   '/tools/fluid-placeholder'
 ] as const
 
-export const SITEMAP_LAST_MODIFIED = '2026-07-29'
+export const SITEMAP_LAST_MODIFIED = '2026-10-12'
 
 const escapeXml = (value: string): string => value.replaceAll('&', '&amp;').replaceAll('"', '&quot;')
 
@@ -48,8 +48,7 @@ ${alternates}
   </url>`
 }
 
-const sitemapUrls = (config: SiteConfig): string[] => (['en', 'zh'] as const)
-  .filter(locale => config.enabledLocales.includes(locale))
+const sitemapUrls = (config: SiteConfig): string[] => config.enabledLocales
   .flatMap(locale => PAGE_PATHS.map(path => localizedUrl(config.origin, locale, path)))
 
 export const createSitemapRoute = (config: SiteConfig): Hono => {

@@ -10,6 +10,7 @@ import {
 import { renderSiteFooter, renderSiteNav, siteNavScript } from './site-chrome'
 import { sharedStyles } from './styles'
 import { themeControlScript, themeInitScript } from './theme'
+import { toolRuntimeScript } from '../client/runtime'
 
 type LayoutProps = {
   config: SiteConfig
@@ -63,7 +64,7 @@ export const Layout: FC<LayoutProps> = (props) => {
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={seo.title} />
         <meta property="og:locale" content={seo.ogLocale} />
-        <meta property="og:locale:alternate" content={seo.ogLocaleAlternate} />
+        {seo.ogLocaleAlternates.map(locale => <meta property="og:locale:alternate" content={locale} />)}
         <meta property="og:site_name" content="colors-cc" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={seo.title} />
@@ -84,8 +85,8 @@ export const Layout: FC<LayoutProps> = (props) => {
 
           <main id="main-content">
             <header class="page-heading">
-              <nav class="breadcrumb" aria-label={props.locale === 'zh' ? '面包屑导航' : 'Breadcrumb'}>
-                <a href={prefix}>{props.locale === 'zh' ? '首页' : 'Home'}</a>
+              <nav class="breadcrumb" aria-label={messages.breadcrumb}>
+                <a href={prefix}>{messages.home}</a>
                 <span aria-hidden="true">/</span>
                 <span aria-current="page">{props.title}</span>
               </nav>
@@ -93,6 +94,7 @@ export const Layout: FC<LayoutProps> = (props) => {
               <h1>{props.title}</h1>
               <p>{props.desc}</p>
             </header>
+            <script dangerouslySetInnerHTML={{ __html: toolRuntimeScript(props.locale) }} />
             {props.children}
           </main>
 

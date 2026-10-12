@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { createApp } from './app'
 import app from './index'
 import { PAGE_PATHS } from './routes/seo/sitemap'
-import { cnSiteConfig, globalSiteConfig, localizedUrl, TOOL_REDIRECTS } from './site'
+import { cnSiteConfig, globalSiteConfig, localeInfo, localizedUrl, TOOL_REDIRECTS } from './site'
 import homeTemplate from './templates/home.html'
 
 const cnApp = createApp(cnSiteConfig, {
@@ -113,7 +113,7 @@ describe('colors-cc Frontend', () => {
       expect(xml).not.toContain('/zh/tools/image-compress')
       expect(xml).toContain('<?xml version="1.0"')
       expect(xml).toContain('<urlset')
-      expect(xml.match(/<url>/g)).toHaveLength(PAGE_PATHS.length * 2)
+      expect(xml.match(/<url>/g)).toHaveLength(PAGE_PATHS.length * globalSiteConfig.enabledLocales.length)
       expect(xml).toContain('https://colors-cc.top/en')
       expect(xml).toContain('https://colors-cc.top/zh')
       expect(xml).toContain('https://colors-cc.top/en/tools/converter')
@@ -124,8 +124,8 @@ describe('colors-cc Frontend', () => {
       expect(xml).toContain('hreflang="zh-CN"')
       expect(xml).toContain('hreflang="x-default"')
       expect(xml).toContain('https://www.colors-cc.top/zh/tools/converter')
-      expect(xml.match(/<mobile:mobile type="pc,mobile" \/>/g)).toHaveLength(PAGE_PATHS.length * 2)
-      expect(xml.match(/<lastmod>2026-07-29<\/lastmod>/g)).toHaveLength(PAGE_PATHS.length * 2)
+      expect(xml.match(/<mobile:mobile type="pc,mobile" \/>/g)).toHaveLength(PAGE_PATHS.length * globalSiteConfig.enabledLocales.length)
+      expect(xml.match(/<lastmod>2026-10-12<\/lastmod>/g)).toHaveLength(PAGE_PATHS.length * globalSiteConfig.enabledLocales.length)
     })
 
     it('should serve a plain-text sitemap fallback', async () => {
@@ -134,7 +134,7 @@ describe('colors-cc Frontend', () => {
 
       expect(res.status).toBe(200)
       expect(res.headers.get('Content-Type')).toContain('text/plain')
-      expect(urls).toHaveLength(PAGE_PATHS.length * 2)
+      expect(urls).toHaveLength(PAGE_PATHS.length * globalSiteConfig.enabledLocales.length)
       expect(urls).toContain('https://colors-cc.top/en/tools/converter')
       expect(urls).not.toContain('image-compress')
     })
@@ -209,7 +209,7 @@ describe('colors-cc Frontend', () => {
       
       const html = await res.text()
       expect(html).toContain('Curated palette generator')
-      expect(html).toContain('Generate a complete, curated palette for your chosen theme')
+      expect(html).toContain('Choose a theme and copy individual colors or a complete palette.')
       expect(html).toContain('palette-display')
       expect(html).toContain('role="status"')
     })
@@ -338,9 +338,9 @@ describe('colors-cc Frontend', () => {
       const showcaseIndex = html.indexOf('data-home-role="workflow-showcase"')
       const workbenchIndex = html.indexOf('id="create"')
       const developersIndex = html.indexOf('id="for-ai"')
-      const hero = html.slice(heroIndex, showcaseIndex)
-      const showcase = html.slice(showcaseIndex, workbenchIndex)
-      const workbench = html.slice(workbenchIndex, developersIndex)
+      const hero = html.slice(heroIndex, html.indexOf('class="tool-index"'))
+      const showcase = html.slice(showcaseIndex, developersIndex)
+      const workbench = html.slice(workbenchIndex, showcaseIndex)
       const developers = html.slice(developersIndex)
 
       expect(html.match(/data-home-role="product-result"/g) ?? []).toHaveLength(1)
@@ -348,11 +348,11 @@ describe('colors-cc Frontend', () => {
       expect(hero).not.toContain('class="eyebrow"')
       expect(hero).not.toContain('class="path-index"')
       expect(showcase).toContain('class="product-stage"')
-      expect(showcase).toContain('class="product-result-image"')
+      expect(html).toContain('class="product-result-image"')
       expect(homeTemplate).toContain('.product-result-image { width: 100%; height: auto;')
       expect(showcase).toContain('width="1200"')
       expect(showcase).toContain('height="630"')
-      expect(showcase).toContain('class="tool-index"')
+      expect(html).toContain('class="tool-index"')
       expect(showcase).not.toContain('class="workflow-group"')
       expect(showcase).not.toContain('2.4 MB → 684 KB')
       expect(workbench).not.toContain('class="window-dots"')
@@ -378,12 +378,12 @@ describe('colors-cc Frontend', () => {
       const showcaseIndex = html.indexOf('data-home-role="workflow-showcase"')
       const workbenchIndex = html.indexOf('id="create"')
       const aiIndex = html.indexOf('id="for-ai"')
-      const hero = html.slice(heroIndex, showcaseIndex)
-      const showcase = html.slice(showcaseIndex, workbenchIndex)
+      const hero = html.slice(heroIndex, html.indexOf('class="tool-index"'))
+      const showcase = html.slice(html.indexOf('class="tool-index"'), workbenchIndex)
 
       expect(heroIndex).toBeGreaterThan(-1)
       expect(showcaseIndex).toBeGreaterThan(heroIndex)
-      expect(workbenchIndex).toBeGreaterThan(showcaseIndex)
+      expect(showcaseIndex).toBeGreaterThan(workbenchIndex)
       expect(aiIndex).toBeGreaterThan(workbenchIndex)
       expect(hero).toContain('Create, prepare, and deliver visual assets.')
       expect(hero).toContain('data-brand-path="generate"')
@@ -392,9 +392,9 @@ describe('colors-cc Frontend', () => {
       expect(hero).toContain(`href="${OFFLINE_IMAGE_COMPRESS}"`)
       expect(showcase).toContain('data-workflow="generate"')
       expect(showcase).toContain('data-workflow="prepare"')
-      expect(showcase).toContain('data-home-role="product-result"')
-      expect(showcase).toContain('class="product-result-image"')
-      expect(showcase).toContain('class="tool-index"')
+      expect(html).toContain('data-home-role="product-result"')
+      expect(html).toContain('class="product-result-image"')
+      expect(html).toContain('class="tool-index"')
       expect(html).not.toContain('data-home-role="image-feature"')
       expect(html).not.toContain('data-home-role="tool-launchpad"')
     })
@@ -403,7 +403,7 @@ describe('colors-cc Frontend', () => {
       const html = await (await app.request('/')).text()
       const showcaseIndex = html.indexOf('data-home-role="workflow-showcase"')
       const workbenchIndex = html.indexOf('id="create"')
-      const showcase = html.slice(showcaseIndex, workbenchIndex)
+      const showcase = html.slice(html.indexOf('class="tool-index"'), workbenchIndex)
       const generateIndex = showcase.indexOf('data-workflow="generate"')
       const prepareIndex = showcase.indexOf('data-workflow="prepare"')
 
@@ -446,22 +446,22 @@ describe('colors-cc Frontend', () => {
       expect(html).toContain('id="quickCopy"')
       expect(html.match(/class="output-tab"/g)).toHaveLength(5)
       expect(html).toContain('const state = {')
-      expect(html).toContain('function buildUrl() {')
-      expect(html).toContain('function renderPreview() {')
-      expect(html).toContain('function commit(delay = 180) {')
-      expect(html).toContain('function syncQuery() {')
+      expect(html).toContain('new URLSearchParams(')
+      expect(html).toContain('function render(delay = 180) {')
+      expect(html).toContain('Tools.intent()')
+      expect(html).toContain('Tools.track(')
     })
 
-    it('should keep the placeholder workbench between the workflow showcase and developer outputs', async () => {
+    it('should keep the placeholder workbench before the workflow showcase and developer outputs', async () => {
       const html = await (await app.request('/')).text()
       const showcaseIndex = html.indexOf('data-home-role="workflow-showcase"')
       const workbenchIndex = html.indexOf('id="create"')
       const aiIndex = html.indexOf('id="for-ai"')
-      const workflowNavigation = html.slice(showcaseIndex, workbenchIndex)
+      const workflowNavigation = html.slice(html.indexOf('class="tool-index"'), workbenchIndex)
       const normalizedHtml = html.replace(/\s+/g, ' ')
 
       expect(showcaseIndex).toBeGreaterThan(-1)
-      expect(workbenchIndex).toBeGreaterThan(showcaseIndex)
+      expect(showcaseIndex).toBeGreaterThan(workbenchIndex)
       expect(aiIndex).toBeGreaterThan(workbenchIndex)
       expect(html).toContain('data-home-role="placeholder-primary"')
       expect(workflowNavigation).toContain('href="#create"')
@@ -499,7 +499,7 @@ describe('colors-cc Frontend', () => {
         const heroIndex = html.indexOf('data-home-role="asset-hero"')
         const showcaseIndex = html.indexOf('data-home-role="workflow-showcase"')
         const workbenchIndex = html.indexOf('id="create"')
-        const workflowNavigation = html.slice(showcaseIndex, workbenchIndex)
+        const workflowNavigation = html.slice(html.indexOf('class="tool-index"'), workbenchIndex)
 
         expect(response.status, route.path).toBe(200)
         expect(heroIndex, route.path).toBeGreaterThan(-1)
@@ -562,7 +562,7 @@ describe('colors-cc Frontend', () => {
       expect(english).toContain('Create, prepare, and deliver visual assets.')
       expect(english).toContain('Give every agent precise, reliable context.')
       expect(english).toContain('href="/zh"')
-      expect(english).toContain('aria-label="Simplified Chinese"')
+      expect(english).toContain('lang="zh-CN"')
       expect(english).toContain('https://colors-cc.top/en')
 
       expect(chineseResponse.status).toBe(200)
@@ -572,9 +572,9 @@ describe('colors-cc Frontend', () => {
       expect(chinese).toContain('--leading-hero: 1.18;')
       expect(chinese).toContain('line-height: var(--leading-hero);')
       expect(chinese).toContain('href="/en"')
-      expect(chinese).toContain('aria-label="英文"')
+      expect(chinese).toContain('lang="en"')
       expect(chinese).toContain('https://colors-cc.top/zh')
-      expect(chinese).toContain('const animatedEffects')
+      expect(chinese).toContain('const animated = new Set')
       expect(chinese).toContain('id="customPalette"')
       expect(chinese).not.toContain('animated效果')
       expect(chinese).not.toContain('custom配色')
@@ -609,10 +609,10 @@ describe('colors-cc Frontend', () => {
       expect(chinese).toContain('href="/en/tools/converter"')
       expect(chinese).toContain('转换完成 · 所有颜色格式已同步')
       expect(chinese).toContain('正在转换 ')
-      expect(chinese).toContain('输入的内容不是有效的 ')
+      expect(chinese).toContain('请输入有效的 {format} 色值')
       expect(chinese).not.toContain("'Converting '")
       expect(chinese).not.toContain("'That value is not a valid '")
-      expect(chinesePalette).toContain('根据所选主题生成完整、精选的配色方案')
+      expect(chinesePalette).toContain('选择主题，复制单个颜色或整组配色。')
       expect(chineseNames).toContain('搜索完整的 CSS 颜色名称目录')
       expect(chineseFluid).toContain('生成轻量、流畅循环的 SVG 占位图')
     })
@@ -634,9 +634,9 @@ describe('colors-cc Frontend', () => {
         expect(englishResponse.status, englishPath).toBe(200)
         expect(chineseResponse.status, chinesePath).toBe(200)
         expect(english, englishPath).toContain(`href="${chinesePath}"`)
-        expect(english, englishPath).toContain('aria-label="Simplified Chinese"')
+        expect(english, englishPath).toContain('lang="zh-CN"')
         expect(chinese, chinesePath).toContain(`href="${englishPath}"`)
-        expect(chinese, chinesePath).toContain('aria-label="英文"')
+        expect(chinese, chinesePath).toContain('lang="en"')
       }
     })
 
@@ -727,7 +727,7 @@ describe('colors-cc Frontend', () => {
             expect(html, requestPath).toContain('name="applicable-device" content="pc,mobile"')
             expect(html, requestPath).toContain('name="Baiduspider" content="index, follow"')
             expect(html, requestPath).toContain('max-image-preview:large')
-            expect(html, requestPath).toContain(`property="og:locale" content="${locale === 'zh' ? 'zh_CN' : 'en_US'}"`)
+            expect(html, requestPath).toContain(`property="og:locale" content="${localeInfo[locale].ogLocale}"`)
             expect(html, requestPath).toContain('property="og:image:width" content="1200"')
             expect(html, requestPath).toContain('property="og:image:height" content="630"')
             expect(html, requestPath).toContain('property="og:image:alt"')
@@ -1099,8 +1099,8 @@ describe('colors-cc Frontend', () => {
         expect(html).not.toContain('class="theme-system-label"')
         expect(html).not.toContain('>System</')
         expect(html).not.toContain('<span class="nav-preference-label">Theme</span>')
-        expect(html).toContain('>简</a>')
-        expect(html).toContain('>EN</a>')
+        expect(html).toContain('>简体中文</a>')
+        expect(html).toContain('>English</a>')
         expect(html).not.toContain('data-theme-toggle')
         expect(html).not.toContain('data-theme-select')
         expect(html).not.toContain('class="theme-select"')
@@ -1158,17 +1158,17 @@ describe('colors-cc Frontend', () => {
 
       expect(html).not.toContain('nav-preference-label')
       expect(html).toContain('class="nav-preference-control language-control"')
-      expect(html).toContain('>简</a>')
-      expect(html).toContain('>EN</a>')
+      expect(html).toContain('>简体中文</a>')
+      expect(html).toContain('>English</a>')
       expect(html).toContain('aria-label="Language"')
     })
 
     it('should render square theme buttons aligned with language buttons', async () => {
       const html = await (await app.request('/tools/converter')).text()
 
-      expect(html).toMatch(/\.nav-switch-option \{[^}]*width: 32px;/)
-      expect(html).toMatch(/\.nav-switch-option \{[^}]*height: 32px;/)
-      expect(html).toMatch(/\.nav-switch-option \{[^}]*min-height: 32px;/)
+      expect(html).toMatch(/\.nav-switch-option \{[^}]*width: 44px;/)
+      expect(html).toMatch(/\.nav-switch-option \{[^}]*height: 44px;/)
+      expect(html).toMatch(/\.nav-switch-option \{[^}]*min-height: 44px;/)
       expect(html).not.toContain('min-width: 30px')
       expect(html).not.toMatch(/\.nav-switch-option \{[^}]*height: 34px/)
       expect(html).not.toContain('.theme-option { padding-inline: 0;')
@@ -1203,7 +1203,7 @@ describe('colors-cc Frontend', () => {
     it('should update the verify-seo URL count and migration checks', () => {
       const verifySeo = read('scripts/verify-seo.ts')
 
-      expect(verifySeo).toContain('enabledLocales.length * 17')
+      expect(verifySeo).toContain('enabledLocales.length * PAGE_PATHS.length')
       expect(verifySeo).toContain('OFFLINE_IMAGE_COMPRESS')
       expect(verifySeo).toContain('verifyRedirect')
       expect(verifySeo).toContain('verifyMigratedToolRedirects')

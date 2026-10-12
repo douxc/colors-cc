@@ -2,10 +2,13 @@ import {
   hreflangAlternates,
   htmlLang,
   localizedUrl,
+  localeInfo,
   type HreflangAlternate,
   type Locale,
   type SiteConfig
 } from './site'
+import { commonMessages } from './i18n'
+import { seoMessages } from './i18n/messages'
 
 export const SEARCH_ROBOTS_POLICY =
   'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
@@ -18,6 +21,7 @@ export type SeoMetadata = {
   alternates: readonly HreflangAlternate[]
   ogLocale: string
   ogLocaleAlternate: string
+  ogLocaleAlternates: readonly string[]
   ogImage: string
   robots: string
   structuredData: Record<string, unknown>
@@ -46,6 +50,7 @@ const toolKeywords: Readonly<Record<string, { en: readonly string[]; zh: readonl
 }
 
 const localizedKeywords = (locale: Locale, path: string): string => {
+  if (locale === 'ja') return seoMessages.ja.keywords
   const common = locale === 'zh'
     ? ['颜色工具', 'SVG 占位图', '颜色 API', '颜色转换器', '配色生成器', 'CSS 颜色']
     : ['color tools', 'SVG placeholder', 'color API', 'color converter', 'palette generator', 'CSS colors']
@@ -98,7 +103,7 @@ const createStructuredData = (
         url: `${config.origin}/`,
         name: 'colors-cc',
         alternateName: 'Colors CC',
-        inLanguage: ['en', 'zh-CN'],
+        inLanguage: config.enabledLocales.map(htmlLang),
         publisher: { '@id': organizationId }
       }
     )
@@ -114,7 +119,7 @@ const createStructuredData = (
     isPartOf: { '@id': siteId },
     applicationCategory: applicationCategory(path),
     operatingSystem: 'Any',
-    browserRequirements: 'Requires a modern web browser',
+    browserRequirements: seoMessages[locale].browser,
     inLanguage: htmlLang(locale),
     isAccessibleForFree: true,
     offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' },
@@ -129,7 +134,7 @@ const createStructuredData = (
         {
           '@type': 'ListItem',
           position: 1,
-          name: locale === 'zh' ? '首页' : 'Home',
+          name: commonMessages[locale].home,
           item: localizedUrl(config.origin, locale, '/')
         },
         {
@@ -157,14 +162,17 @@ export const createSeoMetadata = (
   const ogImage = `${config.apiBaseUrl}/placeholder?w=1200&h=630&text=${imageText}` +
     '&effect=mesh&palette=%235EE7F7,%23A78BFA,%23F472B6'
 
+  const otherLocales = (['en', 'zh', 'ja'] as const)
+    .filter(other => other !== locale).map(other => localeInfo[other].ogLocale)
   return {
     title,
     description,
     keywords: localizedKeywords(locale, path),
     canonicalUrl,
     alternates: hreflangAlternates(path),
-    ogLocale: locale === 'zh' ? 'zh_CN' : 'en_US',
-    ogLocaleAlternate: locale === 'zh' ? 'en_US' : 'zh_CN',
+    ogLocale: localeInfo[locale].ogLocale,
+    ogLocaleAlternate: otherLocales[0],
+    ogLocaleAlternates: otherLocales,
     ogImage,
     robots: SEARCH_ROBOTS_POLICY,
     structuredData: createStructuredData(config, locale, path, title, description, canonicalUrl),
@@ -206,7 +214,7 @@ export const renderSeoHead = (metadata: SeoMetadata, config: SiteConfig): string
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="${escapeHtml(metadata.title)}">
   <meta property="og:locale" content="${metadata.ogLocale}">
-  <meta property="og:locale:alternate" content="${metadata.ogLocaleAlternate}">
+  ${metadata.ogLocaleAlternates.map(locale => `<meta property="og:locale:alternate" content="${locale}">`).join('\n  ')}
   <meta property="og:site_name" content="colors-cc">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${escapeHtml(metadata.title)}">

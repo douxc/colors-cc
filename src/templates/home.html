@@ -5,45 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#f7f9fc">
   <!--__SEO_HEAD_START__-->
-  <title>Create, Prepare, and Deliver Visual Assets | colors-cc</title>
-  <meta name="description" content="Create reproducible placeholders and curated palettes, process images privately in your browser, and deliver precise outputs to people, code, and AI agents.">
-  <meta name="keywords" content="placeholder generator, image compressor, image watermark, SVG gradient, color API, AI agents, palette generator">
-  <meta name="author" content="colors-cc">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://colors-cc.top/">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://colors-cc.top/">
-  <meta property="og:title" content="Visual Asset Studio | colors-cc">
-  <meta property="og:description" content="Generate, prepare, and ship visual assets for creative, development, and AI workflows.">
-  <meta property="og:image" content="https://api.colors-cc.top/placeholder?w=1200&h=630&text=colors-cc&effect=mesh&palette=%235EE7F7,%23A78BFA,%23F472B6">
-  <meta property="og:site_name" content="colors-cc">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Visual Asset Studio | colors-cc">
-  <meta name="twitter:description" content="Generate placeholders, prepare images locally, and ship deterministic visual outputs.">
-  <meta name="twitter:image" content="https://api.colors-cc.top/placeholder?w=1200&h=630&text=colors-cc&effect=mesh&palette=%235EE7F7,%23A78BFA,%23F472B6">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "colors-cc Visual Asset Studio",
-    "description": "Generate placeholders and palettes, prepare images locally, and ship visual assets to people, code, and AI agents.",
-    "url": "https://colors-cc.top/",
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "Web",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-  }
-  </script>
+  <title>{{home.title}}</title>
+  <meta name="description" content="{{home.description}}">
   <!--__SEO_HEAD_END__-->
   <script>__THEME_INIT_SCRIPT__</script>
   <style>
     /*__SHARED_STYLES__*/
 
-    .hero { padding: clamp(58px, 9vw, 118px) 0 clamp(44px, 7vw, 86px); }
+    .hero { padding: clamp(28px, 4vw, 48px) 0 24px; }
     .hero-copy { max-width: 1040px; }
     .hero h1 {
       max-width: 980px;
       margin: 0;
-      font-size: clamp(3rem, 7vw, 6.7rem);
+      font-size: clamp(2.5rem, 4vw, 4rem);
       line-height: var(--leading-hero);
       letter-spacing: var(--tracking-display);
     }
@@ -85,8 +59,8 @@
     .workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr) 350px; min-height: 680px; }
 
     .canvas-column { min-width: 0; padding: 18px; background: var(--workspace-bg); }
-    .canvas-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; color: var(--text-subtle); font: .68rem/var(--leading-control) var(--font-mono); }
-    .canvas-actions { display: flex; gap: 7px; }
+    .canvas-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; color: var(--text-subtle); font: .68rem/var(--leading-control) var(--font-mono); }
+    .canvas-actions { display: flex; flex-wrap: wrap; gap: 7px; }
     .preview-stage { position: relative; min-height: 560px; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: var(--preview-bg); }
     .preview-stage::before { position: absolute; inset: -20%; background: var(--preview-glow, radial-gradient(circle, rgba(167,139,250,.2), transparent 60%)); filter: blur(70px); opacity: .62; content: ''; transition: background 300ms ease; }
     .preview-stage img { position: relative; z-index: 1; width: min(92%, 980px); max-height: 510px; aspect-ratio: var(--preview-ratio, 2 / 1); object-fit: cover; border: 1px solid var(--line-strong); border-radius: 17px; box-shadow: var(--shadow); transition: opacity 180ms ease, transform 220ms ease; }
@@ -98,22 +72,23 @@
     .inspector { min-width: 0; padding: 20px; border-left: 1px solid var(--line); background: var(--surface); }
     .inspector-section + .inspector-section { margin-top: 22px; padding-top: 21px; border-top: 1px solid var(--line); }
     .segmented { display: flex; flex-wrap: wrap; gap: 6px; }
-    .segment { min-height: 36px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-soft); color: var(--text-muted); cursor: pointer; font-size: .72rem; line-height: var(--leading-control); }
+    .segment { min-width: 44px; min-height: 44px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-soft); color: var(--text-muted); cursor: pointer; font-size: .72rem; line-height: var(--leading-control); }
     .segment:hover { color: var(--text); border-color: var(--line-strong); }
     .segment[aria-pressed="true"] { border-color: rgba(94,231,247,.46); background: rgba(94,231,247,.1); color: var(--cyan); box-shadow: inset 0 0 0 1px rgba(94,231,247,.1); }
     .preset-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
     .preset { min-width: 0; padding: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 11px; background: transparent; cursor: pointer; text-align: left; }
     .preset[aria-pressed="true"] { border-color: var(--cyan); box-shadow: 0 0 0 1px rgba(94,231,247,.24); }
     .preset-color { height: 42px; }
-    .preset-name { display: block; padding: 7px 8px; color: var(--text-muted); font-size: .68rem; line-height: var(--leading-control); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .range-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .range-value { width: 74px; min-height: 34px; padding: 0 8px; text-align: right; }
-    .toggle-row { display: flex; align-items: flex-start; gap: 9px; color: var(--text-muted); font-size: .76rem; line-height: var(--leading-control); }
+    .preset-name { display: block; padding: 7px 8px; color: var(--text-muted); font-size: .68rem; line-height: var(--leading-control); overflow-wrap: anywhere; }
+    .range-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+    .range-head .field-error { flex-basis: 100%; }
+    .range-value { width: 74px; min-height: 44px; padding: 0 8px; text-align: right; }
+    .toggle-row { min-height: 44px; display: flex; align-items: center; gap: 9px; color: var(--text-muted); font-size: .76rem; line-height: var(--leading-control); }
     .toggle-row input { margin-top: 4px; accent-color: var(--cyan); }
 
     .output-dock { border-top: 1px solid var(--line); background: var(--surface-strong); }
     .output-tabs { display: flex; gap: 2px; padding: 10px 14px 0; overflow-x: auto; }
-    .output-tab { min-height: 38px; padding: 0 13px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--text-subtle); cursor: pointer; font: .7rem/var(--leading-control) var(--font-mono); white-space: nowrap; }
+    .output-tab { min-width: 44px; min-height: 44px; padding: 0 13px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--text-subtle); cursor: pointer; font: .7rem/var(--leading-control) var(--font-mono); white-space: nowrap; }
     .output-tab[aria-selected="true"] { border-color: var(--cyan); color: var(--cyan); }
     .output-body { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 13px 16px 17px; }
     .output-body .code-surface { min-height: 74px; max-height: 160px; margin: 0; }
@@ -192,30 +167,139 @@
   </style>
 </head>
 <body>
-  <a href="#main-content" class="skip-link">Skip to content</a>
+  <a href="#main-content" class="skip-link">__SKIP_TO_CONTENT__</a>
   <div class="app-shell">
     __SITE_NAV__
 
     <main id="main-content">
       <section class="hero" data-home-role="asset-hero" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <h1 id="hero-title">Create, prepare, and deliver visual assets.</h1>
-          <p>Create reproducible placeholders and curated palettes, process images privately in your browser, and deliver precise outputs to people, code, and AI agents.</p>
+          <h1 id="hero-title">{{home.hero}}</h1>
+          <p>{{home.description}}</p>
         </div>
-        <div class="hero-actions" aria-label="Choose how to begin">
+        <div class="hero-actions" aria-label="{{home.begin}}">
           <a class="hero-action" data-brand-path="generate" href="#create">
-            <strong>Generate</strong><span>Placeholder · palette · color</span>
+            <strong>{{home.generate}}</strong><span>{{home.generateHint}}</span>
           </a>
           <a class="hero-action" data-brand-path="prepare" href="https://offline-tools.colors-cc.top/image-compress/">
-            <strong>Prepare</strong><span>Compress · watermark · arrange</span>
+            <strong>{{home.prepare}}</strong><span>{{home.prepareHint}}</span>
           </a>
         </div>
       </section>
 
+      <div class="tool-index" aria-label="{{home.tools}}">
+        <section class="tool-index-group" data-workflow="generate">
+          <header class="tool-index-head"><h3>{{home.generate}}</h3><p>{{home.generateDescription}}</p></header>
+          <nav class="tool-index-nav" aria-label="{{home.generateTools}}">
+            <a class="tool-index-link" href="#create"><strong>{{home.placeholder}}</strong></a>
+            <a class="tool-index-link" href="/tools/random-palette"><strong>{{home.palette}}</strong></a>
+            <a class="tool-index-link" href="/tools/converter"><strong>{{home.converter}}</strong></a>
+            <a class="tool-index-link" href="/tools/color-names"><strong>{{home.names}}</strong></a>
+          </nav>
+        </section>
+        <section class="tool-index-group" data-workflow="prepare">
+          <header class="tool-index-head"><h3>{{home.prepare}}</h3><p>{{home.prepareDescription}}</p></header>
+          <nav class="tool-index-nav" aria-label="{{home.prepareTools}}">
+            <a class="tool-index-link" href="https://offline-tools.colors-cc.top/image-compress/"><strong>{{home.compress}}</strong></a>
+            <a class="tool-index-link" href="https://offline-tools.colors-cc.top/image-compress/"><strong>{{home.watermark}}</strong></a>
+            <a class="tool-index-link" href="https://offline-tools.colors-cc.top/image-compress/"><strong>{{home.arrange}}</strong></a>
+          </nav>
+        </section>
+      </div>
+
+      <section class="workbench" id="create" data-home-role="placeholder-primary" aria-labelledby="workbench-title">
+        <header class="workbench-bar">
+          <div class="workbench-heading">
+            <h2 id="workbench-title">{{home.workbench}}</h2>
+            <p>{{home.workbenchHint}}</p>
+          </div>
+        </header>
+
+        <div class="workspace-grid">
+          <section class="canvas-column" aria-label="{{home.livePreview}}">
+            <div class="canvas-toolbar">
+              <span id="canvasMeta">800 × 400</span>
+              <div class="canvas-actions">
+                <a class="button button-quiet button-small" id="openImage" href="#" target="_blank" rel="noopener">{{home.openSvg}}</a>
+                <button class="button button-small" id="quickCopy" type="button">{{home.copyUrl}}</button>
+              </div>
+            </div>
+            <div class="preview-stage is-loading" id="previewStage">
+              <div class="preview-loader" aria-hidden="true"></div>
+              <img id="previewImage" src="" alt="{{home.previewAlt}}">
+            </div>
+            <div class="status" id="previewStatus" role="status" aria-live="polite">{{status.rendering}}</div>
+<button class="button button-small" id="previewRetry" type="button" hidden>{{status.retry}}</button>
+<button class="button button-small" id="resetPlaceholder" type="button">{{status.reset}}</button>
+          </section>
+
+          <aside class="inspector" aria-label="{{home.controls}}">
+
+
+            <section class="inspector-section">
+              <span class="section-label">{{home.palette}}</span>
+              <div class="preset-grid" id="presetControls"></div>
+              <div class="field" style="margin-top:10px">
+                <label for="customPalette">{{home.customColors}}</label>
+                <input class="input input-mono" id="customPalette" type="text" placeholder="#5EE7F7, #A78BFA, #F472B6" autocomplete="off" spellcheck="false">
+                <span class="field-hint">{{home.colorsHint}}</span>
+              </div>
+            </section>
+
+            <section class="inspector-section">
+              <span class="section-label">{{home.dimensions}}</span>
+<div class="segmented" aria-label="{{home.sizePresets}}"><button class="segment" type="button" data-size="800x800">{{home.square}}</button><button class="segment" type="button" data-size="800x400">{{home.card}}</button><button class="segment" type="button" data-size="1200x400">{{home.banner}}</button></div>
+              <div class="field">
+                <div class="range-head"><label for="widthRange">{{home.width}}</label><input class="input input-mono range-value" id="widthNumber" type="text" inputmode="numeric" value="800" aria-label="{{home.widthPixels}}"></div>
+                <input id="widthRange" type="range" min="50" max="4000" step="1" value="800">
+              </div>
+              <div class="field">
+                <div class="range-head"><label for="heightRange">{{home.height}}</label><input class="input input-mono range-value" id="heightNumber" type="text" inputmode="numeric" value="400" aria-label="{{home.heightPixels}}"></div>
+                <input id="heightRange" type="range" min="50" max="4000" step="1" value="400">
+              </div>
+            </section>
+
+            <section class="inspector-section">
+
+              <div class="field">
+                <label for="labelInput">{{home.label}} <span class="field-hint">{{home.optional}}</span></label>
+                <input class="input" id="labelInput" type="text" maxlength="100" placeholder="{{home.labelExample}}" autocomplete="off">
+              </div>
+
+            </section>
+<details class="inspector-section"><summary>{{home.advanced}}</summary>            <section class="inspector-section">
+              <span class="section-label">{{home.effect}}</span>
+              <div class="segmented" id="effectControls"></div>
+            </section>              <div class="field" id="speedField">
+                <div class="range-head"><label for="speedRange">{{home.duration}}</label><input class="input input-mono range-value" id="speedNumber" type="text" inputmode="numeric" value="10" aria-label="{{home.duration}}"><output id="speedValue" for="speedRange">10s</output></div>
+                <input id="speedRange" type="range" min="1" max="30" step="1" value="10">
+              </div>              <label class="toggle-row" for="attributionInput">
+                <input id="attributionInput" type="checkbox" checked>
+                <span>{{home.attribution}}</span>
+              </label></details>
+          </aside>
+        </div>
+
+        <details class="output-dock" id="agent-output" aria-labelledby="output-title">
+          <summary>{{home.output}}</summary><h2 id="output-title" class="sr-only">{{home.output}}</h2>
+          <div class="output-tabs" role="tablist" aria-label="{{home.outputFormat}}">
+            <button class="output-tab" role="tab" type="button" data-format="url" aria-selected="true">API URL</button>
+            <button class="output-tab" role="tab" type="button" data-format="html" aria-selected="false">HTML</button>
+            <button class="output-tab" role="tab" type="button" data-format="css" aria-selected="false">CSS</button>
+            <button class="output-tab" role="tab" type="button" data-format="markdown" aria-selected="false">Markdown</button>
+            <button class="output-tab" role="tab" type="button" data-format="agent" aria-selected="false">{{home.agentPrompt}}</button>
+          </div>
+          <div class="output-body" id="output-panel" role="tabpanel" aria-labelledby="output-tab-url">
+            <pre class="code-surface" id="outputCode" tabindex="0"></pre>
+            <button class="button button-primary" id="copyOutput" type="button">{{home.copyApiUrl}}</button>
+          </div>
+        </details>
+      </section>
+
       <section class="workflow-showcase" data-home-role="workflow-showcase" aria-labelledby="workflow-title">
         <header class="workflow-showcase-head">
-          <h2 id="workflow-title">One reproducible URL for every workflow.</h2>
-          <p>Reuse the same placeholder URL in previews, code, and AI prompts—no account required.</p>
+          <h2 id="workflow-title">{{home.showcaseTitle}}</h2>
+          <p>{{home.showcaseDescription}}</p>
         </header>
 
         <figure class="product-stage" data-home-role="product-result">
@@ -224,146 +308,35 @@
             src="https://api.colors-cc.top/placeholder?w=1200&amp;h=630&amp;text=colors-cc&amp;effect=mesh&amp;palette=%235EE7F7,%23A78BFA,%23F472B6"
             width="1200"
             height="630"
-            alt="Aurora mesh SVG placeholder generated by colors-cc"
+            alt="{{home.showcaseAlt}}"
           >
           <figcaption class="product-caption">
-            <strong>Aurora mesh placeholder</strong>
-            <span>SVG · 1200 × 630 · deterministic URL</span>
+            <strong>{{home.showcaseCaption}}</strong>
+            <span>{{home.showcaseMeta}}</span>
           </figcaption>
         </figure>
 
-        <div class="tool-index" aria-label="Tools for every step">
-          <section class="tool-index-group" data-workflow="generate">
-            <header class="tool-index-head">
-              <h3>Generate</h3>
-              <p>Create reproducible placeholders and explore curated color systems.</p>
-            </header>
-            <nav class="tool-index-nav" aria-label="Generate tools">
-              <a class="tool-index-link" href="#create"><strong>Placeholder</strong></a>
-              <a class="tool-index-link" href="/tools/random-palette"><strong>Palette</strong></a>
-              <a class="tool-index-link" href="/tools/converter"><strong>Converter</strong></a>
-              <a class="tool-index-link" href="/tools/color-names"><strong>Color names</strong></a>
-            </nav>
-          </section>
-
-          <section class="tool-index-group" data-workflow="prepare">
-            <header class="tool-index-head">
-              <h3>Prepare</h3>
-              <p>Compress, watermark, and arrange images privately in your browser—no upload required.</p>
-            </header>
-            <nav class="tool-index-nav" aria-label="Prepare tools">
-              <a class="tool-index-link" href="https://offline-tools.colors-cc.top/image-compress/"><strong>Compress</strong></a>
-              <a class="tool-index-link" href="https://offline-tools.colors-cc.top/image-compress/"><strong>Watermark</strong></a>
-              <a class="tool-index-link" href="https://offline-tools.colors-cc.top/image-compress/"><strong>Arrange</strong></a>
-            </nav>
-          </section>
-        </div>
-      </section>
-
-      <section class="workbench" id="create" data-home-role="placeholder-primary" aria-labelledby="workbench-title">
-        <header class="workbench-bar">
-          <div class="workbench-heading">
-            <h2 id="workbench-title">Placeholder workbench</h2>
-            <p>Tune the visual once, then reuse the same reproducible URL in previews, code, and AI prompts.</p>
-          </div>
-        </header>
-
-        <div class="workspace-grid">
-          <section class="canvas-column" aria-label="Live placeholder preview">
-            <div class="canvas-toolbar">
-              <span id="canvasMeta">800 × 400 · MESH</span>
-              <div class="canvas-actions">
-                <a class="button button-quiet button-small" id="openImage" href="#" target="_blank" rel="noopener">Open SVG</a>
-                <button class="button button-small" id="quickCopy" type="button">Copy URL</button>
-              </div>
-            </div>
-            <div class="preview-stage is-loading" id="previewStage">
-              <div class="preview-loader" aria-hidden="true"></div>
-              <img id="previewImage" src="" alt="Generated mesh gradient placeholder preview">
-            </div>
-            <div class="status" id="previewStatus" role="status" aria-live="polite">Rendering preview…</div>
-          </section>
-
-          <aside class="inspector" aria-label="Placeholder controls">
-            <section class="inspector-section">
-              <span class="section-label">Effect</span>
-              <div class="segmented" id="effectControls"></div>
-            </section>
-
-            <section class="inspector-section">
-              <span class="section-label">Palette</span>
-              <div class="preset-grid" id="presetControls"></div>
-              <div class="field" style="margin-top:10px">
-                <label for="customPalette">Custom HEX colors</label>
-                <input class="input input-mono" id="customPalette" type="text" placeholder="#5EE7F7, #A78BFA, #F472B6" autocomplete="off" spellcheck="false">
-                <span class="field-hint">2–10 six-digit HEX values</span>
-              </div>
-            </section>
-
-            <section class="inspector-section">
-              <span class="section-label">Dimensions</span>
-              <div class="field">
-                <div class="range-head"><label for="widthRange">Width</label><input class="input input-mono range-value" id="widthNumber" type="number" min="50" max="4000" value="800" aria-label="Width in pixels"></div>
-                <input id="widthRange" type="range" min="50" max="4000" step="50" value="800">
-              </div>
-              <div class="field">
-                <div class="range-head"><label for="heightRange">Height</label><input class="input input-mono range-value" id="heightNumber" type="number" min="50" max="4000" value="400" aria-label="Height in pixels"></div>
-                <input id="heightRange" type="range" min="50" max="4000" step="50" value="400">
-              </div>
-            </section>
-
-            <section class="inspector-section">
-              <div class="field" id="speedField">
-                <div class="range-head"><label for="speedRange">Animation duration</label><output id="speedValue" for="speedRange">10s</output></div>
-                <input id="speedRange" type="range" min="1" max="30" step="1" value="10">
-              </div>
-              <div class="field">
-                <label for="labelInput">Center label <span class="field-hint">optional</span></label>
-                <input class="input" id="labelInput" type="text" maxlength="100" placeholder="AI-ready color" autocomplete="off">
-              </div>
-              <label class="toggle-row" for="attributionInput">
-                <input id="attributionInput" type="checkbox" checked>
-                <span>Show the subtle colors-cc attribution watermark</span>
-              </label>
-            </section>
-          </aside>
-        </div>
-
-        <section class="output-dock" id="agent-output" aria-labelledby="output-title">
-          <h2 id="output-title" class="sr-only">Generated output</h2>
-          <div class="output-tabs" role="tablist" aria-label="Output format">
-            <button class="output-tab" role="tab" type="button" data-format="url" aria-selected="true">API URL</button>
-            <button class="output-tab" role="tab" type="button" data-format="html" aria-selected="false">HTML</button>
-            <button class="output-tab" role="tab" type="button" data-format="css" aria-selected="false">CSS</button>
-            <button class="output-tab" role="tab" type="button" data-format="markdown" aria-selected="false">Markdown</button>
-            <button class="output-tab" role="tab" type="button" data-format="agent" aria-selected="false">Agent prompt</button>
-          </div>
-          <div class="output-body">
-            <pre class="code-surface" id="outputCode" tabindex="0"></pre>
-            <button class="button button-primary" id="copyOutput" type="button">Copy API URL</button>
-          </div>
-        </section>
       </section>
 
       <section class="content-section" id="for-ai" aria-labelledby="ai-title">
         <div class="section-heading">
-          <h2 id="ai-title">Give every agent precise, reliable context.</h2>
-          <p>Choose compact API context, a structured OpenAPI contract, or an installable skill—all describe the same capabilities consistently.</p>
+          <h2 id="ai-title">{{home.aiTitle}}</h2>
+          <p>{{home.aiDescription}}</p>
         </div>
         <div class="developer-layout">
           <section class="developer-rule">
-            <h3>Copy an agent rule</h3>
-            <p>A short, precise rule keeps placeholder output reliable and consistent across coding tools.</p>
-            <pre class="code-surface" id="agentRule">When UI code needs placeholder imagery, use https://api.colors-cc.top/placeholder directly. Encode # as %23, use palette with 2–10 colors, and never fetch or re-encode the SVG.</pre>
-            <button class="button button-primary button-block" id="copyAgentRule" type="button">Copy agent rule</button>
+            <h3>{{home.copyRuleTitle}}</h3>
+            <p>{{home.ruleHint}}</p>
+            <pre class="code-surface" id="agentRule">{{home.rule}}</pre>
+            <button class="button button-primary button-block" id="copyAgentRule" type="button">{{home.copyRule}}</button>
           </section>
-          <nav class="developer-resources" aria-label="Developer resources">
-            <h3>Developer resources</h3>
-            <p>Choose the smallest reliable context for your workflow.</p>
+          <nav class="developer-resources" aria-label="{{home.resources}}">
+            <h3>{{home.resources}}</h3>
+            <p>{{home.resourcesHint}}</p>
             <div class="developer-links">
-              <a class="developer-link" href="/llms.txt"><strong>llms.txt</strong><span>Compact API context</span></a>
-              <a class="developer-link" href="/openapi.json"><strong>OpenAPI</strong><span>Structured contract</span></a>
-              <a class="developer-link" href="/skills/colors-cc.md"><strong>Agent Skill</strong><span>Installable instructions</span></a>
+              <a class="developer-link" href="/llms.txt"><strong>llms.txt</strong><span>{{home.llms}}</span></a>
+              <a class="developer-link" href="/openapi.json"><strong>OpenAPI</strong><span>{{home.openapi}}</span></a>
+              <a class="developer-link" href="/skills/colors-cc.md"><strong>{{home.skill}}</strong><span>{{home.skillHint}}</span></a>
             </div>
           </nav>
         </div>
@@ -374,216 +347,7 @@
   </div>
 
   <script>__THEME_CONTROL_SCRIPT__</script>
-  <script>
-    const contract = __COLOR_API_CONTRACT__
-    const animatedEffects = new Set(['fluid', 'breathe', 'holographic', 'mesh'])
-    const defaultState = contract.placeholder.defaults
-    const query = new URLSearchParams(window.location.search)
-
-    const clamp = (value, min, max) => Math.min(max, Math.max(min, value))
-    const normalizeHex = (value) => {
-      const trimmed = value.trim()
-      const withHash = trimmed.startsWith('#') ? trimmed : '#' + trimmed
-      return /^#[0-9a-f]{6}$/i.test(withHash) ? withHash.toUpperCase() : null
-    }
-    const parsePalette = (value) => value.split(',').map(normalizeHex).filter(Boolean)
-
-    const state = {
-      effect: contract.placeholder.effects.includes(query.get('effect')) ? query.get('effect') : defaultState.effect,
-      palette: parsePalette(query.get('palette') || '').length >= 2 ? parsePalette(query.get('palette')) : Array.from(defaultState.palette),
-      width: clamp(Number(query.get('w')) || defaultState.width, contract.placeholder.limits.width.min, contract.placeholder.limits.width.max),
-      height: clamp(Number(query.get('h')) || defaultState.height, contract.placeholder.limits.height.min, contract.placeholder.limits.height.max),
-      speed: clamp(Number(query.get('speed')) || defaultState.speed, contract.placeholder.limits.speed.min, contract.placeholder.limits.speed.max),
-      text: (query.get('text') || '').slice(0, contract.placeholder.limits.textMaxLength),
-      attribution: query.get('attribution') !== 'false'
-    }
-
-    const previewStage = document.getElementById('previewStage')
-    const previewImage = document.getElementById('previewImage')
-    const previewStatus = document.getElementById('previewStatus')
-    const canvasMeta = document.getElementById('canvasMeta')
-    const outputCode = document.getElementById('outputCode')
-    const copyOutput = document.getElementById('copyOutput')
-    const quickCopy = document.getElementById('quickCopy')
-    const openImage = document.getElementById('openImage')
-    const effectControls = document.getElementById('effectControls')
-    const presetControls = document.getElementById('presetControls')
-    const customPalette = document.getElementById('customPalette')
-    const widthRange = document.getElementById('widthRange')
-    const widthNumber = document.getElementById('widthNumber')
-    const heightRange = document.getElementById('heightRange')
-    const heightNumber = document.getElementById('heightNumber')
-    const speedRange = document.getElementById('speedRange')
-    const speedValue = document.getElementById('speedValue')
-    const speedField = document.getElementById('speedField')
-    const labelInput = document.getElementById('labelInput')
-    const attributionInput = document.getElementById('attributionInput')
-    const outputTabs = Array.from(document.querySelectorAll('.output-tab'))
-
-    let activeFormat = 'url'
-    let previewTimer = null
-
-    function buildUrl() {
-      const palette = state.palette.map(color => encodeURIComponent(color)).join(',')
-      let url = contract.baseUrl + '/placeholder?w=' + state.width + '&h=' + state.height + '&effect=' + state.effect + '&palette=' + palette
-      if (animatedEffects.has(state.effect)) url += '&speed=' + state.speed
-      if (state.text) url += '&text=' + encodeURIComponent(state.text)
-      if (!state.attribution) url += '&attribution=false'
-      return url
-    }
-
-    function buildOutputs() {
-      const url = buildUrl()
-      const alt = state.text ? state.text + ' placeholder' : state.effect + ' gradient placeholder'
-      return {
-        url,
-        html: '<img src="' + url + '" alt="' + alt.replaceAll('"', '&quot;') + '">',
-        css: '.visual {\n  background-image: url("' + url + '");\n  background-size: cover;\n  background-position: center;\n}',
-        markdown: '![' + alt.replaceAll(']', '') + '](' + url + ')',
-        agent: 'Create a ' + state.width + '×' + state.height + ' ' + state.effect + ' SVG placeholder using this exact URL: ' + url + '. Embed it directly; do not fetch or re-encode it.'
-      }
-    }
-
-    function updateOutput() {
-      const outputs = buildOutputs()
-      outputCode.textContent = outputs[activeFormat]
-      copyOutput.textContent = activeFormat === 'url' ? 'Copy API URL' : activeFormat === 'agent' ? 'Copy agent prompt' : 'Copy ' + activeFormat.toUpperCase()
-    }
-
-    function syncQuery() {
-      const params = new URLSearchParams()
-      params.set('effect', state.effect)
-      params.set('palette', state.palette.join(','))
-      params.set('w', String(state.width))
-      params.set('h', String(state.height))
-      if (animatedEffects.has(state.effect)) params.set('speed', String(state.speed))
-      if (state.text) params.set('text', state.text)
-      if (!state.attribution) params.set('attribution', 'false')
-      history.replaceState(null, '', window.location.pathname + '?' + params.toString() + window.location.hash)
-    }
-
-    function updateControls() {
-      effectControls.querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.effect === state.effect)))
-      presetControls.querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.colors === state.palette.join(','))))
-      widthRange.value = widthNumber.value = state.width
-      heightRange.value = heightNumber.value = state.height
-      speedRange.value = state.speed
-      speedValue.textContent = state.speed + 's'
-      speedField.hidden = !animatedEffects.has(state.effect)
-      labelInput.value = state.text
-      attributionInput.checked = state.attribution
-    }
-
-    function renderPreview() {
-      const url = buildUrl()
-      const ratio = state.width + ' / ' + state.height
-      previewStage.classList.add('is-loading')
-      previewStage.style.setProperty('--preview-ratio', ratio)
-      previewStage.style.setProperty('--preview-glow', 'radial-gradient(circle, ' + state.palette.join(', ') + ', transparent 68%)')
-      previewStatus.textContent = 'Rendering preview…'
-      previewStatus.dataset.tone = ''
-      canvasMeta.textContent = state.width + ' × ' + state.height + ' · ' + state.effect.toUpperCase()
-      openImage.href = url
-
-      const image = new Image()
-      image.onload = () => {
-        previewImage.src = url
-        previewImage.alt = 'Generated ' + state.effect + ' gradient placeholder preview' + (state.text ? ' with label ' + state.text : '')
-        previewStage.classList.remove('is-loading')
-        previewStatus.textContent = 'Ready · SVG generated at the edge'
-        previewStatus.dataset.tone = 'success'
-      }
-      image.onerror = () => {
-        previewStage.classList.remove('is-loading')
-        previewStatus.textContent = 'Preview could not load. Your generated URL is still available below.'
-        previewStatus.dataset.tone = 'error'
-      }
-      image.src = url
-    }
-
-    function commit(delay = 180) {
-      updateControls()
-      updateOutput()
-      syncQuery()
-      clearTimeout(previewTimer)
-      previewTimer = setTimeout(renderPreview, delay)
-    }
-
-    contract.placeholder.effects.forEach(effect => {
-      const button = document.createElement('button')
-      button.type = 'button'
-      button.className = 'segment'
-      button.dataset.effect = effect
-      button.textContent = effect[0].toUpperCase() + effect.slice(1)
-      button.setAttribute('aria-pressed', String(effect === state.effect))
-      button.addEventListener('click', () => { state.effect = effect; commit(80) })
-      effectControls.appendChild(button)
-    })
-
-    contract.placeholder.presets.forEach(preset => {
-      const button = document.createElement('button')
-      const colors = Array.from(preset.colors)
-      button.type = 'button'
-      button.className = 'preset'
-      button.dataset.colors = colors.join(',')
-      button.setAttribute('aria-label', 'Use ' + preset.name + ' palette')
-      button.setAttribute('aria-pressed', String(colors.join(',') === state.palette.join(',')))
-      button.innerHTML = '<span class="preset-color" style="display:block;background:linear-gradient(135deg,' + colors.join(',') + ')"></span><span class="preset-name">' + preset.name + '</span>'
-      button.addEventListener('click', () => { state.palette = colors; customPalette.value = ''; commit(80) })
-      presetControls.appendChild(button)
-    })
-
-    function bindRange(range, number, key, limits) {
-      range.addEventListener('input', () => { state[key] = Number(range.value); number.value = range.value; commit() })
-      number.addEventListener('change', () => { state[key] = clamp(Number(number.value) || limits.default, limits.min, limits.max); commit(80) })
-    }
-    bindRange(widthRange, widthNumber, 'width', contract.placeholder.limits.width)
-    bindRange(heightRange, heightNumber, 'height', contract.placeholder.limits.height)
-
-    speedRange.addEventListener('input', () => { state.speed = Number(speedRange.value); commit() })
-    labelInput.addEventListener('input', () => { state.text = labelInput.value.slice(0, contract.placeholder.limits.textMaxLength); commit() })
-    attributionInput.addEventListener('change', () => { state.attribution = attributionInput.checked; commit(80) })
-    customPalette.addEventListener('change', () => {
-      const colors = parsePalette(customPalette.value)
-      if (colors.length < contract.placeholder.limits.palette.min || colors.length > contract.placeholder.limits.palette.max) {
-        previewStatus.textContent = 'Enter between 2 and 10 valid six-digit HEX colors.'
-        previewStatus.dataset.tone = 'error'
-        return
-      }
-      state.palette = colors
-      customPalette.value = colors.join(', ')
-      commit(80)
-    })
-
-    outputTabs.forEach(tab => tab.addEventListener('click', () => {
-      activeFormat = tab.dataset.format
-      outputTabs.forEach(item => item.setAttribute('aria-selected', String(item === tab)))
-      updateOutput()
-    }))
-
-    async function copyText(value, button, successText) {
-      try {
-        await navigator.clipboard.writeText(value)
-      } catch {
-        const area = document.createElement('textarea')
-        area.value = value
-        document.body.appendChild(area)
-        area.select()
-        document.execCommand('copy')
-        area.remove()
-      }
-      const original = button.textContent
-      button.textContent = successText
-      setTimeout(() => { button.textContent = original }, 1500)
-    }
-
-    copyOutput.addEventListener('click', () => copyText(buildOutputs()[activeFormat], copyOutput, 'Copied ✓'))
-    quickCopy.addEventListener('click', () => copyText(buildUrl(), quickCopy, 'Copied ✓'))
-    document.getElementById('copyAgentRule').addEventListener('click', () => copyText(document.getElementById('agentRule').textContent, document.getElementById('copyAgentRule'), 'Rule copied ✓'))
-
-    updateControls()
-    updateOutput()
-    renderPreview()
-  </script>
+  <script>__TOOL_RUNTIME__
+__PLACEHOLDER_SCRIPT__</script>
 </body>
 </html>

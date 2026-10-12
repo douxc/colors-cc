@@ -220,10 +220,23 @@ ColorsCC also provides interactive web tools for designers and developers:
 ## Deployment
 
 The same application source produces two independent deployments. The global
-edition serves English under `/en` and Simplified Chinese under `/zh`, while
+edition serves English under `/en`, Simplified Chinese under `/zh`, and Japanese
+under `/ja`, while
 preserving legacy unprefixed routes in English. The mainland edition is a
 Chinese-only build: it serves the root homepage and `/zh` pages, does not emit
-`/en`, and does not render a language switch.
+`/en` or `/ja`, and does not render a language switch.
+
+The Japanese edition covers the homepage and all 16 tool pages, including the
+12 directed color conversions. Japanese public documentation is available at
+`/ja/llms.txt`, `/ja/openapi.json`, and `/ja/skills/colors-cc.md`; the existing root
+documentation URLs remain available. Japanese documents are only emitted by the
+global deployment.
+
+Tool inputs and search conditions are saved in the page URL and preserved when
+switching languages or refreshing. The main workflow presents a default result,
+editable basic parameters, and copy actions; advanced settings and developer
+outputs are expandable. Failed copying provides selectable text for manual
+copying, and failed requests can be retried without clearing the current inputs.
 
 ### Cloudflare Worker (`colors-cc.top`)
 

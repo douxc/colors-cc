@@ -1,4 +1,5 @@
-export {}
+import { cnSiteConfig, globalSiteConfig, htmlLang } from '../src/site'
+import { PAGE_PATHS } from '../src/routes/seo/sitemap'
 
 const nodeProcess = (globalThis as typeof globalThis & {
   process?: { argv?: string[] }
@@ -12,7 +13,7 @@ if (!originArgument) throw new Error('Usage: pnpm verify:seo -- <request-origin>
 const siteOrigin = new URL(originArgument).origin
 const canonicalOrigin = new URL(urlArguments[1] ?? siteOrigin).origin
 const isCnDeployment = new URL(canonicalOrigin).hostname.startsWith('www.')
-const enabledLocales = isCnDeployment ? ['zh'] as const : ['en', 'zh'] as const
+const enabledLocales = (isCnDeployment ? cnSiteConfig : globalSiteConfig).enabledLocales
 
 function requireCondition (condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message)
@@ -70,7 +71,7 @@ const verifySitemaps = async (): Promise<void> => {
   const xmlLocations = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1])
   const textLocations = text.split(/\r?\n/).filter(Boolean)
 
-  const expectedUrlCount = enabledLocales.length * 17
+  const expectedUrlCount = enabledLocales.length * PAGE_PATHS.length
   requireCondition(
     xmlLocations.length === expectedUrlCount,
     `XML sitemap has ${xmlLocations.length} URLs; expected ${expectedUrlCount}`
@@ -82,6 +83,7 @@ const verifySitemaps = async (): Promise<void> => {
   requireIncludes(xml, '<lastmod>', `${siteOrigin}/sitemap.xml`)
   requireIncludes(xml, 'hreflang="x-default"', `${siteOrigin}/sitemap.xml`)
   requireIncludes(xml, 'hreflang="zh-CN"', `${siteOrigin}/sitemap.xml`)
+  requireIncludes(xml, 'hreflang="ja"', `${siteOrigin}/sitemap.xml`)
   requireCondition(
     !xml.includes('hreflang="en-CN"'),
     `${siteOrigin}/sitemap.xml references the disabled CN English locale`
@@ -107,6 +109,9 @@ const verifyPage = async (path: string, userAgent?: string): Promise<void> => {
   requireIncludes(html, 'name="applicable-device" content="pc,mobile"', url)
   requireIncludes(html, 'hreflang="x-default" href="https://colors-cc.top/en', url)
   requireIncludes(html, 'hreflang="zh-CN" href="https://www.colors-cc.top/zh', url)
+  requireIncludes(html, 'hreflang="ja" href="https://colors-cc.top/ja', url)
+  const locale = enabledLocales.find(locale => path === `/${locale}` || path.startsWith(`/${locale}/`))
+  if (locale) requireIncludes(html, `<html lang="${htmlLang(locale)}">`, url)
   requireCondition(!html.includes('hreflang="en-CN"'), `${url} references the disabled CN English locale`)
   requireIncludes(html, '<script type="application/ld+json">', url)
 }
@@ -114,7 +119,7 @@ const verifyPage = async (path: string, userAgent?: string): Promise<void> => {
 const verifyDisabledCnRoutes = async (): Promise<void> => {
   if (!isCnDeployment) return
 
-  for (const path of ['/en', '/en/tools/converter', '/tools/converter']) {
+  for (const path of ['/en', '/en/tools/converter', '/tools/converter', '/ja', '/ja/tools/converter', '/ja/llms.txt', '/ja/openapi.json', '/ja/skills/colors-cc.md']) {
     const response = await fetch(`${siteOrigin}${path}`, { redirect: 'manual' })
     requireCondition(response.status === 404, `${siteOrigin}${path} returned ${response.status}; expected 404`)
   }
@@ -151,15 +156,13 @@ const verifyRedirect = async (path: string): Promise<void> => {
 const verifyMigratedToolRedirects = async (): Promise<void> => {
   const paths = isCnDeployment
     ? ['/zh/tools/image-compress']
-    : ['/tools/image-compress', '/en/tools/image-compress', '/zh/tools/image-compress']
+    : ['/tools/image-compress', ...enabledLocales.map(locale => `/${locale}/tools/image-compress`)]
   await Promise.all(paths.map(verifyRedirect))
 }
 
 const main = async (): Promise<void> => {
-  const pageChecks = enabledLocales.flatMap(locale => [
-    verifyPage(`/${locale}`),
-    verifyPage(`/${locale}/tools/converter`)
-  ])
+  const pageChecks = enabledLocales.flatMap(locale => PAGE_PATHS.map(path =>
+    verifyPage(`/${locale}${path === '/' ? '' : path}`)))
   const results = await Promise.allSettled([
     verifyRobots(),
     verifySitemaps(),

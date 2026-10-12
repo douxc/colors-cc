@@ -1,4 +1,10 @@
-export type Locale = 'en' | 'zh'
+export type Locale = 'en' | 'zh' | 'ja'
+
+export const localeInfo = {
+  en: { label: 'English', lang: 'en', hreflang: 'en', ogLocale: 'en_US' },
+  zh: { label: '简体中文', lang: 'zh-CN', hreflang: 'zh-Hans', ogLocale: 'zh_CN' },
+  ja: { label: '日本語', lang: 'ja', hreflang: 'ja', ogLocale: 'ja_JP' }
+} satisfies Record<Locale, { label: string; lang: string; hreflang: string; ogLocale: string }>
 
 type BaseSiteConfig = {
   origin: string
@@ -25,7 +31,7 @@ export const globalSiteConfig = {
   edition: 'global',
   origin: 'https://colors-cc.top',
   defaultLocale: 'en',
-  enabledLocales: ['en', 'zh'],
+  enabledLocales: ['en', 'zh', 'ja'],
   apiBaseUrl: 'https://api.colors-cc.top',
   feedbackEmail: 'douxc512@gmail.com'
 } satisfies SiteConfig
@@ -61,7 +67,10 @@ export const localizedUrl = (origin: string, locale: Locale, path = ''): string 
 export const supportsLocale = (config: SiteConfig, locale: Locale): boolean =>
   config.enabledLocales.includes(locale)
 
-export const htmlLang = (locale: Locale): string => locale === 'zh' ? 'zh-CN' : 'en'
+export const htmlLang = (locale: Locale): string => localeInfo[locale].lang
+
+export const documentationPath = (locale: Locale, path: string): string =>
+  locale === 'ja' ? `/ja${path}` : path
 
 export type HreflangAlternate = {
   hreflang: string
@@ -72,6 +81,7 @@ export const hreflangAlternates = (path: string): readonly HreflangAlternate[] =
   { hreflang: 'en', href: localizedUrl(globalSiteConfig.origin, 'en', path) },
   { hreflang: 'zh-Hans', href: localizedUrl(globalSiteConfig.origin, 'zh', path) },
   { hreflang: 'zh-CN', href: localizedUrl(cnSiteConfig.origin, 'zh', path) },
+  { hreflang: 'ja', href: localizedUrl(globalSiteConfig.origin, 'ja', path) },
   { hreflang: 'x-default', href: localizedUrl(globalSiteConfig.origin, 'en', path) }
 ]
 
@@ -82,6 +92,6 @@ export const renderComplianceFooter = (config: SiteConfig): string => {
 
 export const renderFeedbackLink = (config: SiteConfig, locale: Locale): string => {
   if (config.edition !== 'global' || !config.feedbackEmail) return ''
-  const label = locale === 'zh' ? '反馈' : 'Feedback'
+  const label = { en: 'Feedback', zh: '反馈', ja: 'フィードバック' }[locale]
   return `<a href="mailto:${config.feedbackEmail}">${label}</a>`
 }

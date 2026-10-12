@@ -1,5 +1,5 @@
 import { commonMessages } from '../i18n'
-import { localizedPath, type Locale, type SiteConfig } from '../site'
+import { htmlLang, localeInfo, localizedPath, type Locale, type SiteConfig } from '../site'
 
 const escapeAttribute = (value: string): string => value
   .replaceAll('&', '&amp;')
@@ -63,16 +63,16 @@ const languageOption = (
   optionLocale: Locale,
   currentLocale: Locale,
   path: string,
-  label: string,
-  shortLabel: string
+  label: string
 ): string => `
   <a
     class="nav-switch-option language-option"
     href="${localizedPath(optionLocale, path)}"
-    lang="${optionLocale === 'zh' ? 'zh-CN' : 'en'}"
+    lang="${htmlLang(optionLocale)}"
+    data-locale="${optionLocale}"
     aria-label="${escapeAttribute(label)}"
     ${optionLocale === currentLocale ? 'aria-current="page"' : ''}
-  >${shortLabel}</a>
+  >${label}</a>
 `
 
 const themeOption = (
@@ -97,12 +97,12 @@ export const renderNavUtilityControlItems = (
 ): string => {
   const messages = commonMessages[locale]
   const languageControl = config.enabledLocales.length > 1
-    ? `<div class="nav-preference-control language-control">
+    ? `<details class="nav-preference-control language-control">
+      <summary class="language-toggle" aria-label="${escapeAttribute(messages.languageControlLabel)}">${localeInfo[locale].label}</summary>
       <div class="nav-segmented" role="group" aria-label="${escapeAttribute(messages.languageControlLabel)}">
-        ${languageOption('zh', locale, path, messages.simplifiedChineseLabel, '简')}
-        ${languageOption('en', locale, path, messages.englishLabel, 'EN')}
+        ${config.enabledLocales.map(option => languageOption(option, locale, path, localeInfo[option].label)).join('')}
       </div>
-    </div>`
+    </details>`
     : ''
 
   return `

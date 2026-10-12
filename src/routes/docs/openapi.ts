@@ -6,9 +6,10 @@ import {
   PLACEHOLDER_LIMITS
 } from '../../contracts/colors-api'
 
-const app = new Hono()
+import type { Locale } from '../../site'
+import { localizeJapaneseOpenApi } from './openapi-ja'
 
-app.get('/openapi.json', (c) => {
+export const createOpenApiSpec = () => {
   const spec = {
     "openapi": "3.0.0",
     "info": {
@@ -209,8 +210,17 @@ app.get('/openapi.json', (c) => {
       }
     }
   }
-  c.header('Cache-Control', 'public, max-age=86400')
-  return c.json(spec)
-})
+  return spec
+}
 
-export default app
+export const createOpenApiRoute = (locale: Locale = 'en'): Hono => {
+  const app = new Hono()
+  app.get('/openapi.json', c => {
+    c.header('Cache-Control', 'public, max-age=86400')
+    const spec = createOpenApiSpec()
+    return c.json(locale === 'ja' ? localizeJapaneseOpenApi(spec) : spec)
+  })
+  return app
+}
+
+export default createOpenApiRoute()

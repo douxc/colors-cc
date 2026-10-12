@@ -1,6 +1,7 @@
 import { commonMessages } from '../i18n'
 import {
   localePrefix,
+  documentationPath,
   renderComplianceFooter,
   renderFeedbackLink,
   TOOL_REDIRECTS,
@@ -58,7 +59,7 @@ export const renderSiteNav = (
                 ${renderNavUtilityControlItems(config, locale, path)}
               </div>
             </div>
-            <a class="button button-quiet button-small" href="/llms.txt">llms.txt</a>
+            <a class="button button-quiet button-small" href="${documentationPath(locale, '/llms.txt')}">llms.txt</a>
           </div>
         </div>
       </details>
@@ -89,6 +90,24 @@ export const siteNavScript = `
 
     menus.forEach((menu) => {
       menu.addEventListener('toggle', () => updateMenuLabel(menu))
+      menu.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && compactNavigation.matches) {
+          menu.open = false
+          menu.querySelector('summary').focus()
+        }
+      })
+    })
+    document.querySelectorAll('.language-control').forEach((control) => {
+      control.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          event.stopPropagation()
+          control.open = false
+          control.querySelector('summary').focus()
+        }
+      })
+      control.addEventListener('focusout', () => {
+        queueMicrotask(() => { if (!control.contains(document.activeElement)) control.open = false })
+      })
     })
     applyNavigationMode(compactNavigation.matches)
     compactNavigation.addEventListener?.('change', (event) => {
@@ -109,11 +128,11 @@ export const renderSiteFooter = (
         <span>${messages.footerTagline}</span>
         <nav class="footer-links" aria-label="${messages.footerNavigation}">
           <a href="https://github.com/douxc/colors-cc" target="_blank" rel="noopener">GitHub</a>
-          <a href="/llms.txt">llms.txt</a>
-          <a href="/openapi.json">OpenAPI</a>
-          <a href="/skills/colors-cc.md">${messages.agentSkill}</a>
+          <a href="${documentationPath(locale, '/llms.txt')}">llms.txt</a>
+          <a href="${documentationPath(locale, '/openapi.json')}">OpenAPI</a>
+          <a href="${documentationPath(locale, '/skills/colors-cc.md')}">${messages.agentSkill}</a>
           <a href="https://github.com/douxc/colors-cc/blob/main/LICENSE">GPL-3.0-or-later</a>
-          <a href="https://github.com/douxc/colors-cc/blob/main/THIRD_PARTY_NOTICES.md">Third-party notices</a>
+          <a href="https://github.com/douxc/colors-cc/blob/main/THIRD_PARTY_NOTICES.md">${messages.notices}</a>
           ${renderFeedbackLink(config, locale)}
         </nav>
       </div>

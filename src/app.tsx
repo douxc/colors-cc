@@ -1,9 +1,12 @@
 import { Hono } from 'hono'
-import { PUBLIC_COLOR_API_CONTRACT } from './contracts/colors-api'
 import { localizeHomeHtml } from './i18n'
+import { commonMessages } from './i18n'
+import { toolRuntimeScript } from './client/runtime'
+import { placeholderScript } from './client/placeholder'
 import llmsRoute, { llmsContent } from './routes/docs/llms'
 import openapiRoute from './routes/docs/openapi'
 import skillsRoute from './routes/docs/skills'
+import { createJapaneseDocsRoute } from './routes/docs/japanese'
 import { createToolsRoute } from './routes/pages/tools'
 import { createRobotsRoute } from './routes/seo/robots'
 import { createSeoAssetsRoute } from './routes/seo/assets'
@@ -30,7 +33,12 @@ type App = Hono<{ Bindings: Env; Variables: Variables }>
 
 const prefixInternalLinks = (html: string, locale: Locale): string => {
   const prefix = localePrefix(locale)
-  return html
+  const localizedHtml = locale === 'ja'
+    ? html.replaceAll('href="/llms.txt"', 'href="/ja/llms.txt"')
+      .replaceAll('href="/openapi.json"', 'href="/ja/openapi.json"')
+      .replaceAll('href="/skills/colors-cc.md"', 'href="/ja/skills/colors-cc.md"')
+    : html
+  return localizedHtml
     .replaceAll('href="/tools/', `href="${prefix}/tools/`)
     .replaceAll('href="/#', `href="${prefix}#`)
     .replaceAll('href="/"', `href="${prefix}"`)
@@ -66,12 +74,13 @@ const renderHome = (
   config: SiteConfig,
   locale: Locale
 ): string => {
-  const contract = { ...PUBLIC_COLOR_API_CONTRACT, baseUrl: config.apiBaseUrl }
   const html = template
     .replace('__THEME_INIT_SCRIPT__', themeInitScript)
     .replace('__THEME_CONTROL_SCRIPT__', `${themeControlScript}\n${siteNavScript}`)
     .replace('/*__SHARED_STYLES__*/', sharedStyles)
-    .replace('__COLOR_API_CONTRACT__', JSON.stringify(contract).replace(/</g, '\\u003c'))
+    .replace('__TOOL_RUNTIME__', toolRuntimeScript(locale))
+    .replace('__PLACEHOLDER_SCRIPT__', placeholderScript(locale, config.apiBaseUrl))
+    .replace('__SKIP_TO_CONTENT__', commonMessages[locale].skipToContent)
   return decorateDocument(localizeHomeHtml(html, locale), config, locale, '/')
 }
 
@@ -106,6 +115,9 @@ export const createApp = (config: SiteConfig, templates: HtmlTemplates): App => 
   app.route('/', llmsRoute)
   app.route('/', openapiRoute)
   app.route('/', skillsRoute)
+  if (config.edition === 'global' && config.enabledLocales.includes('ja')) {
+    app.route('/ja', createJapaneseDocsRoute())
+  }
   app.route('/', createRobotsRoute(config))
   app.route('/', createSitemapRoute(config))
   app.route('/', createSeoAssetsRoute(config))
