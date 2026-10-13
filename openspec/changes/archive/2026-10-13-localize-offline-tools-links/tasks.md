@@ -31,7 +31,7 @@
 
 - [x] 7.1 运行 `pnpm validate` 与 `pnpm test:e2e`，确认全量类型检查、单元测试与语言切换浏览器验证通过，且未引入非外链相关的断言回归。验证方式：两条命令均以 0 退出。
 - [x] 7.2 构建产物核对：运行 `pnpm build:worker` 后确认产物中不存在 `?lang=` 形式的目标地址，且不出现 `/en/` 或 `/zh-CN/` 前缀的 offline-tools 地址。验证方式：对 `dist/worker` 检索上述形态，结果均为零命中。
-- [ ] 7.3 线上核验（部署后）：分别获取 `https://colors-cc.top/`、`/zh`、`/ja` 三个首页，确认页面上五个 offline-tools 入口分别指向 `/image-compress/`、`/zh/image-compress/`、`/ja/image-compress/`，并抽验三条目标地址返回的语言与来源页面一致。验证方式：记录三个语言首页的入口地址与三条目标地址的 `<html lang>`。
+- [x] 7.3 线上核验（部署后）：分别获取 `https://colors-cc.top/`、`/zh`、`/ja` 三个首页，确认页面上五个 offline-tools 入口分别指向 `/image-compress/`、`/zh/image-compress/`、`/ja/image-compress/`，并抽验三条目标地址返回的语言与来源页面一致。验证方式：记录三个语言首页的入口地址与三条目标地址的 `<html lang>`。
 
 ## Workflow follow-up
 
