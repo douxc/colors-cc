@@ -25,11 +25,23 @@ export const globalSiteConfig = {
 
 // Legacy tool paths migrated to the standalone offline-tools app.
 // Single source of truth for both the Worker redirects and the home/nav links.
+//
+// offline-tools settled its language paths in 2026-10-13-add-trilingual-i18n:
+// English owns the root path, Chinese uses /zh and Japanese uses /ja. There is
+// deliberately no /en prefix. Note the path segment is the locale (`zh`), never
+// the BCP-47 tag from localeInfo (`zh-CN`) — the latter would 404.
+export const OFFLINE_TOOLS_PATH = '/image-compress/'
+const OFFLINE_TOOLS_ORIGIN = 'https://offline-tools.colors-cc.top'
+
+// Source legacy path -> target path on the offline-tools origin.
 export const TOOL_REDIRECTS = {
-  '/tools/image-compress': 'https://offline-tools.colors-cc.top/image-compress/'
+  '/tools/image-compress': OFFLINE_TOOLS_PATH
 } as const
 
 export const localePrefix = (locale: Locale): string => `/${locale}`
+
+export const offlineToolsUrl = (locale: Locale): string =>
+  `${OFFLINE_TOOLS_ORIGIN}${locale === 'en' ? '' : localePrefix(locale)}${OFFLINE_TOOLS_PATH}`
 
 export const localizedPath = (locale: Locale, path = ''): string => {
   const normalizedPath = !path || path === '/' ? '' : path.startsWith('/') ? path : `/${path}`

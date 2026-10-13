@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { API_BASE_URL, PALETTE_THEMES, PLACEHOLDER_EFFECTS, PLACEHOLDER_LIMITS } from '../../contracts/colors-api'
+import { offlineToolsUrl } from '../../site'
 import { createOpenApiRoute } from './openapi'
 
 export const japaneseLlmsContent = `# colors-cc.top — エージェント・LLM向けドキュメント
@@ -103,7 +104,7 @@ APIドキュメント上、すべてのエンドポイントは無料で回数�
 - 配色：https://colors-cc.top/ja/tools/random-palette
 - CSS色名：https://colors-cc.top/ja/tools/color-names
 - 動くSVG：https://colors-cc.top/ja/tools/fluid-placeholder
-- 画像圧縮・透かし・配置：https://offline-tools.colors-cc.top/image-compress/ — 別アプリです。端末内で処理し、画像をアップロードしません。
+- 画像圧縮・透かし・配置：${offlineToolsUrl('ja')} — 別アプリです。端末内で処理し、画像をアップロードしません。
 `
 
 export const japaneseSkillContent = `# SKILL: ColorsCC

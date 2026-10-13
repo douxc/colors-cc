@@ -1,4 +1,4 @@
-import { globalSiteConfig, htmlLang } from '../src/site'
+import { globalSiteConfig, htmlLang, offlineToolsUrl } from '../src/site'
 import { PAGE_PATHS } from '../src/routes/seo/sitemap'
 
 const nodeProcess = (globalThis as typeof globalThis & {
@@ -159,24 +159,31 @@ const verifyAssets = async (): Promise<void> => {
   ])
 }
 
-const OFFLINE_IMAGE_COMPRESS = 'https://offline-tools.colors-cc.top/image-compress/'
-
-const verifyRedirect = async (path: string): Promise<void> => {
+const verifyRedirect = async (path: string, expected: string): Promise<void> => {
   const url = `${siteOrigin}${path}`
   const response = await fetchWithRetry(url, { redirect: 'manual' })
 
   requireCondition(response.status === 301, `${url} returned ${response.status}; expected 301`)
   const location = response.headers.get('location') ?? ''
   requireCondition(
-    location === OFFLINE_IMAGE_COMPRESS,
-    `${url} redirected to ${location || '(missing)'}; expected ${OFFLINE_IMAGE_COMPRESS}`
+    location === expected,
+    `${url} redirected to ${location || '(missing)'}; expected ${expected}`
   )
   requireCondition(!location.includes('?'), `${url} kept a query in its redirect: ${location}`)
 }
 
 const verifyMigratedToolRedirects = async (): Promise<void> => {
-  const paths = ['/tools/image-compress', ...enabledLocales.map(locale => `/${locale}/tools/image-compress`)]
-  await Promise.all(paths.map(verifyRedirect))
+  // Each legacy address hands the visitor to the destination in the language it
+  // was already serving: no prefix for the default locale, /<locale> otherwise.
+  const paths = [
+    '/tools/image-compress',
+    ...enabledLocales.map(locale => `/${locale}/tools/image-compress`)
+  ]
+  await Promise.all(paths.map(path => {
+    const locale = enabledLocales.find(candidate => path.startsWith(`/${candidate}/`))
+      ?? globalSiteConfig.defaultLocale
+    return verifyRedirect(path, offlineToolsUrl(locale))
+  }))
 }
 
 const main = async (): Promise<void> => {

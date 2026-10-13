@@ -2,8 +2,8 @@ import { commonMessages } from '../i18n'
 import {
   localePrefix,
   documentationPath,
+  offlineToolsUrl,
   renderFeedbackLink,
-  TOOL_REDIRECTS,
   type Locale,
   type SiteConfig
 } from '../site'
@@ -49,7 +49,7 @@ export const renderSiteNav = (
         <div class="nav-menu-panel">
           <nav class="nav-links" aria-label="${messages.primaryNavigation}">
             <a class="nav-link" href="${prefix}#create"${currentAttribute('generate', section)}>${messages.generate}</a>
-            <a class="nav-link" href="${TOOL_REDIRECTS['/tools/image-compress']}">${messages.prepare}</a>
+            <a class="nav-link" href="${offlineToolsUrl(locale)}">${messages.prepare}</a>
             <a class="nav-link" href="${prefix}#for-ai">${messages.developers}</a>
           </nav>
           <div class="nav-actions">

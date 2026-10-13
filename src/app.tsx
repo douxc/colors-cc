@@ -16,6 +16,7 @@ import { createSeoMetadata, renderSeoHead } from './seo'
 import {
   htmlLang,
   localePrefix,
+  offlineToolsUrl,
   TOOL_REDIRECTS,
   type Locale,
   type SiteConfig
@@ -80,6 +81,7 @@ const renderHome = (
     .replace('/*__SHARED_STYLES__*/', sharedStyles)
     .replace('__TOOL_RUNTIME__', toolRuntimeScript(locale))
     .replace('__PLACEHOLDER_SCRIPT__', placeholderScript(locale, config.apiBaseUrl))
+    .replaceAll('__OFFLINE_TOOLS_URL__', offlineToolsUrl(locale))
     .replace('__SKIP_TO_CONTENT__', commonMessages[locale].skipToContent)
   return decorateDocument(localizeHomeHtml(html, locale), config, locale, '/')
 }
@@ -98,10 +100,11 @@ const createLocalizedPages = (
   })
 
   if (includeTools) {
-    // Migrated tool paths redirect to the standalone offline-tools app.
+    // Migrated tool paths redirect to the standalone offline-tools app, handing
+    // the visitor to the destination in the language they were already reading.
     // c.redirect does not carry the query string, so ?mode=* deep links are dropped.
-    for (const [source, target] of Object.entries(TOOL_REDIRECTS)) {
-      app.get(source, (c) => c.redirect(target, 301))
+    for (const source of Object.keys(TOOL_REDIRECTS)) {
+      app.get(source, (c) => c.redirect(offlineToolsUrl(locale), 301))
     }
     app.route('/tools', createToolsRoute(config, locale))
   }

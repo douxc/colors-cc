@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { createApp } from './app'
 import app from './index'
 import { PAGE_PATHS } from './routes/seo/sitemap'
-import { globalSiteConfig, localeInfo, localizedUrl, TOOL_REDIRECTS } from './site'
+import { globalSiteConfig, localeInfo, localizedUrl, offlineToolsUrl, TOOL_REDIRECTS } from './site'
 import { languageControlBlock } from './templates/language-control-html'
 import homeTemplate from './templates/home.html'
 
@@ -20,7 +20,25 @@ const verificationApp = createApp({
   home: homeTemplate
 })
 
-const OFFLINE_IMAGE_COMPRESS = 'https://offline-tools.colors-cc.top/image-compress/'
+// offline-tools settled its language paths: English owns the root path, Chinese
+// uses /zh and Japanese uses /ja. The locale sets below are deliberately spelled
+// out as literals so a change to the resolver cannot silently rewrite them.
+const OFFLINE_TOOLS_LINKS: Record<'en' | 'zh' | 'ja', string> = {
+  en: 'https://offline-tools.colors-cc.top/image-compress/',
+  zh: 'https://offline-tools.colors-cc.top/zh/image-compress/',
+  ja: 'https://offline-tools.colors-cc.top/ja/image-compress/'
+}
+
+// A page always hands the visitor to the destination in its own language.
+const OFFLINE_TOOLS_BY_ROUTE: Record<string, string> = {
+  '/': OFFLINE_TOOLS_LINKS.en,
+  '/en': OFFLINE_TOOLS_LINKS.en,
+  '/zh': OFFLINE_TOOLS_LINKS.zh,
+  '/ja': OFFLINE_TOOLS_LINKS.ja
+}
+
+const countHrefs = (html: string, url: string): RegExpMatchArray | null =>
+  html.match(new RegExp(`href="${url.replaceAll('.', '\\.')}"`, 'g'))
 
 const expectValidInlineScripts = (html: string): void => {
   const scripts = html.matchAll(/<script(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/g)
@@ -64,6 +82,10 @@ describe('colors-cc Frontend', () => {
       expect(text).toContain('colors-cc.top')
       expect(text).toContain('https://api.colors-cc.top/placeholder')
       expect(text).toContain('ENCODE HEX COLORS')
+      // The compressor moved to offline-tools; link the canonical address instead
+      // of the retired colors-cc path that only 301s there.
+      expect(text).toContain('https://offline-tools.colors-cc.top/image-compress/')
+      expect(text).not.toContain('colors-cc.top/tools/image-compress')
     })
 
     it('should serve /skills/colors-cc.md', async () => {
@@ -233,21 +255,36 @@ describe('colors-cc Frontend', () => {
     })
 
     describe('image-compress migration redirects', () => {
-      it('should map the legacy tool path to the offline-tools destination', () => {
-        expect(TOOL_REDIRECTS['/tools/image-compress']).toBe(OFFLINE_IMAGE_COMPRESS)
+      it('should resolve the offline-tools destination per locale', () => {
+        expect(TOOL_REDIRECTS['/tools/image-compress']).toBe('/image-compress/')
+        for (const [locale, expected] of Object.entries(OFFLINE_TOOLS_LINKS)) {
+          expect(offlineToolsUrl(locale as 'en' | 'zh' | 'ja'), locale).toBe(expected)
+        }
       })
 
-      it('should 301 the global legacy route without a query', async () => {
-        const res = await app.request('/tools/image-compress?mode=compress')
-        expect(res.status).toBe(301)
-        expect(res.headers.get('location')).toBe(OFFLINE_IMAGE_COMPRESS)
+      it('should never address a language prefix the destination does not serve', () => {
+        for (const locale of ['en', 'zh', 'ja'] as const) {
+          const url = offlineToolsUrl(locale)
+          // offline-tools has no /en prefix, and the path segment is the locale
+          // (`zh`), never the BCP-47 tag from localeInfo (`zh-CN`).
+          expect(url, locale).not.toContain('/en/')
+          expect(url, locale).not.toContain('zh-CN')
+          expect(url, locale).not.toContain('?')
+        }
       })
 
-      it('should 301 the global /en and /zh variants', async () => {
-        for (const path of ['/en/tools/image-compress', '/zh/tools/image-compress']) {
+      it('should 301 each legacy route to its own language', async () => {
+        const routes = [
+          { path: '/tools/image-compress', expected: OFFLINE_TOOLS_LINKS.en },
+          { path: '/en/tools/image-compress', expected: OFFLINE_TOOLS_LINKS.en },
+          { path: '/zh/tools/image-compress', expected: OFFLINE_TOOLS_LINKS.zh },
+          { path: '/ja/tools/image-compress', expected: OFFLINE_TOOLS_LINKS.ja }
+        ]
+
+        for (const { path, expected } of routes) {
           const res = await app.request(path)
           expect(res.status, path).toBe(301)
-          expect(res.headers.get('location'), path).toBe(OFFLINE_IMAGE_COMPRESS)
+          expect(res.headers.get('location'), path).toBe(expected)
         }
       })
 
@@ -255,8 +292,16 @@ describe('colors-cc Frontend', () => {
         for (const mode of ['compress', 'watermark', 'fan', 'unknown']) {
           const res = await app.request(`/tools/image-compress?mode=${mode}`)
           expect(res.status, mode).toBe(301)
-          expect(res.headers.get('location'), mode).toBe(OFFLINE_IMAGE_COMPRESS)
+          expect(res.headers.get('location'), mode).toBe(OFFLINE_TOOLS_LINKS.en)
           expect(res.headers.get('location'), mode).not.toContain('?')
+        }
+      })
+
+      it('should keep the destination query-free on localized routes', async () => {
+        for (const path of ['/zh/tools/image-compress', '/ja/tools/image-compress']) {
+          const res = await app.request(`${path}?mode=compress`)
+          expect(res.status, path).toBe(301)
+          expect(res.headers.get('location'), path).not.toContain('?')
         }
       })
 
@@ -377,7 +422,7 @@ describe('colors-cc Frontend', () => {
       expect(hero).toContain('data-brand-path="generate"')
       expect(hero).toContain('data-brand-path="prepare"')
       expect(hero).toContain('href="#create"')
-      expect(hero).toContain(`href="${OFFLINE_IMAGE_COMPRESS}"`)
+      expect(hero).toContain(`href="${OFFLINE_TOOLS_LINKS.en}"`)
       expect(showcase).toContain('data-workflow="generate"')
       expect(showcase).toContain('data-workflow="prepare"')
       expect(html).toContain('data-home-role="product-result"')
@@ -402,8 +447,27 @@ describe('colors-cc Frontend', () => {
       expect(showcase).toContain('href="/en/tools/converter"')
       expect(showcase).toContain('href="/en/tools/color-names"')
       expect(showcase).not.toContain('/tools/image-compress')
-      const offlineLinks = showcase.match(/href="https:\/\/offline-tools\.colors-cc\.top\/image-compress\/"/g)
+      const offlineLinks = countHrefs(showcase, OFFLINE_TOOLS_BY_ROUTE['/'])
       expect(offlineLinks).toHaveLength(3)
+    })
+
+    it('should send all five offline-tools entries on a page to the page language', async () => {
+      const routes = [
+        { path: '/', expected: OFFLINE_TOOLS_LINKS.en },
+        { path: '/en', expected: OFFLINE_TOOLS_LINKS.en },
+        { path: '/zh', expected: OFFLINE_TOOLS_LINKS.zh },
+        { path: '/ja', expected: OFFLINE_TOOLS_LINKS.ja }
+      ]
+
+      for (const { path, expected } of routes) {
+        const html = await (await app.request(path)).text()
+        // One nav entry, one hero entry, and the three prepare cards.
+        expect(countHrefs(html, expected), path).toHaveLength(5)
+        for (const [locale, url] of Object.entries(OFFLINE_TOOLS_LINKS)) {
+          if (url === expected) continue
+          expect(countHrefs(html, url), `${path} leaked ${locale}`).toBeNull()
+        }
+      }
     })
 
     it('should render /', async () => {
@@ -456,7 +520,7 @@ describe('colors-cc Frontend', () => {
       expect(workflowNavigation).toContain('href="/en/tools/converter"')
       expect(workflowNavigation).toContain('href="/en/tools/random-palette"')
       expect(workflowNavigation).toContain('href="/en/tools/color-names"')
-      expect(workflowNavigation).toContain(`href="${OFFLINE_IMAGE_COMPRESS}"`)
+      expect(workflowNavigation).toContain(`href="${OFFLINE_TOOLS_LINKS.en}"`)
       expect(html).not.toContain('class="task-rail"')
       expect(normalizedHtml).not.toContain('.hero { min-height: 610px;')
     })
@@ -474,11 +538,12 @@ describe('colors-cc Frontend', () => {
       expect(aiSection).toContain('href="/skills/colors-cc.md"')
     })
 
-    it('should localize the generate and prepare workflow on /, /en, and /zh', async () => {
+    it('should localize the generate and prepare workflow on /, /en, /zh, and /ja', async () => {
       const routes = [
         { path: '/', locale: 'en', prefix: '/en' },
         { path: '/en', locale: 'en', prefix: '/en' },
-        { path: '/zh', locale: 'zh', prefix: '/zh' }
+        { path: '/zh', locale: 'zh', prefix: '/zh' },
+        { path: '/ja', locale: 'ja', prefix: '/ja' }
       ] as const
 
       for (const route of routes) {
@@ -496,7 +561,7 @@ describe('colors-cc Frontend', () => {
         expect(workflowNavigation, route.path).toContain(`href="${route.prefix}/tools/converter"`)
         expect(workflowNavigation, route.path).toContain(`href="${route.prefix}/tools/random-palette"`)
         expect(workflowNavigation, route.path).toContain(`href="${route.prefix}/tools/color-names"`)
-        const offlineLinks = workflowNavigation.match(/href="https:\/\/offline-tools\.colors-cc\.top\/image-compress\/"/g)
+        const offlineLinks = countHrefs(workflowNavigation, OFFLINE_TOOLS_BY_ROUTE[route.path])
         expect(offlineLinks, route.path).toHaveLength(3)
 
         if (route.locale === 'zh') {
@@ -507,6 +572,12 @@ describe('colors-cc Frontend', () => {
           expect(workflowNavigation).toContain('配色')
           expect(workflowNavigation).toContain('颜色名称')
           expect(workflowNavigation).toContain('添加水印')
+        } else if (route.locale === 'ja') {
+          expect(html).toContain('画像と配色を作成・編集')
+          expect(workflowNavigation).toContain('プレースホルダー')
+          expect(workflowNavigation).toContain('色変換')
+          expect(workflowNavigation).toContain('配色')
+          expect(workflowNavigation).toContain('CSS色名')
         } else {
           expect(html).toContain('Create, prepare, and deliver visual assets.')
           expect(html).toContain('Create reproducible placeholders and curated palettes')
@@ -912,7 +983,7 @@ describe('colors-cc Frontend', () => {
         expect(html.match(/class="site-nav"/g), path).toHaveLength(1)
         expect(html, path).toContain('data-brand-mark="canvas-pair"')
         expect(html, path).toContain('>Generate</a>')
-        expect(html, path).toContain(`href="${OFFLINE_IMAGE_COMPRESS}">Prepare</a>`)
+        expect(html, path).toContain(`href="${OFFLINE_TOOLS_BY_ROUTE['/']}">Prepare</a>`)
         expect(html, path).toContain('>Developers</a>')
         expect(html, path).toContain('--paper: #f7f6f2;')
         expect(html, path).toContain('--ink: #1d1d1f;')
@@ -923,6 +994,36 @@ describe('colors-cc Frontend', () => {
         expect(html, path).not.toContain('__SITE_NAV__')
         expect(html, path).not.toContain('__SITE_FOOTER__')
         expectValidInlineScripts(html)
+      }
+    })
+
+    it('should point the shared Prepare entry at the page language on every locale shell', async () => {
+      const routes = [
+        { path: '/', expected: OFFLINE_TOOLS_LINKS.en },
+        { path: '/tools/converter', expected: OFFLINE_TOOLS_LINKS.en },
+        { path: '/en/tools/converter', expected: OFFLINE_TOOLS_LINKS.en },
+        { path: '/zh', expected: OFFLINE_TOOLS_LINKS.zh },
+        { path: '/zh/tools/converter', expected: OFFLINE_TOOLS_LINKS.zh },
+        { path: '/ja', expected: OFFLINE_TOOLS_LINKS.ja },
+        { path: '/ja/tools/converter', expected: OFFLINE_TOOLS_LINKS.ja }
+      ]
+
+      for (const { path, expected } of routes) {
+        const res = await app.request(path)
+        const html = await res.text()
+        const navigationStart = html.indexOf('<header class="site-nav"')
+        const navigation = html.slice(
+          navigationStart,
+          html.indexOf('</header>', navigationStart)
+        )
+
+        expect(res.status, path).toBe(200)
+        expect(navigationStart, path).toBeGreaterThan(-1)
+        expect(navigation, path).toContain(`href="${expected}"`)
+        for (const [locale, url] of Object.entries(OFFLINE_TOOLS_LINKS)) {
+          if (url === expected) continue
+          expect(navigation, `${path} leaked ${locale}`).not.toContain(`href="${url}"`)
+        }
       }
     })
 
@@ -1128,7 +1229,7 @@ describe('colors-cc Frontend', () => {
       const verifySeo = read('scripts/verify-seo.ts')
 
       expect(verifySeo).toContain('enabledLocales.length * PAGE_PATHS.length')
-      expect(verifySeo).toContain('OFFLINE_IMAGE_COMPRESS')
+      expect(verifySeo).toContain('offlineToolsUrl')
       expect(verifySeo).toContain('verifyRedirect')
       expect(verifySeo).toContain('verifyMigratedToolRedirects')
       expect(verifySeo).not.toContain('enabledLocales.length * 18')

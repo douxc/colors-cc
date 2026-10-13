@@ -42,4 +42,12 @@ describe('Japanese public documentation', () => {
       expect(html).toContain(`href="/ja/${path}"`)
     }
   })
+
+  it('sends Japanese documentation readers to the Japanese offline-tools path', async () => {
+    const llms = await (await app.request('/ja/llms.txt')).text()
+    expect(llms).toContain('https://offline-tools.colors-cc.top/ja/image-compress/')
+    // English owns the destination root, so the un-prefixed address would hand a
+    // Japanese reader an English page.
+    expect(llms).not.toContain('https://offline-tools.colors-cc.top/image-compress/')
+  })
 })

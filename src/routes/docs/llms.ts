@@ -5,6 +5,7 @@ import {
   PLACEHOLDER_EFFECTS,
   PLACEHOLDER_LIMITS
 } from '../../contracts/colors-api'
+import { offlineToolsUrl } from '../../site'
 
 const app = new Hono()
 
@@ -166,7 +167,7 @@ Get all standard CSS color names with their HEX values.
 None. All endpoints are free and unlimited.
 
 ## Web Tools
-- Image Compressor (browser-only, no upload): https://colors-cc.top/tools/image-compress - compress PNG/JPEG, add watermarks, and arrange images locally; files never leave the device.
+- Image Compressor (browser-only, no upload): ${offlineToolsUrl('en')} - compress PNG/JPEG, add watermarks, and arrange images locally; files never leave the device.
 - Placeholder Generator: https://colors-cc.top/
 - Universal Color Converter: https://colors-cc.top/tools/converter
 - Random Palette Generator: https://colors-cc.top/tools/random-palette
